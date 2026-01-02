@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "default": {
+      "net": true,
+      "read": true,
+      "run": true
+    }
+  },
+  "tasks": {
+    "start": "deno run -P src/main.ts",
+    "dev": "deno run -P --watch src/main.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "~/": "./"
+  }
+}
