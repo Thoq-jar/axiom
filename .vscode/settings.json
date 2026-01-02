@@ -1,4 +1,4 @@
 {
-    "editor.formatOnSave": true,
-    "explorer.excludeGitIgnore": true
+  "editor.formatOnSave": true,
+  "explorer.excludeGitIgnore": true
 }
