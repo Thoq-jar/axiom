@@ -25,7 +25,7 @@ interface SystemData {
 let lastCpuData: SystemData | null = null;
 
 export function renderCpuDetailsPage(): string {
-  return `
+  return /* HTML */ `
     <div class="container">
       <header>
         <div class="logo">
@@ -95,7 +95,7 @@ export function renderCpuDetailsPage(): string {
     renderDropdown(
       "cpu-processes",
       "Top Processes by CPU Usage",
-      `
+      /* HTML */ `
         <div class="mt-1" id="cpu-processes-list">
           <p class="text-secondary">Loading process information...</p>
         </div>
@@ -186,10 +186,10 @@ export function updateCpuDetails(data: SystemData): void {
     processesList && data.processes && Array.isArray(data.processes) &&
     data.processes.length > 0
   ) {
-    processesList.innerHTML = `
+    processesList.innerHTML = /* HTML */ `
       <div class="processes-grid">
         ${
-      data.processes.map((proc, idx) => `
+      data.processes.map((proc, idx) => /* HTML */ `
           <div class="process-item">
             <div class="process-item-content">
               <div class="process-item-name">${idx + 1}. ${proc.name}</div>

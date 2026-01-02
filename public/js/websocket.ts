@@ -28,7 +28,6 @@ let ws: WebSocket | null = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 let messageHandler: MessageHandler | null = null;
-let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function connectWebSocket(onMessage?: MessageHandler): void {
   if (onMessage) {
@@ -88,10 +87,6 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
         const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000);
         console.log(
           `Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`,
-        );
-        reconnectTimeout = setTimeout(
-          () => connectWebSocket(messageHandler),
-          delay,
         );
       } else {
         const errorBanner = document.getElementById("errorBanner");

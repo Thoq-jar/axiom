@@ -100,7 +100,7 @@ export function updateStatsFromData(data: SystemData): void {
 }
 
 export function renderMonitorPage(): string {
-  return `
+  return /* HTML */ `
     <div class="container">
       <header>
         <div class="logo">

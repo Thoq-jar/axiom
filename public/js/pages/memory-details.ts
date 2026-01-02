@@ -18,7 +18,7 @@ let lastMemoryData: SystemData | null = null;
 const memoryHistory: number[] = [];
 
 export function renderMemoryDetailsPage(): string {
-  return `
+  return /* HTML */ `
     <div class="container">
       <header>
         <div class="logo">
@@ -80,7 +80,7 @@ export function renderMemoryDetailsPage(): string {
     renderDropdown(
       "memory-breakdown",
       "Memory Breakdown",
-      `
+      /* HTML */ `
         <div class="mt-1">
           ${renderInfoRow("Total Memory", "--")}
           ${renderInfoRow("Used Memory", "--")}
@@ -97,7 +97,7 @@ export function renderMemoryDetailsPage(): string {
     renderDropdown(
       "memory-history",
       "Memory Usage History",
-      `
+      /* HTML */ `
         <div class="mt-1" id="memory-history-chart">
           <div class="flex-col">
             <div class="chart-label">Recent memory usage (last 10 updates)</div>
@@ -173,7 +173,7 @@ export function updateMemoryDetails(data: SystemData): void {
         : value > 60
         ? "var(--warning)"
         : "var(--accent)";
-      return `
+      return /* HTML */ `
         <div class="chart-bar-wrapper">
           <div class="chart-bar-container">
             <div class="chart-bar-fill" style="background: ${color}; height: ${height}%;"></div>

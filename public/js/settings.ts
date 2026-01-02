@@ -69,7 +69,7 @@ export function renderSettingsModal(): string {
     "slate",
   ];
 
-  return `
+  return /* HTML */ `
     <div class="modal-backdrop" id="modalBackdrop">
       <div class="modal">
         <div class="modal-header">

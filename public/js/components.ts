@@ -4,7 +4,7 @@ export function renderDropdown(
   content: string,
   isOpen: boolean = false,
 ): string {
-  return `
+  return /* HTML */ `
     <div class="dropdown" data-dropdown="${id}">
       <button type="button" class="dropdown-header" data-dropdown-toggle="${id}">
         <span>${title}</span>
@@ -33,7 +33,7 @@ export function initDropdowns(): void {
       if (!id) return;
 
       const content = document.querySelector(
-        `[data-dropdown-content="${id}"]`,
+        /* CSS */ `[data-dropdown-content="${id}"]`,
       ) as HTMLElement;
       if (!content) return;
 
@@ -68,7 +68,7 @@ export function renderDetailCard(
   subtitle: string = "",
   extra: string = "",
 ): string {
-  return `
+  return /* HTML */ `
     <div class="detail-card">
       <div class="detail-header">
         <div class="detail-icon">
@@ -86,7 +86,7 @@ export function renderDetailCard(
 }
 
 export function renderInfoRow(label: string, value: string): string {
-  return `
+  return /* HTML */ `
     <div class="info-row">
       <span class="info-label">${label}</span>
       <span class="info-value">${value}</span>

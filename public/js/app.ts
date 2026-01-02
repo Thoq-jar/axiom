@@ -17,7 +17,7 @@ import {
 import { initDropdowns } from "./components.ts";
 
 function renderAboutPage(): string {
-  return `
+  return /* HTML */ `
     <div class="container">
       <header>
         <div class="logo">

@@ -1,5 +1,5 @@
 export function renderDock(): string {
-  return `
+  return /* HTML */ `
     <div class="dock" id="dock">
       <div class="dock-item active" data-page="monitor">
         <i class="fa-solid fa-chart-line"></i>

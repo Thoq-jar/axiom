@@ -1,3 +1,5 @@
+/// <reference lib="deno.ns" />
+
 async function findTsFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
   for await (const entry of Deno.readDir(dir)) {
