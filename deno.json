@@ -3,7 +3,8 @@
     "default": {
       "net": true,
       "read": true,
-      "run": true
+      "run": true,
+      "all": true
     }
   },
   "compilerOptions": {
