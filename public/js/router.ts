@@ -24,8 +24,11 @@ export function navigate(page: string): void {
   currentPage = page;
   updateDockActive(page);
 
-  if ((globalThis as any).onPageChange) {
-    (globalThis as any).onPageChange(page);
+  const globalWithOnPageChange = globalThis as typeof globalThis & {
+    onPageChange?: (page: string) => void;
+  };
+  if (typeof globalWithOnPageChange.onPageChange === "function") {
+    globalWithOnPageChange.onPageChange(page);
   }
 }
 

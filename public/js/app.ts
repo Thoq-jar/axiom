@@ -39,7 +39,7 @@ function renderAboutPage(): string {
           Monitor your system resources in real-time with WebSocket streaming.
         </p>
         <div class="about-footer">
-          <p class="about-version">Version 1.0.0</p>
+          <p class="about-version">Version 1.0.1</p>
         </div>
       </div>
     </div>
@@ -61,18 +61,19 @@ function init(): void {
 
   initRouter();
 
-  (globalThis as any).onPageChange = (page: string) => {
-    setTimeout(() => {
-      initSettings();
-      if (page === "monitor") {
-        connectWebSocket(updateStatsFromData);
-      } else if (page === "cpu-details") {
-        initCpuDetails();
-      } else if (page === "memory-details") {
-        initMemoryDetails();
-      }
-    }, 100);
-  };
+  (globalThis as typeof globalThis & { onPageChange?: (page: string) => void })
+    .onPageChange = (page: string) => {
+      setTimeout(() => {
+        initSettings();
+        if (page === "monitor") {
+          connectWebSocket(updateStatsFromData);
+        } else if (page === "cpu-details") {
+          initCpuDetails();
+        } else if (page === "memory-details") {
+          initMemoryDetails();
+        }
+      }, 100);
+    };
 
   const initialPage = getCurrentPage();
   if (initialPage === "monitor") {
