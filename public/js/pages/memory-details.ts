@@ -122,16 +122,23 @@ export function updateMemoryDetails(data: SystemData): void {
   const usedPercent = ((mem.used / mem.total) * 100).toFixed(1);
 
   const cards = document.querySelectorAll("#memoryDetailsGrid .detail-card");
-  if (cards.length >= 4) {
-    const totalEl = cards[0].querySelector(".detail-value");
-    const usedEl = cards[1].querySelector(".detail-value");
-    const freeEl = cards[2].querySelector(".detail-value");
-    const percentEl = cards[3].querySelector(".detail-value");
+  const TOTAL_MEMORY_CARD = 0;
+  const USED_MEMORY_CARD = 1;
+  const FREE_MEMORY_CARD = 2;
+  const USAGE_PERCENTAGE_CARD = 3;
 
-    if (totalEl) totalEl.textContent = formatBytes(mem.total);
-    if (usedEl) usedEl.textContent = formatBytes(mem.used);
-    if (freeEl) freeEl.textContent = formatBytes(mem.free);
-    if (percentEl) percentEl.textContent = usedPercent + "%";
+  if (cards.length >= 4) {
+    const totalValue = cards[TOTAL_MEMORY_CARD].querySelector(".detail-value");
+    const usedValue = cards[USED_MEMORY_CARD].querySelector(".detail-value");
+    const freeValue = cards[FREE_MEMORY_CARD].querySelector(".detail-value");
+    const percentValue = cards[USAGE_PERCENTAGE_CARD].querySelector(
+      ".detail-value",
+    );
+
+    if (totalValue) totalValue.textContent = formatBytes(mem.total);
+    if (usedValue) usedValue.textContent = formatBytes(mem.used);
+    if (freeValue) freeValue.textContent = formatBytes(mem.free);
+    if (percentValue) percentValue.textContent = usedPercent + "%";
   }
 
   const breakdown = document.querySelector(
@@ -139,22 +146,54 @@ export function updateMemoryDetails(data: SystemData): void {
   );
   if (breakdown) {
     const rows = breakdown.querySelectorAll(".info-row");
+    const TOTAL_MEMORY_ROW = 0;
+    const USED_MEMORY_ROW = 1;
+    const FREE_MEMORY_ROW = 2;
+    const USAGE_PERCENTAGE_ROW = 3;
+    const CACHED_ROW = 4;
+    const AVAILABLE_FOR_APPS_ROW = 5;
+
     if (rows.length >= 6) {
-      const value0 = rows[0].querySelector(".info-value");
-      if (value0) value0.textContent = formatBytes(mem.total);
-      const value1 = rows[1].querySelector(".info-value");
-      if (value1) value1.textContent = formatBytes(mem.used);
-      const value2 = rows[2].querySelector(".info-value");
-      if (value2) value2.textContent = formatBytes(mem.free);
-      const value3 = rows[3].querySelector(".info-value");
-      if (value3) value3.textContent = usedPercent + "%";
-      const value4 = rows[4].querySelector(".info-value");
-      if (value4) {
-        const cached = mem.total - mem.used - mem.free;
-        value4.textContent = cached > 0 ? formatBytes(cached) : "N/A";
+      const totalMemoryValue = rows[TOTAL_MEMORY_ROW].querySelector(
+        ".info-value",
+      );
+      if (totalMemoryValue) {
+        totalMemoryValue.textContent = formatBytes(mem.total);
       }
-      const value5 = rows[5].querySelector(".info-value");
-      if (value5) value5.textContent = formatBytes(mem.free);
+
+      const usedMemoryValue = rows[USED_MEMORY_ROW].querySelector(
+        ".info-value",
+      );
+      if (usedMemoryValue) {
+        usedMemoryValue.textContent = formatBytes(mem.used);
+      }
+
+      const freeMemoryValue = rows[FREE_MEMORY_ROW].querySelector(
+        ".info-value",
+      );
+      if (freeMemoryValue) {
+        freeMemoryValue.textContent = formatBytes(mem.free);
+      }
+
+      const usagePercentageValue = rows[USAGE_PERCENTAGE_ROW].querySelector(
+        ".info-value",
+      );
+      if (usagePercentageValue) {
+        usagePercentageValue.textContent = usedPercent + "%";
+      }
+
+      const cachedValue = rows[CACHED_ROW].querySelector(".info-value");
+      if (cachedValue) {
+        const cached = mem.total - mem.used - mem.free;
+        cachedValue.textContent = cached > 0 ? formatBytes(cached) : "N/A";
+      }
+
+      const availableForAppsValue = rows[AVAILABLE_FOR_APPS_ROW].querySelector(
+        ".info-value",
+      );
+      if (availableForAppsValue) {
+        availableForAppsValue.textContent = formatBytes(mem.free);
+      }
     }
   }
 
@@ -185,19 +224,21 @@ export function updateMemoryDetails(data: SystemData): void {
   }
 
   if (cards.length >= 4) {
-    const totalExtra = cards[0].querySelector(".detail-extra");
+    const totalExtra = cards[TOTAL_MEMORY_CARD].querySelector(".detail-extra");
     if (totalExtra) {
       totalExtra.textContent = `Total system memory available`;
     }
-    const usedExtra = cards[1].querySelector(".detail-extra");
+    const usedExtra = cards[USED_MEMORY_CARD].querySelector(".detail-extra");
     if (usedExtra) {
       usedExtra.textContent = `${usedPercent}% of total memory in use`;
     }
-    const freeExtra = cards[2].querySelector(".detail-extra");
+    const freeExtra = cards[FREE_MEMORY_CARD].querySelector(".detail-extra");
     if (freeExtra) {
       freeExtra.textContent = `Available for new processes`;
     }
-    const percentExtra = cards[3].querySelector(".detail-extra");
+    const percentExtra = cards[USAGE_PERCENTAGE_CARD].querySelector(
+      ".detail-extra",
+    );
     if (percentExtra) {
       percentExtra.textContent = `${formatBytes(mem.used)} used of ${
         formatBytes(mem.total)

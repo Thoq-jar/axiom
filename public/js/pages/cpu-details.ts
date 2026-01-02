@@ -81,7 +81,6 @@ export function renderCpuDetailsPage(): string {
         <div class="mt-1">
           ${renderInfoRow("Architecture", "--")}
           ${renderInfoRow("Cores", "--")}
-          ${renderInfoRow("Threads", "--")}
           ${renderInfoRow("Frequency", "--")}
           ${renderInfoRow("Cache Size", "--")}
           ${renderInfoRow("Vendor", "--")}
@@ -113,36 +112,52 @@ export function updateCpuDetails(data: SystemData): void {
   const cpuInfo = data.cpu_info || {};
 
   const cards = document.querySelectorAll("#cpuDetailsGrid .detail-card");
+  const CPU_USAGE_CARD = 0;
+  const LOAD_AVERAGE_CARD = 1;
+  const CORE_COUNT_CARD = 2;
+
   if (cards.length >= 3) {
     if (cpuUsage !== null && cpuUsage !== undefined) {
-      const cpuValueEl = cards[0].querySelector(".detail-value");
-      if (cpuValueEl) {
-        cpuValueEl.textContent = cpuUsage.toFixed(1) + "%";
+      const cpuUsageValue = cards[CPU_USAGE_CARD].querySelector(
+        ".detail-value",
+      );
+      if (cpuUsageValue) {
+        cpuUsageValue.textContent = cpuUsage.toFixed(1) + "%";
       }
-      const cpuExtraEl = cards[0].querySelector(".detail-extra");
-      if (cpuExtraEl) {
-        cpuExtraEl.textContent = `Current CPU utilization: ${
+      const cpuUsageExtra = cards[CPU_USAGE_CARD].querySelector(
+        ".detail-extra",
+      );
+      if (cpuUsageExtra) {
+        cpuUsageExtra.textContent = `Current CPU utilization: ${
           cpuUsage.toFixed(1)
         }%`;
       }
     }
 
-    const loadAvgEl = cards[1].querySelector(".detail-value");
-    if (loadAvgEl && cpuUsage !== null && cpuUsage !== undefined) {
+    const loadAverageValue = cards[LOAD_AVERAGE_CARD].querySelector(
+      ".detail-value",
+    );
+    if (loadAverageValue && cpuUsage !== null && cpuUsage !== undefined) {
       const load = (cpuUsage / 100).toFixed(2);
-      loadAvgEl.textContent = load;
-      const loadExtraEl = cards[1].querySelector(".detail-extra");
-      if (loadExtraEl) {
-        loadExtraEl.textContent = `System load average (1 min)`;
+      loadAverageValue.textContent = load;
+      const loadAverageExtra = cards[LOAD_AVERAGE_CARD].querySelector(
+        ".detail-extra",
+      );
+      if (loadAverageExtra) {
+        loadAverageExtra.textContent = `System load average (1 min)`;
       }
     }
 
-    const processEl = cards[2].querySelector(".detail-value");
-    if (processEl && cpuInfo.cores) {
-      processEl.textContent = cpuInfo.cores.toString();
-      const processExtraEl = cards[2].querySelector(".detail-extra");
-      if (processExtraEl) {
-        processExtraEl.textContent = `CPU cores available`;
+    const coreCountValue = cards[CORE_COUNT_CARD].querySelector(
+      ".detail-value",
+    );
+    if (coreCountValue && cpuInfo.cores) {
+      coreCountValue.textContent = cpuInfo.cores.toString();
+      const coreCountExtra = cards[CORE_COUNT_CARD].querySelector(
+        ".detail-extra",
+      );
+      if (coreCountExtra) {
+        coreCountExtra.textContent = `CPU cores available`;
       }
     }
   }
@@ -152,32 +167,50 @@ export function updateCpuDetails(data: SystemData): void {
   );
   if (advancedDropdown) {
     const rows = advancedDropdown.querySelectorAll(".info-row");
-    if (rows.length >= 7) {
-      const value0 = rows[0].querySelector(".info-value");
-      if (value0) value0.textContent = cpuInfo.arch || "Unknown";
-      const value1 = rows[1].querySelector(".info-value");
-      if (value1) value1.textContent = (cpuInfo.cores || "Unknown").toString();
-      const value2 = rows[2].querySelector(".info-value");
-      if (value2) {
-        value2.textContent = (cpuInfo.cores ? cpuInfo.cores * 2 : "Unknown")
-          .toString();
+
+    const ARCHITECTURE_ROW = 0;
+    const CORES_ROW = 1;
+    const FREQUENCY_ROW = 2;
+    const CACHE_SIZE_ROW = 3;
+    const VENDOR_ROW = 4;
+    const MODEL_ROW = 5;
+
+    if (rows.length >= 6) {
+      const architectureValue = rows[ARCHITECTURE_ROW].querySelector(
+        ".info-value",
+      );
+      if (architectureValue) {
+        architectureValue.textContent = cpuInfo.arch || "Unknown";
       }
-      const value3 = rows[3].querySelector(".info-value");
-      if (value3) {
+
+      const coresValue = rows[CORES_ROW].querySelector(".info-value");
+      if (coresValue) {
+        coresValue.textContent = (cpuInfo.cores || "Unknown").toString();
+      }
+
+      const frequencyValue = rows[FREQUENCY_ROW].querySelector(".info-value");
+      if (frequencyValue) {
         const freq = cpuInfo.freq
           ? `${(cpuInfo.freq / 1000).toFixed(2)} GHz`
           : "Unknown";
-        value3.textContent = freq;
+        frequencyValue.textContent = freq;
       }
-      const value4 = rows[4].querySelector(".info-value");
-      if (value4) {
+
+      const cacheSizeValue = rows[CACHE_SIZE_ROW].querySelector(".info-value");
+      if (cacheSizeValue) {
         const cache = cpuInfo.cache ? `${cpuInfo.cache} MB` : "Unknown";
-        value4.textContent = cache;
+        cacheSizeValue.textContent = cache;
       }
-      const value5 = rows[5].querySelector(".info-value");
-      if (value5) value5.textContent = cpuInfo.vendor || "Unknown";
-      const value6 = rows[6].querySelector(".info-value");
-      if (value6) value6.textContent = cpuInfo.model || "Unknown";
+
+      const vendorValue = rows[VENDOR_ROW].querySelector(".info-value");
+      if (vendorValue) {
+        vendorValue.textContent = cpuInfo.vendor || "Unknown";
+      }
+
+      const modelValue = rows[MODEL_ROW].querySelector(".info-value");
+      if (modelValue) {
+        modelValue.textContent = cpuInfo.model || "Unknown";
+      }
     }
   }
 

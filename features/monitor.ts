@@ -158,7 +158,6 @@ export const start_monitor = async () => {
       }
     }
 
-    // Fallback for Mac
     if (isMac) {
       try {
         const command = new Deno.Command("system_profiler", {
