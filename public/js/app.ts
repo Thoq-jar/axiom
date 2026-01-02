@@ -14,6 +14,7 @@ import {
   initMemoryDetails,
   renderMemoryDetailsPage,
 } from "./pages/memory-details.ts";
+import { initDropdowns } from "./components.ts";
 
 function renderAboutPage(): string {
   return `
@@ -53,6 +54,7 @@ function init(): void {
 
   initTheme();
   initDock(navigate);
+  initDropdowns();
 
   registerRoute("monitor", renderMonitorPage);
   registerRoute("cpu-details", renderCpuDetailsPage);

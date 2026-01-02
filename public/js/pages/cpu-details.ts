@@ -1,5 +1,4 @@
 import {
-  initDropdowns,
   renderDetailCard,
   renderDropdown,
   renderInfoRow,
@@ -166,7 +165,7 @@ export function updateCpuDetails(data: SystemData): void {
       const value3 = rows[3].querySelector(".info-value");
       if (value3) {
         const freq = cpuInfo.freq
-          ? `${cpuInfo.freq.toFixed(2)} GHz`
+          ? `${(cpuInfo.freq / 1000).toFixed(2)} GHz`
           : "Unknown";
         value3.textContent = freq;
       }
@@ -216,7 +215,6 @@ export function updateCpuDetails(data: SystemData): void {
 
 export function initCpuDetails(): void {
   setTimeout(() => {
-    initDropdowns();
     connectWebSocket((data) => {
       updateCpuDetails(data);
     });

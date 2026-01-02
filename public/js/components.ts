@@ -6,7 +6,7 @@ export function renderDropdown(
 ): string {
   return `
     <div class="dropdown" data-dropdown="${id}">
-      <button class="dropdown-header" data-dropdown-toggle="${id}">
+      <button type="button" class="dropdown-header" data-dropdown-toggle="${id}">
         <span>${title}</span>
         <i class="fa-solid fa-chevron-down dropdown-icon"></i>
       </button>
@@ -19,29 +19,46 @@ export function renderDropdown(
   `;
 }
 
+let dropdownListenerAttached = false;
+
 export function initDropdowns(): void {
-  document.querySelectorAll("[data-dropdown-toggle]").forEach((toggle) => {
-    toggle.addEventListener("click", () => {
-      const id = (toggle as HTMLElement).dataset.dropdownToggle;
-      const content = document.querySelector(`[data-dropdown-content="${id}"]`);
-      const icon = toggle.querySelector(".dropdown-icon");
-      const dropdown = toggle.closest(".dropdown");
+  if (!dropdownListenerAttached) {
+    document.body.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
 
-      if (content) {
-        const isOpen = !content.classList.contains("hidden");
-        content.classList.toggle("hidden", isOpen);
-        if (dropdown) {
-          dropdown.classList.toggle("open", !isOpen);
-        }
+      const toggle = target.closest("[data-dropdown-toggle]") as HTMLElement;
+      if (!toggle) return;
 
-        if (icon) {
-          (icon as HTMLElement).style.transform = isOpen
-            ? "rotate(0deg)"
-            : "rotate(180deg)";
-        }
+      const id = toggle.dataset.dropdownToggle;
+      if (!id) return;
+
+      const content = document.querySelector(
+        `[data-dropdown-content="${id}"]`,
+      ) as HTMLElement;
+      if (!content) return;
+
+      if (content.contains(target) && !toggle.contains(target)) {
+        return;
+      }
+
+      const icon = toggle.querySelector(".dropdown-icon") as HTMLElement;
+      const dropdown = toggle.closest(".dropdown") as HTMLElement;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const isOpen = !content.classList.contains("hidden");
+      content.classList.toggle("hidden", isOpen);
+      if (dropdown) {
+        dropdown.classList.toggle("open", !isOpen);
+      }
+
+      if (icon) {
+        icon.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
       }
     });
-  });
+    dropdownListenerAttached = true;
+  }
 }
 
 export function renderDetailCard(

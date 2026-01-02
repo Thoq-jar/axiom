@@ -56,6 +56,19 @@ export function initSettings(): void {
 }
 
 export function renderSettingsModal(): string {
+  const currentTheme = localStorage.getItem("theme") || "violet";
+  const themes = [
+    "violet",
+    "blue",
+    "cyan",
+    "emerald",
+    "rose",
+    "femboy",
+    "orange",
+    "amber",
+    "slate",
+  ];
+
   return `
     <div class="modal-backdrop" id="modalBackdrop">
       <div class="modal">
@@ -69,14 +82,15 @@ export function renderSettingsModal(): string {
         <div class="modal-section">
           <div class="section-title">Accent Color</div>
           <div class="color-grid">
-            <div class="color-option active" data-color="violet" title="Violet"></div>
-            <div class="color-option" data-color="blue" title="Blue"></div>
-            <div class="color-option" data-color="cyan" title="Cyan"></div>
-            <div class="color-option" data-color="emerald" title="Emerald"></div>
-            <div class="color-option" data-color="rose" title="Rose"></div>
-            <div class="color-option" data-color="orange" title="Orange"></div>
-            <div class="color-option" data-color="amber" title="Amber"></div>
-            <div class="color-option" data-color="slate" title="Slate"></div>
+            ${
+    themes.map((theme) =>
+      `<div class="color-option${
+        theme === currentTheme ? " active" : ""
+      }" data-color="${theme}" title="${
+        theme.charAt(0).toUpperCase() + theme.slice(1)
+      }"></div>`
+    ).join("\n            ")
+  }
           </div>
         </div>
         

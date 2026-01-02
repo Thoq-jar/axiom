@@ -1,5 +1,4 @@
 import {
-  initDropdowns,
   renderDetailCard,
   renderDropdown,
   renderInfoRow,
@@ -211,7 +210,6 @@ export function updateMemoryDetails(data: SystemData): void {
 
 export function initMemoryDetails(): void {
   setTimeout(() => {
-    initDropdowns();
     connectWebSocket((data) => {
       updateMemoryDetails(data);
     });
