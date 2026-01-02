@@ -7,7 +7,7 @@ async function findTsFiles(dir: string): Promise<string[]> {
     if (entry.isDirectory) {
       const subFiles = await findTsFiles(fullPath);
       files.push(...subFiles);
-    } else if (entry.name.endsWith(".ts")) {
+    } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
       files.push(fullPath);
     }
   }
@@ -15,35 +15,33 @@ async function findTsFiles(dir: string): Promise<string[]> {
 }
 
 async function bundleFile(tsPath: string): Promise<void> {
-  const jsPath = tsPath.replace(/\.ts$/, ".js");
-  const outputDir = jsPath.substring(0, jsPath.lastIndexOf("/"));
+  const jsPath = tsPath.replace(/\.tsx?$/, ".js");
 
   try {
-    const result = await Deno.bundle({
-      entrypoints: [tsPath],
-      outputDir: outputDir,
-      platform: "browser",
-      minify: false,
+    const command = new Deno.Command(Deno.execPath(), {
+      args: [
+        "bundle",
+        "--unstable-bundle",
+        tsPath,
+      ],
+      stdout: "piped",
+      stderr: "piped",
     });
 
-    console.log(result);
+    const { code, stdout, stderr } = await command.output();
 
-    if (result && typeof result === "object" && "outputs" in result) {
-      const outputs =
-        (result as { outputs?: Record<string, string> }).outputs || {};
-      const outputFiles = Object.keys(outputs);
-      if (outputFiles.length > 0) {
-        const content = outputs[outputFiles[0]];
-        await Deno.writeTextFile(jsPath, content);
-        console.log(`Bundled ${tsPath} -> ${jsPath}`);
-      }
-    } else if (typeof result === "string") {
-      await Deno.writeTextFile(jsPath, result);
-      console.log(`Bundled ${tsPath} -> ${jsPath}`);
+    if (code !== 0) {
+      const errorText = new TextDecoder().decode(stderr);
+      console.error(`Error bundling ${tsPath}:`);
+      console.error(errorText);
+      return;
     }
+
+    const bundledCode = new TextDecoder().decode(stdout);
+    await Deno.writeTextFile(jsPath, bundledCode);
+    console.log(`Bundled ${tsPath} -> ${jsPath}`);
   } catch (error) {
     console.error(`Error bundling ${tsPath}:`, error);
-    throw error;
   }
 }
 
@@ -67,7 +65,9 @@ async function watchAndBundle(): Promise<void> {
   const watcher = Deno.watchFs("public/js");
   for await (const event of watcher) {
     if (event.kind === "modify" || event.kind === "create") {
-      const changedFiles = event.paths.filter((path) => path.endsWith(".ts"));
+      const changedFiles = event.paths.filter((path) =>
+        path.endsWith(".ts") || path.endsWith(".tsx")
+      );
       if (changedFiles.length > 0) {
         console.log(`Detected changes in ${changedFiles.join(", ")}`);
         for (const file of changedFiles) {

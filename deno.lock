@@ -1,0 +1,31 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/assert@1": "1.0.16",
+    "jsr:@std/internal@^1.0.12": "1.0.12"
+  },
+  "jsr": {
+    "@std/assert@1.0.16": {
+      "integrity": "6a7272ed1eaa77defe76e5ff63ca705d9c495077e2d5fd0126d2b53fc5bd6532",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
+    }
+  },
+  "remote": {
+    "https://esm.sh/preact@10.19.3": "e665fa7cfbac33461e7ecf79f8b361a8f831b3e7edc8089d1f95e05fed6a8be1",
+    "https://esm.sh/preact@10.19.3/denonext/hooks.mjs": "1e6dcdc31a6d4c4fecf1665538f892bb33bbee8fee0f3c664b9db5362871849f",
+    "https://esm.sh/preact@10.19.3/denonext/jsx-runtime.mjs": "a151a1f662b5e3023385100c46e2c4142489d3b982cb094a08af8a3ca7b30c1d",
+    "https://esm.sh/preact@10.19.3/denonext/preact.mjs": "6233d303372951bb69428bcd7fd4a6617fc721edee334f228ae8b2e5ab6a2e7f",
+    "https://esm.sh/preact@10.19.3/hooks": "ec6d1409b12bce994ec7f0711b17e41424e339727af83fb471acc63952e35278",
+    "https://esm.sh/preact@10.19.3/jsx-runtime": "c0a489946b2a492ed590365ce1dbb2606adef27635722687b7d6320f57faf435"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1"
+    ]
+  }
+}

@@ -42,8 +42,6 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
 
     ws.onopen = () => {
       console.log("WebSocket connected");
-      const errorBanner = document.getElementById("errorBanner");
-      if (errorBanner) errorBanner.style.display = "none";
       reconnectAttempts = 0;
 
       const savedInterval = localStorage.getItem("refreshInterval");
@@ -58,14 +56,8 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
     ws.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as SystemData;
-        if (data.error) {
-          console.error("Error from server:", data.error);
-          const errorBanner = document.getElementById("errorBanner");
-          if (errorBanner) errorBanner.style.display = "block";
-        } else {
-          if (messageHandler) {
-            messageHandler(data);
-          }
+        if (messageHandler) {
+          messageHandler(data);
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
@@ -74,8 +66,9 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
 
     ws.onerror = (error: Event) => {
       console.error("WebSocket error:", error);
-      const errorBanner = document.getElementById("errorBanner");
-      if (errorBanner) errorBanner.style.display = "block";
+      if (messageHandler) {
+        messageHandler({ error: "WebSocket error occurred" });
+      }
     };
 
     ws.onclose = () => {
@@ -88,15 +81,22 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
         console.log(
           `Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`,
         );
+        setTimeout(() => {
+          connectWebSocket(messageHandler!);
+        }, delay);
       } else {
-        const errorBanner = document.getElementById("errorBanner");
-        if (errorBanner) errorBanner.style.display = "block";
+        if (messageHandler) {
+          messageHandler({
+            error: "Connection lost. Attempting to reconnect...",
+          });
+        }
       }
     };
   } catch (error) {
     console.error("Error creating WebSocket:", error);
-    const errorBanner = document.getElementById("errorBanner");
-    if (errorBanner) errorBanner.style.display = "block";
+    if (messageHandler) {
+      messageHandler({ error: "Failed to connect to WebSocket" });
+    }
   }
 }
 

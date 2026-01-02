@@ -89,26 +89,10 @@ export function applyTheme(themeName: string): void {
     }
   }
 
-  document.querySelectorAll(".color-option").forEach((opt) => {
-    opt.classList.toggle(
-      "active",
-      (opt as HTMLElement).dataset.color === themeName,
-    );
-  });
-
   currentTheme = themeName;
   localStorage.setItem("theme", themeName);
 }
 
 export function initTheme(): void {
   applyTheme(currentTheme);
-
-  document.querySelectorAll(".color-option").forEach((option) => {
-    option.addEventListener("click", () => {
-      const color = (option as HTMLElement).dataset.color;
-      if (color) {
-        applyTheme(color);
-      }
-    });
-  });
 }
