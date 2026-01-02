@@ -68,7 +68,7 @@ export function renderCpuDetailsPage(): string {
       "Core Count",
       "fa-solid fa-list",
       "--",
-      "How many CPU cores are present",
+      "CPU cores present",
       "Loading...",
     )
   }
