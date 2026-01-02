@@ -1,12 +1,22 @@
-import { formatBytes } from './utils.js';
+import { formatBytes } from "./utils.ts";
 
-let lastData = {};
+interface SystemData {
+  cpu_usage_percent?: number | null;
+  memory?: {
+    used: number;
+    total: number;
+    free: number;
+  };
+  gpu?: number | string | null;
+}
 
-export function getLastData() {
+let lastData: SystemData = {};
+
+export function getLastData(): SystemData {
   return lastData;
 }
 
-export function updateStatsFromData(data) {
+export function updateStatsFromData(data: SystemData): void {
   const errorBanner = document.getElementById("errorBanner");
   if (errorBanner) errorBanner.style.display = "none";
 
@@ -21,7 +31,7 @@ export function updateStatsFromData(data) {
     const cpuDetails = document.getElementById("cpuDetails");
     if (cpuDetails) cpuDetails.textContent = "Current utilization";
     const cpuProgress = document.getElementById("cpuProgress");
-    if (cpuProgress) cpuProgress.style.width = cpu + "%";
+    if (cpuProgress) (cpuProgress as HTMLElement).style.width = cpu + "%";
   } else {
     const cpuValue = document.getElementById("cpuValue");
     if (cpuValue) cpuValue.textContent = "N/A";
@@ -39,10 +49,14 @@ export function updateStatsFromData(data) {
     }
     if (memEl) memEl.textContent = usedPercent + "%";
     const memDetails = document.getElementById("memDetails");
-    if (memDetails) memDetails.textContent = 
-      formatBytes(mem.used) + " / " + formatBytes(mem.total);
+    if (memDetails) {
+      memDetails.textContent = formatBytes(mem.used) + " / " +
+        formatBytes(mem.total);
+    }
     const memProgress = document.getElementById("memProgress");
-    if (memProgress) memProgress.style.width = usedPercent + "%";
+    if (memProgress) {
+      (memProgress as HTMLElement).style.width = usedPercent + "%";
+    }
   } else {
     const memValue = document.getElementById("memValue");
     if (memValue) memValue.textContent = "N/A";
@@ -76,16 +90,16 @@ export function updateStatsFromData(data) {
   const lastUpdate = document.getElementById("lastUpdate");
   if (lastUpdate) {
     lastUpdate.textContent = new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   }
 
   lastData = data;
 }
 
-export function renderMonitorPage() {
+export function renderMonitorPage(): string {
   return `
     <div class="container">
       <header>
@@ -172,4 +186,3 @@ export function renderMonitorPage() {
     </div>
   `;
 }
-

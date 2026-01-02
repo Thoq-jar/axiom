@@ -1,13 +1,21 @@
-import { renderDock, initDock } from './dock.js';
-import { registerRoute, navigate, initRouter, getCurrentPage } from './router.js';
-import { renderMonitorPage, updateStatsFromData } from './monitor.js';
-import { renderSettingsModal, initSettings } from './settings.js';
-import { initTheme } from './theme.js';
-import { connectWebSocket } from './websocket.js';
-import { renderCpuDetailsPage, initCpuDetails } from './pages/cpu-details.js';
-import { renderMemoryDetailsPage, initMemoryDetails } from './pages/memory-details.js';
+import { initDock, renderDock } from "./dock.ts";
+import {
+  getCurrentPage,
+  initRouter,
+  navigate,
+  registerRoute,
+} from "./router.ts";
+import { renderMonitorPage, updateStatsFromData } from "./monitor.ts";
+import { initSettings, renderSettingsModal } from "./settings.ts";
+import { initTheme } from "./theme.ts";
+import { connectWebSocket } from "./websocket.ts";
+import { initCpuDetails, renderCpuDetailsPage } from "./pages/cpu-details.ts";
+import {
+  initMemoryDetails,
+  renderMemoryDetailsPage,
+} from "./pages/memory-details.ts";
 
-function renderAboutPage() {
+function renderAboutPage(): string {
   return `
     <div class="container">
       <header>
@@ -38,46 +46,46 @@ function renderAboutPage() {
   `;
 }
 
-function init() {
-  document.body.insertAdjacentHTML('afterbegin', renderDock());
-  document.body.insertAdjacentHTML('beforeend', '<div id="app"></div>');
-  document.body.insertAdjacentHTML('beforeend', renderSettingsModal());
+function init(): void {
+  document.body.insertAdjacentHTML("afterbegin", renderDock());
+  document.body.insertAdjacentHTML("beforeend", '<div id="app"></div>');
+  document.body.insertAdjacentHTML("beforeend", renderSettingsModal());
 
   initTheme();
   initDock(navigate);
-  
-  registerRoute('monitor', renderMonitorPage);
-  registerRoute('cpu-details', renderCpuDetailsPage);
-  registerRoute('memory-details', renderMemoryDetailsPage);
-  registerRoute('about', renderAboutPage);
-  
+
+  registerRoute("monitor", renderMonitorPage);
+  registerRoute("cpu-details", renderCpuDetailsPage);
+  registerRoute("memory-details", renderMemoryDetailsPage);
+  registerRoute("about", renderAboutPage);
+
   initRouter();
-  
-  globalThis.onPageChange = (page) => {
+
+  (globalThis as any).onPageChange = (page: string) => {
     setTimeout(() => {
       initSettings();
-      if (page === 'monitor') {
+      if (page === "monitor") {
         connectWebSocket(updateStatsFromData);
-      } else if (page === 'cpu-details') {
+      } else if (page === "cpu-details") {
         initCpuDetails();
-      } else if (page === 'memory-details') {
+      } else if (page === "memory-details") {
         initMemoryDetails();
       }
     }, 100);
   };
-  
+
   const initialPage = getCurrentPage();
-  if (initialPage === 'monitor') {
+  if (initialPage === "monitor") {
     setTimeout(() => {
       initSettings();
       connectWebSocket(updateStatsFromData);
     }, 100);
-  } else if (initialPage === 'cpu-details') {
+  } else if (initialPage === "cpu-details") {
     setTimeout(() => {
       initSettings();
       initCpuDetails();
     }, 100);
-  } else if (initialPage === 'memory-details') {
+  } else if (initialPage === "memory-details") {
     setTimeout(() => {
       initSettings();
       initMemoryDetails();
@@ -89,5 +97,4 @@ function init() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', init);
-
+document.addEventListener("DOMContentLoaded", init);

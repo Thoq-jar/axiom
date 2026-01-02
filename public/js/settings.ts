@@ -1,58 +1,61 @@
-import { sendWebSocketMessage } from './websocket.js';
+import { sendWebSocketMessage } from "./websocket.ts";
 
-export function initSettings() {
-  const modalBackdrop = document.getElementById('modalBackdrop');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const closeBtn = document.getElementById('closeBtn');
+export function initSettings(): void {
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const closeBtn = document.getElementById("closeBtn");
 
   if (settingsBtn) {
-    settingsBtn.addEventListener('click', () => {
-      if (modalBackdrop) modalBackdrop.classList.add('active');
+    settingsBtn.addEventListener("click", () => {
+      if (modalBackdrop) modalBackdrop.classList.add("active");
     });
   }
 
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      if (modalBackdrop) modalBackdrop.classList.remove('active');
+    closeBtn.addEventListener("click", () => {
+      if (modalBackdrop) modalBackdrop.classList.remove("active");
     });
   }
 
   if (modalBackdrop) {
-    modalBackdrop.addEventListener('click', (e) => {
+    modalBackdrop.addEventListener("click", (e: MouseEvent) => {
       if (e.target === modalBackdrop) {
-        modalBackdrop.classList.remove('active');
+        modalBackdrop.classList.remove("active");
       }
     });
   }
 
-  const refreshSlider = document.getElementById("refreshSlider");
+  const refreshSlider = document.getElementById("refreshSlider") as
+    | HTMLInputElement
+    | null;
   const refreshValue = document.getElementById("refreshValue");
-  const savedInterval = localStorage.getItem('refreshInterval') || '2000';
-  
+  const savedInterval = localStorage.getItem("refreshInterval") || "2000";
+
   if (refreshSlider) {
     refreshSlider.value = savedInterval;
   }
-  
+
   if (refreshValue) {
     refreshValue.textContent = (parseInt(savedInterval, 10) / 1000).toFixed(1);
   }
 
   if (refreshSlider) {
-    refreshSlider.addEventListener('input', (e) => {
-      const interval = parseInt(e.target.value, 10);
+    refreshSlider.addEventListener("input", (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const interval = parseInt(target.value, 10);
       const seconds = (interval / 1000).toFixed(1);
       if (refreshValue) refreshValue.textContent = seconds;
-      localStorage.setItem('refreshInterval', interval.toString());
-      
+      localStorage.setItem("refreshInterval", interval.toString());
+
       sendWebSocketMessage({
-        type: 'setRefreshInterval',
-        interval: interval
+        type: "setRefreshInterval",
+        interval: interval,
       });
     });
   }
 }
 
-export function renderSettingsModal() {
+export function renderSettingsModal(): string {
   return `
     <div class="modal-backdrop" id="modalBackdrop">
       <div class="modal">
@@ -91,4 +94,3 @@ export function renderSettingsModal() {
     </div>
   `;
 }
-

@@ -1,4 +1,4 @@
-export function renderDock() {
+export function renderDock(): string {
   return `
     <div class="dock" id="dock">
       <div class="dock-item active" data-page="monitor">
@@ -21,15 +21,15 @@ export function renderDock() {
   `;
 }
 
-export function initDock(navigateFn) {
-  const dock = document.getElementById('dock');
+export function initDock(navigateFn: (page: string) => void): void {
+  const dock = document.getElementById("dock");
   if (!dock) return;
 
-  dock.addEventListener('click', (e) => {
-    const item = e.target.closest('.dock-item');
+  dock.addEventListener("click", (e: MouseEvent) => {
+    const item = (e.target as HTMLElement).closest(".dock-item");
     if (!item) return;
 
-    const page = item.dataset.page;
+    const page = (item as HTMLElement).dataset.page;
     if (page) {
       globalThis.location.hash = page;
       navigateFn(page);
@@ -37,12 +37,14 @@ export function initDock(navigateFn) {
   });
 }
 
-export function updateDockActive(page) {
-  const dock = document.getElementById('dock');
+export function updateDockActive(page: string): void {
+  const dock = document.getElementById("dock");
   if (!dock) return;
 
-  dock.querySelectorAll('.dock-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.page === page);
+  dock.querySelectorAll(".dock-item").forEach((item) => {
+    item.classList.toggle(
+      "active",
+      (item as HTMLElement).dataset.page === page,
+    );
   });
 }
-
