@@ -10,6 +10,7 @@
   --text-muted: #52525b;
   --accent: #8b5cf6;
   --accent-dim: rgba(139, 92, 246, 0.15);
+  --accent-shadow: rgba(139, 92, 246, 0.3);
   --success: #22c55e;
   --warning: #eab308;
   --danger: #ef4444;
@@ -115,7 +116,7 @@ body {
   color: var(--text-primary);
   border-color: var(--border-accent);
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 12px var(--accent-shadow);
 }
 
 .dock-item.active {
@@ -123,16 +124,16 @@ body {
   color: var(--accent);
   border-color: var(--accent);
   transform: scale(1.1);
-  box-shadow: 0 0 20px var(--accent-dim);
+  box-shadow: 0 0 20px var(--accent-dim), 0 4px 12px var(--accent-shadow);
   animation: dockItemPulse 2s ease-in-out infinite;
 }
 
 @keyframes dockItemPulse {
   0%, 100% {
-    box-shadow: 0 0 20px var(--accent-dim);
+    box-shadow: 0 0 20px var(--accent-dim), 0 4px 12px var(--accent-shadow);
   }
   50% {
-    box-shadow: 0 0 30px var(--accent-dim), 0 0 40px var(--accent-dim);
+    box-shadow: 0 0 30px var(--accent-dim), 0 0 40px var(--accent-dim), 0 4px 12px var(--accent-shadow);
   }
 }
 

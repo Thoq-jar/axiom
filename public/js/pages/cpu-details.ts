@@ -65,10 +65,10 @@ export function renderCpuDetailsPage(): string {
   }
         ${
     renderDetailCard(
-      "Process Count",
+      "Core Count",
       "fa-solid fa-list",
       "--",
-      "Running Processes",
+      "How many CPU cores are present",
       "Loading...",
     )
   }
