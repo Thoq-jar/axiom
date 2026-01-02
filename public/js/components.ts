@@ -33,7 +33,7 @@ export function initDropdowns(): void {
       if (!id) return;
 
       const content = document.querySelector(
-        /* CSS */ `[data-dropdown-content="${id}"]`,
+        `[data-dropdown-content="${id}"]`,
       ) as HTMLElement;
       if (!content) return;
 

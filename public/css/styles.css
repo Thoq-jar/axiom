@@ -1088,3 +1088,57 @@ h1 {
 .progress-fill-initial {
   width: 0%;
 }
+
+.multi-gpu-container {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .multi-gpu-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gpu-detail-card {
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeSlideIn 0.5s ease;
+}
+
+.gpu-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gpu-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gpu-metric-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.gpu-metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.gpu-metric-details {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: -0.25rem;
+}

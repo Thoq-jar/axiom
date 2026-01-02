@@ -1,5 +1,14 @@
 import { formatBytes } from "./utils.ts";
 
+interface GPU {
+  id: number;
+  name: string;
+  utilization: number;
+  memory_used: number;
+  memory_total: number;
+  temperature: number | null;
+}
+
 interface SystemData {
   cpu_usage_percent?: number | null;
   memory?: {
@@ -7,7 +16,7 @@ interface SystemData {
     total: number;
     free: number;
   };
-  gpu?: number | string | null;
+  gpu?: number | string | null | GPU[];
 }
 
 let lastData: SystemData = {};
@@ -66,17 +75,66 @@ export function updateStatsFromData(data: SystemData): void {
 
   if (data.gpu !== null && data.gpu !== undefined) {
     const gpuEl = document.getElementById("gpuValue");
+    const gpuDetails = document.getElementById("gpuDetails");
+
     if (gpuEl) {
-      if (typeof data.gpu === "number") {
+      if (Array.isArray(data.gpu)) {
+        const gpus = data.gpu as GPU[];
+
+        if (gpus.length === 1) {
+          const gpu = gpus[0];
+          const gpuVal = gpu.utilization.toFixed(1) + "%";
+          gpuEl.textContent = gpuVal;
+          gpuEl.classList.remove("gpu-model");
+
+          if (gpuDetails) {
+            let details = gpu.name;
+            if (gpu.temperature !== null) {
+              details += ` • ${gpu.temperature}°C`;
+            }
+            const memPercent = ((gpu.memory_used / gpu.memory_total) * 100)
+              .toFixed(0);
+            details += ` • ${memPercent}% VRAM`;
+            gpuDetails.textContent = details;
+          }
+
+          const gpuProgress = document.getElementById("gpuProgress");
+          if (gpuProgress) {
+            (gpuProgress as HTMLElement).style.width =
+              gpu.utilization.toFixed(1) + "%";
+          }
+        } else {
+          const avgUtil = gpus.reduce((sum, gpu) => sum + gpu.utilization, 0) /
+            gpus.length;
+          const gpuVal = avgUtil.toFixed(1) + "%";
+          gpuEl.textContent = gpuVal;
+          gpuEl.classList.remove("gpu-model");
+
+          if (gpuDetails) {
+            gpuDetails.textContent =
+              `${gpus.length} GPUs detected • Avg utilization`;
+          }
+
+          const gpuProgress = document.getElementById("gpuProgress");
+          if (gpuProgress) {
+            (gpuProgress as HTMLElement).style.width = avgUtil.toFixed(1) + "%";
+          }
+
+          renderMultipleGPUs(gpus);
+        }
+      } else if (typeof data.gpu === "number") {
         const gpuVal = data.gpu.toFixed(1) + "%";
         gpuEl.textContent = gpuVal;
         gpuEl.classList.remove("gpu-model");
-        const gpuDetails = document.getElementById("gpuDetails");
         if (gpuDetails) gpuDetails.textContent = "Current utilization";
+
+        const gpuProgress = document.getElementById("gpuProgress");
+        if (gpuProgress) {
+          (gpuProgress as HTMLElement).style.width = gpuVal;
+        }
       } else {
         gpuEl.textContent = data.gpu;
         gpuEl.classList.add("gpu-model");
-        const gpuDetails = document.getElementById("gpuDetails");
         if (gpuDetails) gpuDetails.textContent = "Detected GPU";
       }
     }
@@ -97,6 +155,75 @@ export function updateStatsFromData(data: SystemData): void {
   }
 
   lastData = data;
+}
+
+function renderMultipleGPUs(gpus: GPU[]): void {
+  const statsGrid = document.getElementById("statsGrid");
+  if (!statsGrid) return;
+
+  const existingMultiGPU = document.getElementById("multiGPUContainer");
+  if (existingMultiGPU) {
+    existingMultiGPU.remove();
+  }
+
+  const multiGPUContainer = document.createElement("div");
+  multiGPUContainer.id = "multiGPUContainer";
+  multiGPUContainer.className = "multi-gpu-container";
+
+  gpus.forEach((gpu) => {
+    const gpuCard = document.createElement("div");
+    gpuCard.className = "stat-card gpu-detail-card";
+
+    const memPercent = ((gpu.memory_used / gpu.memory_total) * 100).toFixed(1);
+
+    gpuCard.innerHTML = `
+      <div class="stat-header">
+        <span class="stat-title">GPU ${gpu.id}: ${gpu.name}</span>
+        <div class="stat-icon">
+          <i class="fa-solid fa-microchip"></i>
+        </div>
+      </div>
+      <div class="gpu-metrics">
+        <div class="gpu-metric">
+          <div class="gpu-metric-label">Utilization</div>
+          <div class="gpu-metric-value">${gpu.utilization.toFixed(1)}%</div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${
+      gpu.utilization.toFixed(1)
+    }%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="gpu-metric">
+          <div class="gpu-metric-label">Memory</div>
+          <div class="gpu-metric-value">${memPercent}%</div>
+          <div class="gpu-metric-details">${gpu.memory_used.toFixed(0)} / ${
+      gpu.memory_total.toFixed(0)
+    } MB</div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${memPercent}%"></div>
+            </div>
+          </div>
+        </div>
+        ${
+      gpu.temperature !== null
+        ? `
+        <div class="gpu-metric">
+          <div class="gpu-metric-label">Temperature</div>
+          <div class="gpu-metric-value">${gpu.temperature.toFixed(0)}°C</div>
+        </div>
+        `
+        : ""
+    }
+      </div>
+    `;
+
+    multiGPUContainer.appendChild(gpuCard);
+  });
+
+  statsGrid.appendChild(multiGPUContainer);
 }
 
 export function renderMonitorPage(): string {
@@ -171,6 +298,15 @@ export function renderMonitorPage(): string {
           </div>
           <div class="stat-value" id="gpuValue">--</div>
           <div class="stat-details" id="gpuDetails">Initializing</div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill progress-fill-initial" id="gpuProgress"></div>
+            </div>
+            <div class="progress-labels">
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+          </div>
         </div>
       </div>
 

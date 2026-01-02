@@ -78,28 +78,88 @@ export const start_monitor = async () => {
     return null;
   }
 
-  async function getGPUUsage(): Promise<null | string | number> {
+  async function getGPUUsage(): Promise<
+    | null
+    | string
+    | number
+    | Array<
+      {
+        id: number;
+        name: string;
+        utilization: number;
+        memory_used: number;
+        memory_total: number;
+        temperature: number | null;
+      }
+    >
+  > {
     if (isLinux) {
-      const nvidiaSmi = await (async () => {
+      const nvidiaSmiPaths = [
+        "nvidia-smi",
+        "/usr/bin/nvidia-smi",
+        "/usr/local/bin/nvidia-smi",
+        "/opt/cuda/bin/nvidia-smi",
+        "/usr/local/cuda/bin/nvidia-smi",
+      ];
+
+      for (const nvidiaSmiPath of nvidiaSmiPaths) {
         try {
-          const command = new Deno.Command("nvidia-smi", {
+          const command = new Deno.Command(nvidiaSmiPath, {
             args: [
-              "--query-gpu=utilization.gpu",
+              "--query-gpu=index,name,utilization.gpu,memory.used,memory.total,temperature.gpu",
               "--format=csv,noheader,nounits",
             ],
             stdout: "piped",
-            stderr: "null",
+            stderr: "piped",
           });
-          const { stdout } = await command.output();
-          return new TextDecoder().decode(stdout).trim();
+          const { stdout, success } = await command.output();
+
+          if (success) {
+            const output = new TextDecoder().decode(stdout).trim();
+            if (output) {
+              const lines = output.split("\n").filter((line) => line.trim());
+
+              if (lines.length > 0) {
+                const gpus = lines.map((line) => {
+                  const parts = line.split(",").map((p) => p.trim());
+                  if (parts.length >= 6) {
+                    return {
+                      id: parseInt(parts[0]) || 0,
+                      name: parts[1] || "Unknown GPU",
+                      utilization: parseFloat(parts[2]) || 0,
+                      memory_used: parseFloat(parts[3]) || 0,
+                      memory_total: parseFloat(parts[4]) || 0,
+                      temperature: parts[5] && !isNaN(parseFloat(parts[5]))
+                        ? parseFloat(parts[5])
+                        : null,
+                    };
+                  }
+                  return null;
+                }).filter((gpu) => gpu !== null);
+
+                if (gpus.length > 0) {
+                  return gpus as Array<
+                    {
+                      id: number;
+                      name: string;
+                      utilization: number;
+                      memory_used: number;
+                      memory_total: number;
+                      temperature: number | null;
+                    }
+                  >;
+                }
+              }
+            }
+          }
         } catch {
-          return null;
+          continue;
         }
-      })();
-      if (nvidiaSmi !== null && !isNaN(Number(nvidiaSmi))) {
-        return Number(nvidiaSmi);
       }
-    } else if (isMac) {
+    }
+
+    // Fallback for Mac
+    if (isMac) {
       try {
         const command = new Deno.Command("system_profiler", {
           args: ["SPDisplaysDataType"],
@@ -116,6 +176,7 @@ export const start_monitor = async () => {
         null;
       }
     }
+
     return null;
   }
 
