@@ -83,7 +83,7 @@ export function RouterOutlet() {
   const CurrentComponent = routes[currentPage];
   if (!CurrentComponent) return null;
 
-  return <>{CurrentComponent}</>;
+  return <>{CurrentComponent()}</>;
 }
 
 export function getCurrentPage(): string {

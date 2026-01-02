@@ -28,10 +28,33 @@ let ws: WebSocket | null = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 let messageHandler: MessageHandler | null = null;
+let reconnectTimeout: number | null = null;
+let isIntentionallyClosing = false;
 
 export function connectWebSocket(onMessage?: MessageHandler): void {
   if (onMessage) {
     messageHandler = onMessage;
+  }
+
+  if (reconnectTimeout !== null) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+
+  if (
+    ws &&
+    (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)
+  ) {
+    return;
+  }
+
+  if (ws) {
+    try {
+      ws.close();
+    } catch {
+      null;
+    }
+    ws = null;
   }
 
   const protocol = globalThis.location.protocol === "https:" ? "wss:" : "ws:";
@@ -43,13 +66,18 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
     ws.onopen = () => {
       console.log("WebSocket connected");
       reconnectAttempts = 0;
+      isIntentionallyClosing = false;
 
       const savedInterval = localStorage.getItem("refreshInterval");
-      if (savedInterval && ws) {
-        ws.send(JSON.stringify({
-          type: "setRefreshInterval",
-          interval: parseInt(savedInterval, 10),
-        }));
+      if (savedInterval && ws && ws.readyState === WebSocket.OPEN) {
+        try {
+          ws.send(JSON.stringify({
+            type: "setRefreshInterval",
+            interval: parseInt(savedInterval, 10),
+          }));
+        } catch (error) {
+          console.warn("Failed to send initial message:", error);
+        }
       }
     };
 
@@ -65,31 +93,60 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
     };
 
     ws.onerror = (error: Event) => {
-      console.error("WebSocket error:", error);
-      if (messageHandler) {
-        messageHandler({ error: "WebSocket error occurred" });
-      }
+      console.warn(
+        "WebSocket error occurred, closing connection gracefully...",
+        error,
+      );
     };
 
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
+    ws.onclose = (event: CloseEvent) => {
+      const wasClean = event.wasClean;
+      const code = event.code;
+      const reason = event.reason || "Connection closed";
+
+      console.log(
+        `WebSocket disconnected${
+          wasClean ? " cleanly" : ""
+        } (code: ${code}, reason: ${reason})`,
+      );
+
       ws = null;
 
-      if (reconnectAttempts < maxReconnectAttempts) {
+      if (isIntentionallyClosing) {
+        return;
+      }
+
+      if (code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
         reconnectAttempts++;
         const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000);
+
+        if (messageHandler) {
+          messageHandler({
+            error: `Connection lost. Reconnecting in ${
+              Math.ceil(delay / 1000)
+            }s... (attempt ${reconnectAttempts}/${maxReconnectAttempts})`,
+          });
+        }
+
         console.log(
           `Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`,
         );
-        setTimeout(() => {
-          connectWebSocket(messageHandler!);
-        }, delay);
-      } else {
+
+        reconnectTimeout = setTimeout(() => {
+          reconnectTimeout = null;
+          if (
+            reconnectAttempts <= maxReconnectAttempts && !isIntentionallyClosing
+          ) {
+            connectWebSocket(messageHandler!);
+          }
+        }, delay) as unknown as number;
+      } else if (reconnectAttempts >= maxReconnectAttempts) {
         if (messageHandler) {
           messageHandler({
-            error: "Connection lost. Attempting to reconnect...",
+            error: "Connection lost. Please refresh the page to reconnect.",
           });
         }
+        console.error("Max reconnection attempts reached");
       }
     };
   } catch (error) {
@@ -107,7 +164,30 @@ interface WebSocketMessage {
 
 export function sendWebSocketMessage(message: WebSocketMessage): void {
   if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(message));
+    try {
+      ws.send(JSON.stringify(message));
+    } catch (error) {
+      console.warn("Failed to send WebSocket message:", error);
+      if (ws) {
+        ws.close();
+      }
+    }
+  }
+}
+
+export function closeWebSocket(): void {
+  isIntentionallyClosing = true;
+  if (reconnectTimeout !== null) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+  if (ws) {
+    try {
+      ws.close(1000, "Intentional close");
+    } catch {
+      null;
+    }
+    ws = null;
   }
 }
 

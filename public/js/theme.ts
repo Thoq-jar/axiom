@@ -80,12 +80,28 @@ export function applyTheme(themeName: string): void {
       overlay.className = "theme-bg-overlay";
       document.body.insertBefore(overlay, document.body.firstChild);
     }
-    overlay.style.opacity = "0.95";
+    overlay.style.setProperty("opacity", "0.98", "important");
+    overlay.style.setProperty(
+      "background",
+      "rgba(10, 10, 11, 0.98)",
+      "important",
+    );
+    overlay.style.setProperty(
+      "background-color",
+      "rgba(10, 10, 11, 0.98)",
+      "important",
+    );
   } else {
     document.body.style.backgroundImage = "";
     const overlay = document.querySelector(".theme-bg-overlay") as HTMLElement;
     if (overlay) {
-      overlay.style.opacity = "1";
+      overlay.style.setProperty("opacity", "1", "important");
+      overlay.style.setProperty("background", "var(--bg-primary)", "important");
+      overlay.style.setProperty(
+        "background-color",
+        "var(--bg-primary)",
+        "important",
+      );
     }
   }
 
@@ -93,6 +109,16 @@ export function applyTheme(themeName: string): void {
   localStorage.setItem("theme", themeName);
 }
 
+// im sorry, however we live in a cruel world
 export function initTheme(): void {
+  let times = 0;
   applyTheme(currentTheme);
+
+  setTimeout(() => {
+    if (times >= 10) {
+      return;
+    }
+    applyTheme(currentTheme);
+    times++;
+  }, 1);
 }

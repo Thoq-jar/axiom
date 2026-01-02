@@ -771,6 +771,19 @@ h1 {
   margin-bottom: 1rem;
   overflow: hidden;
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeSlideIn 0.5s ease forwards;
+}
+
+.dropdown:nth-of-type(1) {
+  animation-delay: 0.2s;
+}
+.dropdown:nth-of-type(2) {
+  animation-delay: 0.3s;
+}
+.dropdown:nth-of-type(3) {
+  animation-delay: 0.4s;
 }
 
 .dropdown:hover {
@@ -833,6 +846,22 @@ h1 {
   padding: 1.5rem;
   margin-bottom: 1rem;
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeSlideIn 0.5s ease forwards;
+}
+
+.detail-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.detail-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.detail-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.detail-card:nth-child(4) {
+  animation-delay: 0.4s;
 }
 
 .detail-card:hover {
@@ -921,6 +950,8 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeSlideIn 0.5s ease 0.1s forwards;
 }
 
 @media (max-width: 768px) {
@@ -1015,23 +1046,38 @@ h1 {
 .about-container {
   max-width: 600px;
   margin: 0 auto;
+  opacity: 0;
+  animation: fadeSlideIn 0.6s ease 0.2s forwards;
 }
 
 .about-title {
   margin-bottom: 1rem;
   font-size: 1.5rem;
+  opacity: 0;
+  animation: fadeSlideIn 0.5s ease 0.3s forwards;
 }
 
 .about-text {
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 1rem;
+  opacity: 0;
+  animation: fadeSlideIn 0.5s ease forwards;
+}
+
+.about-text:nth-of-type(1) {
+  animation-delay: 0.4s;
+}
+.about-text:nth-of-type(2) {
+  animation-delay: 0.5s;
 }
 
 .about-footer {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--border-subtle);
+  opacity: 0;
+  animation: fadeSlideIn 0.5s ease 0.6s forwards;
 }
 
 .about-version {
