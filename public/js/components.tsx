@@ -81,10 +81,8 @@ export function Dropdown(
 
   return (
     <div class={`dropdown${isOpen ? " open" : ""}`} data-dropdown={id}>
-      <button
-        type="button"
+      <Button
         class="dropdown-header"
-        data-dropdown-toggle={id}
         onClick={handleToggle}
       >
         <span>{title}</span>
@@ -92,7 +90,7 @@ export function Dropdown(
           name="chevron-down"
           class={`dropdown-icon ${isOpen ? "rotated" : ""}`}
         />
-      </button>
+      </Button>
       <div
         class={`dropdown-content${isOpen ? "" : " hidden"}`}
         data-dropdown-content={id}
@@ -216,14 +214,13 @@ export function ToastProvider({ children }: { children: ComponentChildren }) {
         {toasts.map((toast) => (
           <div key={toast.id} class={`toast toast-${toast.type}`}>
             <span>{toast.message}</span>
-            <button
-              type="button"
+            <Button
               class="toast-close"
               onClick={() =>
                 removeToast(toast.id)}
             >
               &times;
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -235,4 +232,37 @@ export function useToast() {
   const context = useContext(ToastContext);
   if (!context) throw new Error("useToast must be used within ToastProvider");
   return context;
+}
+
+interface ButtonProps {
+  children?: ComponentChildren;
+  onClick?: (e: Event) => void;
+  type?: "button" | "submit" | "reset";
+  class?: string;
+  disabled?: boolean;
+  id?: string;
+  title?: string;
+}
+
+export function Button({
+  children,
+  onClick,
+  type = "button",
+  class: className = "",
+  disabled = false,
+  id,
+  title,
+}: ButtonProps) {
+  return (
+    <button
+      type={type}
+      class={className}
+      onClick={onClick}
+      disabled={disabled}
+      id={id}
+      title={title}
+    >
+      {children}
+    </button>
+  );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { Icon, useToast } from "../components.tsx";
+import { Button, Icon, useToast } from "../components.tsx";
 
 interface InstallStep {
   action: string;
@@ -101,9 +101,9 @@ function ManageModal({
             />
             <h3>{app.name}</h3>
           </div>
-          <button class="modal-close-btn" onClick={onClose} type="button">
+          <Button class="modal-close-btn" onClick={onClose}>
             <Icon name="x" size={20} />
-          </button>
+          </Button>
         </div>
         <div class="modal-body">
           <div class="modal-stat">
@@ -130,38 +130,34 @@ function ManageModal({
         <div class="modal-actions">
           {container.state === "running"
             ? (
-              <button
-                type="button"
+              <Button
                 class="modal-btn stop"
                 onClick={() => onAction("stop")}
                 disabled={actioning}
               >
                 <Icon name="power" size={16} />
                 Stop
-              </button>
+              </Button>
             )
             : (
-              <button
-                type="button"
+              <Button
                 class="modal-btn start"
                 onClick={() => onAction("start")}
                 disabled={actioning}
               >
                 <Icon name="play" size={16} />
                 Start
-              </button>
+              </Button>
             )}
-          <button
-            type="button"
+          <Button
             class="modal-btn restart"
             onClick={() => onAction("restart")}
             disabled={actioning}
           >
             <Icon name="refresh-cw" size={16} />
             Restart
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
             class="modal-btn uninstall"
             onClick={() => {
               if (confirm(`Uninstall ${app.name}?`)) onAction("remove");
@@ -170,7 +166,7 @@ function ManageModal({
           >
             <Icon name="trash-2" size={16} />
             Uninstall
-          </button>
+          </Button>
         </div>
       </div>
     </div>

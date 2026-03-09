@@ -6,7 +6,7 @@ import {
   sendWebSocketMessage,
   SystemData,
 } from "./websocket.ts";
-import { Icon } from "./components.tsx";
+import { Button, Icon } from "./components.tsx";
 
 function StatCard({
   title,
@@ -234,9 +234,9 @@ export function MonitorPage() {
             <p class="subtitle">Server[OSS]</p>
           </div>
         </div>
-        <button type="button" class="settings-btn" id="settingsBtn">
+        <Button class="settings-btn" id="settingsBtn">
           <Icon name="settings" size={20} />
-        </button>
+        </Button>
       </header>
 
       {error && (
