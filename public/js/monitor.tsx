@@ -20,6 +20,7 @@ interface SystemData {
     free: number;
   };
   gpu?: number | string | null | GPU[];
+  error?: string;
 }
 
 function StatCard({
@@ -131,27 +132,34 @@ export function MonitorPage() {
   const [version, setVersion] = useState("v?????");
 
   useEffect(() => {
-    fetch("/api/version")
+    const controller = new AbortController();
+    fetch("/api/version", { signal: controller.signal })
       .then((response) => response.text())
       .then((text) => setVersion(text))
-      .catch((error) => console.error("Fetch error:", error));
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.error("Fetch error:", error);
+        }
+      });
+
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
     const updateData = (newData: SystemData) => {
-      // if (newData.error) {
-      //  setError(true);
-      // } else {
-      setError(false);
-      setData(newData);
-      setLastUpdate(
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        }),
-      );
-      // }
+      if (newData.error) {
+        setError(true);
+      } else {
+        setError(false);
+        setData(newData);
+        setLastUpdate(
+          new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }),
+        );
+      }
     };
 
     connectWebSocket(updateData);

@@ -83,9 +83,15 @@ export function connectWebSocket(onMessage?: MessageHandler): void {
 
     ws.onmessage = (event: MessageEvent) => {
       try {
-        const data = JSON.parse(event.data) as SystemData;
+        const message = JSON.parse(event.data);
         if (messageHandler) {
-          messageHandler(data);
+          if (message.type === "stats" && message.data) {
+            messageHandler(message.data as SystemData);
+          } else if (message.error) {
+            messageHandler({ error: message.error } as SystemData);
+          } else if (!message.type) {
+            messageHandler(message as SystemData);
+          }
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
