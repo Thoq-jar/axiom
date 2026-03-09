@@ -1,23 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { DetailCard, Dropdown, Icon, InfoRow } from "../components.tsx";
-import { connectWebSocket } from "../websocket.ts";
-
-interface SystemData {
-  cpu_usage_percent?: number | null;
-  cpu_info?: {
-    arch?: string;
-    cores?: number;
-    freq?: number;
-    cache?: number;
-    vendor?: string;
-    model?: string;
-  };
-  processes?: Array<{
-    name: string;
-    cpu: number;
-    mem: number;
-  }>;
-}
+import { connectWebSocket, SystemData } from "../websocket.ts";
 
 export function CpuDetailsPage() {
   const [data, setData] = useState<SystemData | null>(null);
@@ -157,8 +140,4 @@ export function CpuDetailsPage() {
       </Dropdown>
     </div>
   );
-}
-
-export function getLastCpuData(): SystemData | null {
-  return null;
 }

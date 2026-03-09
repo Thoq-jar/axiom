@@ -1,27 +1,12 @@
 import { useEffect, useState } from "preact/hooks";
 import { formatBytes } from "./utils.ts";
-import { connectWebSocket, sendWebSocketMessage } from "./websocket.ts";
+import {
+  connectWebSocket,
+  GPU,
+  sendWebSocketMessage,
+  SystemData,
+} from "./websocket.ts";
 import { Icon } from "./components.tsx";
-
-interface GPU {
-  id: number;
-  name: string;
-  utilization: number;
-  memory_used: number;
-  memory_total: number;
-  temperature: number | null;
-}
-
-interface SystemData {
-  cpu_usage_percent?: number | null;
-  memory?: {
-    used: number;
-    total: number;
-    free: number;
-  };
-  gpu?: number | string | null | GPU[];
-  error?: string;
-}
 
 function StatCard({
   title,
@@ -132,17 +117,17 @@ export function MonitorPage() {
   const [version, setVersion] = useState("v?????");
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/version", { signal: controller.signal })
+    let isMounted = true;
+    fetch("/api/version")
       .then((response) => response.text())
-      .then((text) => setVersion(text))
-      .catch((error) => {
-        if (error.name !== "AbortError") {
-          console.error("Fetch error:", error);
-        }
-      });
+      .then((text) => {
+        if (isMounted) setVersion(text);
+      })
+      .catch((error) => console.error("Fetch error:", error));
 
-    return () => controller.abort();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -303,8 +288,4 @@ export function MonitorPage() {
       </footer>
     </div>
   );
-}
-
-export function getLastData(): SystemData {
-  return {};
 }

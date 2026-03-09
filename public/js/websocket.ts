@@ -1,11 +1,20 @@
-interface SystemData {
+export interface GPU {
+  id: number;
+  name: string;
+  utilization: number;
+  memory_used: number;
+  memory_total: number;
+  temperature: number | null;
+}
+
+export interface SystemData {
   cpu_usage_percent?: number | null;
   memory?: {
     used: number;
     total: number;
     free: number;
   };
-  gpu?: number | string | null;
+  gpu?: number | string | null | GPU[];
   cpu_info?: {
     arch?: string;
     cores?: number;

@@ -1,15 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
-import { DetailCard, Dropdown, InfoRow, Icon } from "../components.tsx";
+import { DetailCard, Dropdown, Icon, InfoRow } from "../components.tsx";
 import { formatBytes } from "../utils.ts";
-import { connectWebSocket } from "../websocket.ts";
-
-interface SystemData {
-  memory?: {
-    used: number;
-    total: number;
-    free: number;
-  };
-}
+import { connectWebSocket, SystemData } from "../websocket.ts";
 
 export function MemoryDetailsPage() {
   const [data, setData] = useState<SystemData | null>(null);
@@ -166,8 +158,4 @@ export function MemoryDetailsPage() {
       </Dropdown>
     </div>
   );
-}
-
-export function getLastMemoryData(): SystemData | null {
-  return null;
 }
