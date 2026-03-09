@@ -3,6 +3,47 @@ import { start_monitor } from "~/features/monitor.ts";
 const PORT = 8000;
 const PUBLIC_DIR = "./public";
 
+interface Container {
+  id: string;
+  name: string;
+  image: string;
+  status: string;
+  state: string;
+  ports: string;
+  created: string;
+}
+
+async function runDockerCommand(
+  args: string[],
+): Promise<{ success: boolean; output: string; error?: string }> {
+  const command = new Deno.Command("docker", { args });
+  const { code, stdout, stderr } = await command.output();
+  const output = new TextDecoder().decode(stdout);
+  const error = new TextDecoder().decode(stderr);
+  return { success: code === 0, output, error: error || undefined };
+}
+
+async function getContainers(): Promise<Container[]> {
+  const { success, output } = await runDockerCommand([
+    "ps",
+    "-a",
+    "--format",
+    "{{.ID}}|{{.Names}}|{{.Image}}|{{.Status}}|{{.State}}|{{.Ports}}|{{.CreatedAt}}",
+  ]);
+
+  if (!success) {
+    console.error("Failed to get containers:", output);
+    return [];
+  }
+
+  const containers = output.trim().split("\n").filter(Boolean).map((line) => {
+    const [id, name, image, status, state, ports, created] = line.split("|");
+    return { id, name, image, status, state, ports: ports || "-", created };
+  });
+
+  return containers;
+}
+
 // deno-lint-ignore no-explicit-any
 async function runDockerInstall(app: any) {
   console.log(`Starting installation for: ${app.name}`);
@@ -154,16 +195,126 @@ function handleWebSocket(req: Request): Response {
 
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
+  const pathname = url.pathname.endsWith("/") && url.pathname.length > 1
+    ? url.pathname.slice(0, -1)
+    : url.pathname;
 
-  if (url.pathname === "/ws") {
+  if (pathname === "/ws") {
     return handleWebSocket(req);
   }
 
-  if (url.pathname === "/version") {
+  if (pathname === "/api/version") {
     return new Response("v1.0.1");
   }
 
-  if (url.pathname === "/install" && req.method === "POST") {
+  if (pathname === "/api/containers" && req.method === "GET") {
+    try {
+      const containers = await getContainers();
+      return new Response(JSON.stringify(containers), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname.startsWith("/api/container/") && req.method === "POST") {
+    try {
+      const pathParts = pathname.split("/");
+      const containerId = pathParts.pop();
+
+      if (!containerId) {
+        return new Response(
+          JSON.stringify({ error: "Container ID required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const { action, image } = await req.json();
+
+      let dockerArgs: string[] = [];
+
+      if (action === "start") {
+        dockerArgs = ["start", containerId!];
+      } else if (action === "stop") {
+        dockerArgs = ["stop", containerId!];
+      } else if (action === "restart") {
+        dockerArgs = ["restart", containerId!];
+      } else if (action === "remove") {
+        dockerArgs = ["rm", "-fv", containerId!];
+        const removeResult = await runDockerCommand(dockerArgs);
+
+        if (!removeResult.success) {
+          return new Response(
+            JSON.stringify({
+              error: removeResult.error || "Failed to remove container",
+            }),
+            {
+              status: 500,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
+
+        if (image) {
+          const imageRemoveResult = await runDockerCommand([
+            "rmi",
+            "-f",
+            image,
+          ]);
+          if (!imageRemoveResult.success) {
+            return new Response(
+              JSON.stringify({
+                success: true,
+                warning: "Container removed but failed to remove image",
+              }),
+              {
+                headers: { "Content-Type": "application/json" },
+              },
+            );
+          }
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        return new Response(JSON.stringify({ error: "Invalid action" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      const result = await runDockerCommand(dockerArgs);
+
+      if (result.success) {
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        return new Response(
+          JSON.stringify({ error: result.error || "Unknown error" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/install" && req.method === "POST") {
     try {
       const appData = await req.json();
 
@@ -179,7 +330,7 @@ async function handler(req: Request): Promise<Response> {
     }
   }
 
-  if (url.pathname === "/api/stats") {
+  if (pathname === "/api/stats") {
     try {
       const stats = await start_monitor();
       return new Response(JSON.stringify(stats), {
@@ -196,7 +347,7 @@ async function handler(req: Request): Promise<Response> {
     }
   }
 
-  const staticResponse = await serveStaticFile(url.pathname);
+  const staticResponse = await serveStaticFile(pathname);
   if (staticResponse) {
     return staticResponse;
   }

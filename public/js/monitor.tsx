@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { formatBytes } from "./utils.ts";
 import { connectWebSocket, sendWebSocketMessage } from "./websocket.ts";
+import { Icon } from "./components.tsx";
 
 interface GPU {
   id: number;
@@ -23,13 +24,13 @@ interface SystemData {
 
 function StatCard({
   title,
-  icon,
+  iconName,
   value,
   details,
   progress,
 }: {
   title: string;
-  icon: string;
+  iconName: string;
   value: string;
   details: string;
   progress: number;
@@ -50,7 +51,7 @@ function StatCard({
       <div class="stat-header">
         <span class="stat-title">{title}</span>
         <div class="stat-icon">
-          <i class={icon}></i>
+          <Icon name={iconName} />
         </div>
       </div>
       <div class={`stat-value${isUpdating ? " updating" : ""}`}>{value}</div>
@@ -82,7 +83,7 @@ function MultiGPUCard({ gpu }: { gpu: GPU }) {
       <div class="stat-header">
         <span class="stat-title">GPU {gpu.id}: {gpu.name}</span>
         <div class="stat-icon">
-          <i class="fa-solid fa-microchip"></i>
+          <Icon name="cpu" />
         </div>
       </div>
       <div class="gpu-metrics">
@@ -233,7 +234,7 @@ export function MonitorPage() {
       <header>
         <div class="logo">
           <div class="logo-mark">
-            <i class="fa-solid fa-cube"></i>
+            <Icon name="box" size={24} />
           </div>
           <div class="logo-content">
             <h1>AxiomOS</h1>
@@ -241,7 +242,7 @@ export function MonitorPage() {
           </div>
         </div>
         <button type="button" class="settings-btn" id="settingsBtn">
-          <i class="fa-solid fa-gear"></i>
+          <Icon name="settings" size={20} />
         </button>
       </header>
 
@@ -254,7 +255,7 @@ export function MonitorPage() {
       <div class="stats-grid" id="statsGrid">
         <StatCard
           title="Processor"
-          icon="fa-solid fa-microchip"
+          iconName="cpu"
           value={cpuValue}
           details={cpuDetails}
           progress={cpuProgress}
@@ -262,7 +263,7 @@ export function MonitorPage() {
 
         <StatCard
           title="Memory"
-          icon="fa-solid fa-memory"
+          iconName="memory-stick"
           value={memValue}
           details={memDetails}
           progress={memProgress}
@@ -270,7 +271,7 @@ export function MonitorPage() {
 
         <StatCard
           title="Graphics"
-          icon="fa-solid fa-display"
+          iconName="monitor"
           value={gpuValue}
           details={gpuDetails}
           progress={gpuProgress}

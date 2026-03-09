@@ -1,12 +1,13 @@
 import { useRouter } from "./router.tsx";
+import { Icon } from "./components.tsx";
 
 interface DockItemProps {
   page: string;
-  icon: string;
+  iconName: string;
   label: string;
 }
 
-function DockItem({ page, icon, label }: DockItemProps) {
+function DockItem({ page, iconName, label }: DockItemProps) {
   const { currentPage, navigate } = useRouter();
   const isActive = currentPage === page;
 
@@ -20,7 +21,7 @@ function DockItem({ page, icon, label }: DockItemProps) {
       data-page={page}
       onClick={handleClick}
     >
-      <i class={icon}></i>
+      <Icon name={iconName} />
       <span>{label}</span>
     </div>
   );
@@ -29,19 +30,19 @@ function DockItem({ page, icon, label }: DockItemProps) {
 export function Dock() {
   return (
     <div class="dock" id="dock">
-      <DockItem page="monitor" icon="fa-solid fa-chart-line" label="Monitor" />
-      <DockItem page="cpu-details" icon="fa-solid fa-microchip" label="CPU" />
+      <DockItem page="monitor" iconName="line-chart" label="Monitor" />
+      <DockItem page="cpu-details" iconName="cpu" label="CPU" />
       <DockItem
         page="memory-details"
-        icon="fa-solid fa-memory"
+        iconName="memory-stick"
         label="Memory"
       />
       <DockItem
         page="app-store"
-        icon="fa-brands fa-app-store"
+        iconName="package"
         label="Apps"
       />
-      <DockItem page="about" icon="fa-solid fa-info-circle" label="About" />
+      <DockItem page="about" iconName="info" label="About" />
     </div>
   );
 }

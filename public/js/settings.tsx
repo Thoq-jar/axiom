@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { sendWebSocketMessage } from "./websocket.ts";
 import { applyTheme } from "./theme.ts";
+import { Icon } from "./components.tsx";
 
 const themes = [
   "violet",
@@ -81,7 +82,7 @@ export function SettingsModal() {
             id="closeBtn"
             onClick={handleClose}
           >
-            <i class="fa-solid fa-xmark"></i>
+            <Icon name="x" />
           </button>
         </div>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { DetailCard, Dropdown, InfoRow } from "../components.tsx";
+import { DetailCard, Dropdown, Icon, InfoRow } from "../components.tsx";
 import { connectWebSocket } from "../websocket.ts";
 
 interface SystemData {
@@ -68,7 +68,7 @@ export function CpuDetailsPage() {
       <header>
         <div class="logo">
           <div class="logo-mark">
-            <i class="fa-solid fa-microchip"></i>
+            <Icon name="cpu" size={24} />
           </div>
           <div class="logo-content">
             <h1>CPU Details</h1>

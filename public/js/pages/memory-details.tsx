@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { DetailCard, Dropdown, InfoRow } from "../components.tsx";
+import { DetailCard, Dropdown, InfoRow, Icon } from "../components.tsx";
 import { formatBytes } from "../utils.ts";
 import { connectWebSocket } from "../websocket.ts";
 
@@ -70,7 +70,7 @@ export function MemoryDetailsPage() {
       <header>
         <div class="logo">
           <div class="logo-mark">
-            <i class="fa-solid fa-memory"></i>
+            <Icon name="memory-stick" size={24} />
           </div>
           <div class="logo-content">
             <h1>Memory Details</h1>

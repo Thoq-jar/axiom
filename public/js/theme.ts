@@ -66,8 +66,7 @@ export function applyTheme(themeName: string): void {
   );
 
   if (themeName === "femboy") {
-    document.body.style.backgroundImage =
-      "url('https://wallpaperaccess.com/full/1890776.jpg')";
+    document.body.style.backgroundImage = "url('/assets/special.jpg')";
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundPosition = "center";
     document.body.style.backgroundAttachment = "fixed";

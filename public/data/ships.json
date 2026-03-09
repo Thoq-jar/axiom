@@ -40,7 +40,7 @@
   {
     "id": "pi-hole",
     "name": "Pi-hole",
-    "icon": "fa-solid fa-shield-halved",
+    "icon": "fa-solid fa-shield",
     "description": "A network-wide ad blocker that acts as a DNS sinkhole to protect your devices.",
     "category": "Network",
     "deployment": {

@@ -7,6 +7,7 @@ import { MemoryDetailsPage } from "./pages/memory-details.tsx";
 import { SettingsModal } from "./settings.tsx";
 import { initTheme } from "./theme.ts";
 import { AppStorePage } from "./pages/app-store.tsx";
+import { ToastProvider, Icon } from "./components.tsx";
 
 function AboutPage() {
   return (
@@ -14,7 +15,7 @@ function AboutPage() {
       <header>
         <div class="logo">
           <div class="logo-mark">
-            <i class="fa-solid fa-cube"></i>
+            <Icon name="box" size={24} />
           </div>
           <div class="logo-content">
             <h1>AxiomOS</h1>
@@ -42,13 +43,13 @@ function AboutPage() {
 
 function App() {
   return (
-    <>
+    <ToastProvider>
       <Dock />
       <div id="app">
         <RouterOutlet />
       </div>
       <SettingsModal />
-    </>
+    </ToastProvider>
   );
 }
 
