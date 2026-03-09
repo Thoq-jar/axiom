@@ -1,0 +1,64 @@
+[
+  {
+    "id": "plex-media-server",
+    "name": "Plex",
+    "icon": "fa-solid fa-play-circle",
+    "description": "Organize and stream your personal collection of movies, TV shows, and music.",
+    "category": "Media",
+    "deployment": {
+      "image": "lscr.io/linuxserver/plex",
+      "tag": "latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        { "host": 32400, "container": 32400, "protocol": "tcp" }
+      ],
+      "volumes": [
+        { "host_path": "/opt/plex/config", "container_path": "/config" },
+        { "host_path": "/mnt/media", "container_path": "/data" }
+      ],
+      "env": {
+        "PUID": "1000",
+        "PGID": "1000",
+        "VERSION": "docker"
+      }
+    },
+    "install_steps": [
+      {
+        "action": "pull_image",
+        "target": "lscr.io/linuxserver/plex:latest"
+      },
+      {
+        "action": "create_volume",
+        "target": "/opt/plex/config"
+      },
+      {
+        "action": "run_container",
+        "name": "plex-server"
+      }
+    ]
+  },
+  {
+    "id": "pi-hole",
+    "name": "Pi-hole",
+    "icon": "fa-solid fa-shield-halved",
+    "description": "A network-wide ad blocker that acts as a DNS sinkhole to protect your devices.",
+    "category": "Network",
+    "deployment": {
+      "image": "pihole/pihole",
+      "tag": "latest",
+      "restart_policy": "always",
+      "ports": [
+        { "host": 53, "container": 53, "protocol": "udp" },
+        { "host": 8080, "container": 80, "protocol": "tcp" }
+      ],
+      "env": {
+        "TZ": "UTC",
+        "WEBPASSWORD": "admin"
+      }
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "pihole/pihole:latest" },
+      { "action": "run_container", "name": "pihole" }
+    ]
+  }
+]

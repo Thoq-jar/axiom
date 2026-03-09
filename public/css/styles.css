@@ -1191,3 +1191,113 @@ h1 {
   color: var(--text-secondary);
   margin-top: -0.25rem;
 }
+
+.app-store-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: system-ui, sans-serif;
+}
+.store-header {
+  margin-bottom: 40px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.logo-mark {
+  background: #007aff;
+  color: white;
+  padding: 15px;
+  border-radius: 18px;
+  font-size: 2rem;
+}
+.subtitle {
+  color: #888;
+  margin: 0;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+.app-card {
+  background: #f9f9f9;
+  border-radius: 24px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s;
+  border: 1px solid #eee;
+}
+.app-card:hover {
+  transform: translateY(-5px);
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.app-info {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.icon-wrapper {
+  font-size: 2.5rem;
+  color: #007aff;
+  min-width: 60px;
+  height: 60px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.tag {
+  font-size: 0.7rem;
+  background: #ddd;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+.text-content h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.text-content p {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+  margin: 5px 0 0;
+}
+
+.btn-get, .btn-installing {
+  border: none;
+  border-radius: 20px;
+  padding: 8px 0;
+  font-weight: bold;
+  cursor: pointer;
+  width: 80px;
+  align-self: flex-end;
+}
+.btn-get {
+  background: #e9e9eb;
+  color: #007aff;
+}
+.btn-get:hover {
+  background: #007aff;
+  color: #fff;
+}
+.btn-installing {
+  background: #eee;
+  color: #aaa;
+}

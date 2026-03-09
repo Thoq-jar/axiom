@@ -6,6 +6,7 @@ import { CpuDetailsPage } from "./pages/cpu-details.tsx";
 import { MemoryDetailsPage } from "./pages/memory-details.tsx";
 import { SettingsModal } from "./settings.tsx";
 import { initTheme } from "./theme.ts";
+import { AppStorePage } from "./pages/app-store.tsx";
 
 function AboutPage() {
   return (
@@ -61,6 +62,7 @@ function init(): void {
     "monitor": () => <MonitorPage />,
     "cpu-details": () => <CpuDetailsPage />,
     "memory-details": () => <MemoryDetailsPage />,
+    "app-store": () => <AppStorePage />,
     "about": () => <AboutPage />,
   };
 

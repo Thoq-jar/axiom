@@ -3,6 +3,41 @@ import { start_monitor } from "~/features/monitor.ts";
 const PORT = 8000;
 const PUBLIC_DIR = "./public";
 
+// deno-lint-ignore no-explicit-any
+async function runDockerInstall(app: any) {
+  console.log(`Starting installation for: ${app.name}`);
+
+  for (const step of app.install_steps) {
+    // deno-lint-ignore no-explicit-any
+    let cmd: string | any[] = [];
+
+    if (step.action === "pull_image") {
+      cmd = ["docker", "pull", step.target];
+    } else if (step.action === "run_container") {
+      cmd = [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        app.id,
+        "--restart",
+        "unless-stopped",
+        app.deployment.image + ":" + app.deployment.tag,
+      ];
+    }
+
+    if (cmd.length > 0) {
+      const command = new Deno.Command(cmd[0], { args: cmd.slice(1) });
+      const { success, stderr } = await command.output();
+      if (!success) {
+        console.error(`Step failed: ${new TextDecoder().decode(stderr)}`);
+        break;
+      }
+    }
+  }
+  console.log(`Installation finished for: ${app.name}`);
+}
+
 function getContentType(path: string): string {
   const ext = path.split(".").pop()?.toLowerCase();
   const types: Record<string, string> = {
@@ -122,6 +157,26 @@ async function handler(req: Request): Promise<Response> {
 
   if (url.pathname === "/ws") {
     return handleWebSocket(req);
+  }
+
+  if (url.pathname === "/version") {
+    return new Response("v1.0.1");
+  }
+
+  if (url.pathname === "/install" && req.method === "POST") {
+    try {
+      const appData = await req.json();
+
+      runDockerInstall(appData);
+
+      return new Response(JSON.stringify({ status: "queued" }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid Request" }), {
+        status: 400,
+      });
+    }
   }
 
   if (url.pathname === "/api/stats") {

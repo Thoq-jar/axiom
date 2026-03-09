@@ -127,6 +127,14 @@ export function MonitorPage() {
   const [data, setData] = useState<SystemData>({});
   const [error, setError] = useState(false);
   const [lastUpdate, setLastUpdate] = useState("--");
+  const [version, setVersion] = useState("v?????");
+
+  useEffect(() => {
+    fetch("/api/version")
+      .then((response) => response.text())
+      .then((text) => setVersion(text))
+      .catch((error) => console.error("Fetch error:", error));
+  }, []);
 
   useEffect(() => {
     const updateData = (newData: SystemData) => {
@@ -282,7 +290,7 @@ export function MonitorPage() {
             Updated <span id="lastUpdate">{lastUpdate}</span>
           </div>
         </div>
-        <div class="version">v1.0.0</div>
+        <div class="version">{version}</div>
       </footer>
     </div>
   );

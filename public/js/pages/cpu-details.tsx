@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { DetailCard, Dropdown, InfoRow } from "../components.tsx";
-import { connectWebSocket, sendWebSocketMessage } from "../websocket.ts";
+import { connectWebSocket } from "../websocket.ts";
 
 interface SystemData {
   cpu_usage_percent?: number | null;

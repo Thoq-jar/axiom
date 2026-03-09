@@ -36,6 +36,11 @@ export function Dock() {
         icon="fa-solid fa-memory"
         label="Memory"
       />
+      <DockItem
+        page="app-store"
+        icon="fa-brands fa-app-store"
+        label="Apps"
+      />
       <DockItem page="about" icon="fa-solid fa-info-circle" label="About" />
     </div>
   );

@@ -50,13 +50,14 @@ interface DetailCardProps {
   value: string;
   subtitle?: string;
   extra?: string;
+  onClick?: () => void;
 }
 
 export function DetailCard(
-  { title, icon, value, subtitle, extra }: DetailCardProps,
+  { title, icon, value, subtitle, extra, onClick }: DetailCardProps,
 ) {
   return (
-    <div class="detail-card">
+    <div class="detail-card" onClick={onClick}>
       <div class="detail-header">
         <div class="detail-icon">
           <i class={icon}></i>

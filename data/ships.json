@@ -1,7 +1,0 @@
-{
-  "pihole": {
-    "url": "https://pi-hole.net/",
-    "display-name": "Pi-hole",
-    "description": "A network-wide add blocker"
-  }
-}
