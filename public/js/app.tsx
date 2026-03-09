@@ -1,3 +1,4 @@
+import { useEffect } from "preact/hooks";
 import { render } from "preact";
 import { RouterOutlet, RouterProvider } from "./router.tsx";
 import { Dock } from "./dock.tsx";
@@ -7,7 +8,7 @@ import { MemoryDetailsPage } from "./pages/memory-details.tsx";
 import { SettingsModal } from "./settings.tsx";
 import { initTheme } from "./theme.ts";
 import { AppStorePage } from "./pages/app-store.tsx";
-import { ToastProvider, Icon } from "./components.tsx";
+import { Icon, ToastProvider, useToast } from "./components.tsx";
 
 function AboutPage() {
   return (
@@ -41,9 +42,34 @@ function AboutPage() {
   );
 }
 
+function GlobalWebSocketListener() {
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    const protocol = globalThis.location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(`${protocol}//${globalThis.location.host}/ws`);
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "installation_finished") {
+          addToast("Installed finished!", "success");
+        }
+      } catch (error) {
+        console.error("WS error", error);
+      }
+    };
+
+    return () => ws.close();
+  }, [addToast]);
+
+  return null;
+}
+
 function App() {
   return (
     <ToastProvider>
+      <GlobalWebSocketListener />
       <Dock />
       <div id="app">
         <RouterOutlet />

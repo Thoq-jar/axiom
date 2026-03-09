@@ -35,7 +35,6 @@ function AppCard({
   app,
   container,
   onClick,
-  loading,
 }: {
   app: AppShipment;
   container?: Container;
@@ -102,7 +101,7 @@ function ManageModal({
             />
             <h3>{app.name}</h3>
           </div>
-          <button class="modal-close-btn" onClick={onClose}>
+          <button class="modal-close-btn" onClick={onClose} type="button">
             <Icon name="x" size={20} />
           </button>
         </div>
@@ -132,6 +131,7 @@ function ManageModal({
           {container.state === "running"
             ? (
               <button
+                type="button"
                 class="modal-btn stop"
                 onClick={() => onAction("stop")}
                 disabled={actioning}
@@ -142,6 +142,7 @@ function ManageModal({
             )
             : (
               <button
+                type="button"
                 class="modal-btn start"
                 onClick={() => onAction("start")}
                 disabled={actioning}
@@ -151,6 +152,7 @@ function ManageModal({
               </button>
             )}
           <button
+            type="button"
             class="modal-btn restart"
             onClick={() => onAction("restart")}
             disabled={actioning}
@@ -159,6 +161,7 @@ function ManageModal({
             Restart
           </button>
           <button
+            type="button"
             class="modal-btn uninstall"
             onClick={() => {
               if (confirm(`Uninstall ${app.name}?`)) onAction("remove");

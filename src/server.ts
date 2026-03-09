@@ -3,6 +3,8 @@ import { start_monitor } from "~/features/monitor.ts";
 const PORT = 8000;
 const PUBLIC_DIR = "./public";
 
+const globalClients = new Set<WebSocket>();
+
 interface Container {
   id: string;
   name: string;
@@ -49,8 +51,7 @@ async function runDockerInstall(app: any) {
   console.log(`Starting installation for: ${app.name}`);
 
   for (const step of app.install_steps) {
-    // deno-lint-ignore no-explicit-any
-    let cmd: string | any[] = [];
+    let cmd: string[] = [];
 
     if (step.action === "pull_image") {
       cmd = ["docker", "pull", step.target];
@@ -76,7 +77,20 @@ async function runDockerInstall(app: any) {
       }
     }
   }
+
   console.log(`Installation finished for: ${app.name}`);
+
+  const message = JSON.stringify({
+    type: "installation_finished",
+    message: "installed finished???",
+    app: app.name,
+  });
+
+  for (const client of globalClients) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  }
 }
 
 function getContentType(path: string): string {
@@ -127,8 +141,7 @@ function handleWebSocket(req: Request): Response {
   }
 
   const { socket, response } = Deno.upgradeWebSocket(req);
-  const clients = new Set<WebSocket>();
-  clients.add(socket);
+  globalClients.add(socket);
 
   let refreshInterval = 2000;
   let intervalId: ReturnType<typeof setInterval> | null = null;
@@ -142,7 +155,7 @@ function handleWebSocket(req: Request): Response {
       try {
         const stats = await start_monitor();
         if (socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify(stats));
+          socket.send(JSON.stringify({ type: "stats", data: stats }));
         }
       } catch (error) {
         console.error("Error getting stats:", error);
@@ -153,7 +166,6 @@ function handleWebSocket(req: Request): Response {
     };
 
     sendStats();
-
     intervalId = setInterval(sendStats, refreshInterval);
   };
 
@@ -184,7 +196,7 @@ function handleWebSocket(req: Request): Response {
 
   socket.onclose = () => {
     console.log("WebSocket client disconnected");
-    clients.delete(socket);
+    globalClients.delete(socket);
     if (intervalId !== null) {
       clearInterval(intervalId);
     }
