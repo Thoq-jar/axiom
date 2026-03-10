@@ -1,5 +1,5 @@
 import { createContext } from "preact";
-import { useContext, useEffect, useState } from "preact/hooks";
+import { useContext, useEffect, useRef, useState } from "preact/hooks";
 
 type RouteComponent = () => preact.ComponentChildren;
 
@@ -78,12 +78,57 @@ export function RouterProvider(
   );
 }
 
+const PAGE_ORDER = [
+  "monitor",
+  "cpu-details",
+  "memory-details",
+  "app-store",
+  "about",
+];
+
+function animationsDisabled() {
+  return document.body.classList.contains("no-animations");
+}
+
 export function RouterOutlet() {
   const { currentPage, routes } = useRouter();
-  const CurrentComponent = routes[currentPage];
+  const [displayPage, setDisplayPage] = useState(currentPage);
+  const [animClass, setAnimClass] = useState("page-enter-right");
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (currentPage === displayPage) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    const fromIdx = PAGE_ORDER.indexOf(displayPage);
+    const toIdx = PAGE_ORDER.indexOf(currentPage);
+    const forward = toIdx >= fromIdx;
+
+    if (animationsDisabled()) {
+      setDisplayPage(currentPage);
+      setAnimClass(forward ? "page-enter-right" : "page-enter-left");
+      return;
+    }
+
+    setAnimClass(forward ? "page-exit-left" : "page-exit-right");
+    timerRef.current = setTimeout(() => {
+      setDisplayPage(currentPage);
+      setAnimClass(forward ? "page-enter-right" : "page-enter-left");
+    }, 150);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [currentPage]);
+
+  const CurrentComponent = routes[displayPage];
   if (!CurrentComponent) return null;
 
-  return <>{CurrentComponent()}</>;
+  return (
+    <div class={animClass}>
+      {CurrentComponent()}
+    </div>
+  );
 }
 
 export function getCurrentPage(): string {

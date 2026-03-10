@@ -1,5 +1,6 @@
 import { ComponentChildren, createContext, h } from "preact";
 import { useContext, useState } from "preact/hooks";
+import { createPortal } from "preact/compat";
 import * as Lucide from "lucide";
 
 interface IconProps {
@@ -232,6 +233,37 @@ export function useToast() {
   const context = useContext(ToastContext);
   if (!context) throw new Error("useToast must be used within ToastProvider");
   return context;
+}
+
+interface ModalProps {
+  title: string;
+  icon?: string;
+  onClose: () => void;
+  children: ComponentChildren;
+  class?: string;
+}
+
+export function Modal({ title, icon, onClose, children, class: className }: ModalProps) {
+  return createPortal(
+    <div class="modal-overlay" onClick={onClose}>
+      <div
+        class={`modal-content${className ? ` ${className}` : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div class="modal-header">
+          <div class="modal-title-row">
+            {icon && <Icon name={icon} size={18} />}
+            <h3>{title}</h3>
+          </div>
+          <button class="modal-close" onClick={onClose}>
+            <Icon name="x" size={16} />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>,
+    document.body,
+  );
 }
 
 interface ButtonProps {

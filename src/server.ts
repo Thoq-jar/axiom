@@ -25,8 +25,15 @@ async function runDockerCommand(
   return { success: code === 0, output, error: error || undefined };
 }
 
-async function getContainers(): Promise<Container[]> {
-  const { success, output } = await runDockerCommand([
+async function isDockerRunning(): Promise<boolean> {
+  const { success } = await runDockerCommand(["info", "--format", "ok"]);
+  return success;
+}
+
+async function getContainers(): Promise<
+  { containers: Container[] } | { error: string }
+> {
+  const { success, output, error } = await runDockerCommand([
     "ps",
     "-a",
     "--format",
@@ -34,8 +41,11 @@ async function getContainers(): Promise<Container[]> {
   ]);
 
   if (!success) {
-    console.error("Failed to get containers:", output);
-    return [];
+    const msg = error?.includes("Cannot connect") || error?.includes("Is the docker daemon running")
+      ? "Docker is not running"
+      : "Failed to reach Docker";
+    console.error("Failed to get containers:", error || output);
+    return { error: msg };
   }
 
   const containers = output.trim().split("\n").filter(Boolean).map((line) => {
@@ -43,7 +53,7 @@ async function getContainers(): Promise<Container[]> {
     return { id, name, image, status, state, ports: ports || "-", created };
   });
 
-  return containers;
+  return { containers };
 }
 
 // deno-lint-ignore no-explicit-any
@@ -221,8 +231,14 @@ async function handler(req: Request): Promise<Response> {
 
   if (pathname === "/api/containers" && req.method === "GET") {
     try {
-      const containers = await getContainers();
-      return new Response(JSON.stringify(containers), {
+      const result = await getContainers();
+      if ("error" in result) {
+        return new Response(JSON.stringify({ error: result.error }), {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify(result.containers), {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
@@ -328,6 +344,13 @@ async function handler(req: Request): Promise<Response> {
 
   if (pathname === "/api/install" && req.method === "POST") {
     try {
+      if (!await isDockerRunning()) {
+        return new Response(
+          JSON.stringify({ error: "Docker is not running" }),
+          { status: 503, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       const appData = await req.json();
 
       runDockerInstall(appData);

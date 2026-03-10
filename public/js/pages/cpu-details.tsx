@@ -24,18 +24,18 @@ export function CpuDetailsPage() {
     ? `${cpuUsage.toFixed(1)}%`
     : "--";
   const cpuUsageExtra = cpuUsage !== null && cpuUsage !== undefined
-    ? `Current CPU utilization: ${cpuUsage.toFixed(1)}%`
+    ? ``
     : "Waiting for data...";
 
   const loadAverage = cpuUsage !== null && cpuUsage !== undefined
     ? (cpuUsage / 100).toFixed(2)
     : "--";
   const loadAverageExtra = cpuUsage !== null && cpuUsage !== undefined
-    ? "System load average (1 min)"
+    ? "Average (1 min)"
     : "Calculating...";
 
   const coreCount = cpuInfo.cores?.toString() || "--";
-  const coreCountExtra = cpuInfo.cores ? "CPU cores available" : "Loading...";
+  const coreCountExtra = cpuInfo.cores ? "" : "Loading...";
 
   const architecture = cpuInfo.arch || "Unknown";
   const cores = (cpuInfo.cores || "Unknown").toString();

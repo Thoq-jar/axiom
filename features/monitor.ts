@@ -277,9 +277,14 @@ export const start_monitor = async () => {
     Array<{ name: string; cpu: number; mem: number }> | null
   > {
     try {
+      function extractName(rawPath: string): string {
+        const exe = rawPath.split("/").filter(Boolean).pop() || rawPath;
+        return exe.replace(/\.app$/, "");
+      }
+
       if (isLinux) {
         const command = new Deno.Command("ps", {
-          args: ["-eo", "comm,pcpu,pmem", "--sort=-pcpu", "--no-headers"],
+          args: ["-eo", "pcpu,pmem,command", "--sort=-pcpu", "--no-headers"],
           stdout: "piped",
           stderr: "null",
         });
@@ -290,9 +295,9 @@ export const start_monitor = async () => {
           const parts = line.trim().split(/\s+/);
           if (parts.length >= 3) {
             return {
-              name: parts[0].substring(0, 30),
-              cpu: parseFloat(parts[1]) || 0,
-              mem: parseFloat(parts[2]) || 0,
+              name: extractName(parts[2]),
+              cpu: parseFloat(parts[0]) || 0,
+              mem: parseFloat(parts[1]) || 0,
             };
           }
           return null;
@@ -301,7 +306,7 @@ export const start_monitor = async () => {
         >;
       } else if (isMac) {
         const command = new Deno.Command("ps", {
-          args: ["-eo", "comm,pcpu,pmem", "-r", "-m"],
+          args: ["-eo", "pcpu,pmem,command", "-r", "-m"],
           stdout: "piped",
           stderr: "null",
         });
@@ -312,9 +317,9 @@ export const start_monitor = async () => {
           const parts = line.trim().split(/\s+/);
           if (parts.length >= 3) {
             return {
-              name: parts[0].substring(0, 30),
-              cpu: parseFloat(parts[1]) || 0,
-              mem: parseFloat(parts[2]) || 0,
+              name: extractName(parts[2]),
+              cpu: parseFloat(parts[0]) || 0,
+              mem: parseFloat(parts[1]) || 0,
             };
           }
           return null;

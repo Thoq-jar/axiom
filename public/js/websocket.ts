@@ -209,3 +209,7 @@ export function closeWebSocket(): void {
 export function getWebSocket(): WebSocket | null {
   return ws;
 }
+
+export function isConnected(): boolean {
+  return ws !== null && ws.readyState === WebSocket.OPEN;
+}

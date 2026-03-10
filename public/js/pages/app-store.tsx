@@ -1,5 +1,5 @@
-import { useEffect, useState } from "preact/hooks";
-import { Button, Icon, useToast } from "../components.tsx";
+import { useEffect, useRef, useState } from "preact/hooks";
+import { Button, Icon, Modal, useToast } from "../components.tsx";
 
 interface InstallStep {
   action: string;
@@ -90,86 +90,73 @@ function ManageModal({
   onAction: (action: string) => void;
   actioning: boolean;
 }) {
+  const icon = app.icon.split(" ").pop()?.replace("fa-", "") || "box";
   return (
-    <div class="modal-overlay" onClick={onClose}>
-      <div class="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div class="modal-header">
-          <div class="modal-title-row">
-            <Icon
-              name={app.icon.split(" ").pop()?.replace("fa-", "") || "box"}
-              size={24}
-            />
-            <h3>{app.name}</h3>
-          </div>
-          <Button class="modal-close-btn" onClick={onClose}>
-            <Icon name="x" size={20} />
-          </Button>
+    <Modal title={app.name} icon={icon} onClose={onClose}>
+      <div class="modal-body">
+        <div class="modal-stat">
+          <span class="modal-stat-label">Status</span>
+          <span class={`modal-stat-value ${container.state}`}>
+            {container.state}
+          </span>
         </div>
-        <div class="modal-body">
-          <div class="modal-stat">
-            <span class="modal-stat-label">Status</span>
-            <span class={`modal-stat-value ${container.state}`}>
-              {container.state}
-            </span>
-          </div>
-          <div class="modal-stat">
-            <span class="modal-stat-label">Container</span>
-            <span class="modal-stat-value">{container.name}</span>
-          </div>
-          <div class="modal-stat">
-            <span class="modal-stat-label">Image</span>
-            <span class="modal-stat-value">
-              {app.deployment.image}:{app.deployment.tag}
-            </span>
-          </div>
-          <div class="modal-stat">
-            <span class="modal-stat-label">Ports</span>
-            <span class="modal-stat-value">{container.ports || "None"}</span>
-          </div>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Container</span>
+          <span class="modal-stat-value">{container.name}</span>
         </div>
-        <div class="modal-actions">
-          {container.state === "running"
-            ? (
-              <Button
-                class="modal-btn stop"
-                onClick={() => onAction("stop")}
-                disabled={actioning}
-              >
-                <Icon name="power" size={16} />
-                Stop
-              </Button>
-            )
-            : (
-              <Button
-                class="modal-btn start"
-                onClick={() => onAction("start")}
-                disabled={actioning}
-              >
-                <Icon name="play" size={16} />
-                Start
-              </Button>
-            )}
-          <Button
-            class="modal-btn restart"
-            onClick={() => onAction("restart")}
-            disabled={actioning}
-          >
-            <Icon name="refresh-cw" size={16} />
-            Restart
-          </Button>
-          <Button
-            class="modal-btn uninstall"
-            onClick={() => {
-              if (confirm(`Uninstall ${app.name}?`)) onAction("remove");
-            }}
-            disabled={actioning}
-          >
-            <Icon name="trash-2" size={16} />
-            Uninstall
-          </Button>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Image</span>
+          <span class="modal-stat-value">
+            {app.deployment.image}:{app.deployment.tag}
+          </span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Ports</span>
+          <span class="modal-stat-value">{container.ports || "None"}</span>
         </div>
       </div>
-    </div>
+      <div class="modal-actions">
+        {container.state === "running"
+          ? (
+            <Button
+              class="modal-btn stop"
+              onClick={() => onAction("stop")}
+              disabled={actioning}
+            >
+              <Icon name="power" size={16} />
+              Stop
+            </Button>
+          )
+          : (
+            <Button
+              class="modal-btn start"
+              onClick={() => onAction("start")}
+              disabled={actioning}
+            >
+              <Icon name="play" size={16} />
+              Start
+            </Button>
+          )}
+        <Button
+          class="modal-btn restart"
+          onClick={() => onAction("restart")}
+          disabled={actioning}
+        >
+          <Icon name="refresh-cw" size={16} />
+          Restart
+        </Button>
+        <Button
+          class="modal-btn uninstall"
+          onClick={() => {
+            if (confirm(`Uninstall ${app.name}?`)) onAction("remove");
+          }}
+          disabled={actioning}
+        >
+          <Icon name="trash-2" size={16} />
+          Uninstall
+        </Button>
+      </div>
+    </Modal>
   );
 }
 
@@ -177,10 +164,12 @@ export function AppStorePage() {
   const [apps, setApps] = useState<AppShipment[]>([]);
   const [containers, setContainers] = useState<Container[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dockerError, setDockerError] = useState<string | null>(null);
   const [installingId, setInstallingId] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<AppShipment | null>(null);
   const { addToast } = useToast();
+  const dockerErrorShownRef = useRef(false);
 
   const fetchData = () => {
     Promise.all([
@@ -189,7 +178,18 @@ export function AppStorePage() {
     ])
       .then(([appsData, containersData]) => {
         setApps(appsData);
-        setContainers(containersData);
+        if (containersData.error) {
+          setDockerError(containersData.error);
+          setContainers([]);
+          if (!dockerErrorShownRef.current) {
+            addToast(containersData.error, "error");
+            dockerErrorShownRef.current = true;
+          }
+        } else {
+          setContainers(containersData);
+          setDockerError(null);
+          dockerErrorShownRef.current = false;
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -223,15 +223,24 @@ export function AppStorePage() {
 
   const installApp = async (app: AppShipment) => {
     if (installingId) return;
+    if (dockerError) {
+      addToast("Docker is not running", "error");
+      return;
+    }
     setInstallingId(app.id);
     addToast(`Installing ${app.name}...`, "info");
 
     try {
-      await fetch("/api/install", {
+      const res = await fetch("/api/install", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(app),
       });
+      if (!res.ok) {
+        const err = await res.json();
+        addToast(err.error || `Failed to install ${app.name}`, "error");
+        return;
+      }
       addToast(`${app.name} installation started`, "success");
       setTimeout(fetchData, 2000);
     } catch {
@@ -296,6 +305,13 @@ export function AppStorePage() {
           </div>
         </div>
       </header>
+
+      {dockerError && (
+        <div class="error-banner" style="display: flex; align-items: center; gap: 0.5rem;">
+          <Icon name="alert-circle" size={16} />
+          {dockerError} — container management unavailable
+        </div>
+      )}
 
       <div class="app-grid">
         {apps.map((app) => {

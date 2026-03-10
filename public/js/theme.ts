@@ -4,6 +4,19 @@ interface ColorTheme {
   accentShadow: string;
 }
 
+export const themeList: { id: string; label: string }[] = [
+  { id: "violet", label: "Violet" },
+  { id: "blue", label: "Blue" },
+  { id: "cyan", label: "Cyan" },
+  { id: "emerald", label: "Emerald" },
+  { id: "rose", label: "Rose" },
+  { id: "femboy", label: "Pink" },
+  { id: "livid", label: "Livid" },
+  { id: "orange", label: "Orange" },
+  { id: "amber", label: "Amber" },
+  { id: "slate", label: "Slate" },
+];
+
 const colorThemes: Record<string, ColorTheme> = {
   violet: {
     accent: "#8b5cf6",
@@ -34,6 +47,11 @@ const colorThemes: Record<string, ColorTheme> = {
     accent: "#ec4899",
     accentDim: "rgba(236, 72, 153, 0.15)",
     accentShadow: "rgba(236, 72, 153, 0.3)",
+  },
+  livid: {
+    accent: "#6699CC",
+    accentDim: "rgba(102, 153, 204, 0.3)",
+    accentShadow: "rgba(102, 153, 204, 0.15)",
   },
   orange: {
     accent: "#f97316",
@@ -79,15 +97,15 @@ export function applyTheme(themeName: string): void {
       overlay.className = "theme-bg-overlay";
       document.body.insertBefore(overlay, document.body.firstChild);
     }
-    overlay.style.setProperty("opacity", "0.98", "important");
+    overlay.style.setProperty("opacity", "0.90", "important");
     overlay.style.setProperty(
       "background",
-      "rgba(10, 10, 11, 0.98)",
+      "rgba(10, 10, 11, 0.90)",
       "important",
     );
     overlay.style.setProperty(
       "background-color",
-      "rgba(10, 10, 11, 0.98)",
+      "rgba(10, 10, 11, 0.90)",
       "important",
     );
   } else {

@@ -113,22 +113,6 @@ function MultiGPUCard({ gpu }: { gpu: GPU }) {
 export function MonitorPage() {
   const [data, setData] = useState<SystemData>({});
   const [error, setError] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState("--");
-  const [version, setVersion] = useState("v?????");
-
-  useEffect(() => {
-    let isMounted = true;
-    fetch("/api/version")
-      .then((response) => response.text())
-      .then((text) => {
-        if (isMounted) setVersion(text);
-      })
-      .catch((error) => console.error("Fetch error:", error));
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     const updateData = (newData: SystemData) => {
@@ -137,13 +121,6 @@ export function MonitorPage() {
       } else {
         setError(false);
         setData(newData);
-        setLastUpdate(
-          new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          }),
-        );
       }
     };
 
@@ -276,16 +253,6 @@ export function MonitorPage() {
           </div>
         )}
       </div>
-
-      <footer class="footer">
-        <div class="status">
-          <div class="status-dot"></div>
-          <div class="status-text">
-            Updated <span id="lastUpdate">{lastUpdate}</span>
-          </div>
-        </div>
-        <div class="version">{version}</div>
-      </footer>
     </div>
   );
 }
