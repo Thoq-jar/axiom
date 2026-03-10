@@ -16,6 +16,7 @@ const categories = [
   { id: "interface", label: "Interface", icon: "zap" },
   { id: "style", label: "Style", icon: "sparkles" },
   { id: "data", label: "Data", icon: "activity" },
+  { id: "search", label: "Search", icon: "search" },
 ];
 
 export function applyDockPosition(position: string) {
@@ -127,6 +128,12 @@ export function SettingsModal() {
   );
   const [uiBlur, setUiBlur] = useState(
     parseInt(localStorage.getItem("uiBlur") || "0", 10),
+  );
+  const [searchEngine, setSearchEngine] = useState(
+    localStorage.getItem("searchEngine") || "google",
+  );
+  const [customSearchUrl, setCustomSearchUrl] = useState(
+    localStorage.getItem("customSearchUrl") || "",
   );
 
   useEffect(() => {
@@ -324,6 +331,46 @@ export function SettingsModal() {
                   <span>5s</span>
                   <span>10s</span>
                 </div>
+              </div>
+            )}
+
+            {activeCategory === "search" && (
+              <div class="settings-pane">
+                <div class="settings-pane-title">Search Engine</div>
+                <div class="search-engine-options">
+                  {(["google", "startpage", "custom"] as const).map((e) => (
+                    <label key={e} class="search-engine-option">
+                      <input
+                        type="radio"
+                        name="searchEngine"
+                        value={e}
+                        checked={searchEngine === e}
+                        onChange={() => {
+                          setSearchEngine(e);
+                          localStorage.setItem("searchEngine", e);
+                        }}
+                      />
+                      <span>{e.charAt(0).toUpperCase() + e.slice(1)}</span>
+                    </label>
+                  ))}
+                </div>
+                {searchEngine === "custom" && (
+                  <div style="margin-top: 1rem;">
+                    <div class="settings-pane-title">Custom URL template</div>
+                    <p class="setting-desc" style="margin-bottom: 0.5rem;">Use <code>%s</code> where the query should go.</p>
+                    <input
+                      class="search-engine-url-input"
+                      type="text"
+                      placeholder="https://example.com/search?q=%s"
+                      value={customSearchUrl}
+                      onInput={(e) => {
+                        const v = (e.target as HTMLInputElement).value;
+                        setCustomSearchUrl(v);
+                        localStorage.setItem("customSearchUrl", v);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>

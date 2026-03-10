@@ -55,7 +55,8 @@ export function MemoryDetailsPage() {
 
   const availableForApps = mem ? formatBytes(mem.free) : "--";
 
-  const maxValue = Math.max(...memoryHistory, 100);
+  const CHART_HEIGHT_PX = 100;
+  const maxValue = Math.max(...memoryHistory, 1);
 
   return (
     <div class="container">
@@ -128,7 +129,10 @@ export function MemoryDetailsPage() {
             <div class="chart-container" id="memory-chart-bars">
               {memoryHistory.length > 0
                 ? memoryHistory.map((value, idx) => {
-                  const height = (value / maxValue) * 100;
+                  const barHeightPx = Math.max(
+                    2,
+                    Math.round((value / maxValue) * CHART_HEIGHT_PX),
+                  );
                   const color = value > 80
                     ? "var(--danger)"
                     : value > 60
@@ -139,7 +143,7 @@ export function MemoryDetailsPage() {
                       <div class="chart-bar-container">
                         <div
                           class="chart-bar-fill"
-                          style={{ background: color, height: `${height}%` }}
+                          style={{ background: color, height: `${barHeightPx}px` }}
                         >
                         </div>
                       </div>

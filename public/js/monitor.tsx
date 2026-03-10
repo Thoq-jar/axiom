@@ -207,13 +207,10 @@ export function MonitorPage() {
             <Icon name="box" size={24} />
           </div>
           <div class="logo-content">
-            <h1>AxiomOS</h1>
-            <p class="subtitle">Server[OSS]</p>
+            <h1>Monitor</h1>
+            <p class="subtitle">System Overview</p>
           </div>
         </div>
-        <Button class="settings-btn" id="settingsBtn">
-          <Icon name="settings" size={20} />
-        </Button>
       </header>
 
       {error && (

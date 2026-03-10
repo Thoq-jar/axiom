@@ -8,7 +8,8 @@ import { MemoryDetailsPage } from "./pages/memory-details.tsx";
 import { initDockSettings, SettingsModal } from "./settings.tsx";
 import { initTheme } from "./theme.ts";
 import { AppStorePage } from "./pages/app-store.tsx";
-import { Icon, Modal, ToastProvider, useToast } from "./components.tsx";
+import { OverviewPage } from "./pages/overview.tsx";
+import { Button, Icon, Modal, ToastProvider, useToast } from "./components.tsx";
 import { isConnected } from "./websocket.ts";
 
 function AboutPage() {
@@ -140,7 +141,12 @@ function GlobalFooter() {
           {connected ? <>Updated <span>{lastUpdate}</span></> : "Disconnected"}
         </div>
       </div>
-      <div class="version">{version}</div>
+      <div class="footer-right">
+        <div class="version">Axiom {version}</div>
+        <Button class="settings-btn settings-btn-footer" id="settingsBtn">
+          <Icon name="settings" size={16} />
+        </Button>
+      </div>
     </footer>
   );
 }
@@ -177,10 +183,11 @@ function init(): void {
     document.body.classList.add("no-animations");
   }
 
-  const initialPage = globalThis.location.hash.slice(1) || "monitor";
+  const initialPage = globalThis.location.hash.slice(1) || "overview";
   globalThis.location.hash = initialPage;
 
   const routes = {
+    "overview": () => <OverviewPage />,
     "monitor": () => <MonitorPage />,
     "cpu-details": () => <CpuDetailsPage />,
     "memory-details": () => <MemoryDetailsPage />,

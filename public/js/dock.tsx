@@ -26,6 +26,7 @@ function DockItem({ page, iconName, label }: DockItemProps) {
 export function Dock() {
   return (
     <div class="dock" id="dock">
+      <DockItem page="overview" iconName="home" label="Home" />
       <DockItem page="monitor" iconName="line-chart" label="Monitor" />
       <DockItem page="cpu-details" iconName="cpu" label="CPU" />
       <DockItem page="memory-details" iconName="memory-stick" label="Memory" />

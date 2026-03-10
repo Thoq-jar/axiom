@@ -27,7 +27,7 @@ interface RouterProviderProps {
 }
 
 export function RouterProvider(
-  { children, initialPage = "monitor", initialRoutes = {} }:
+  { children, initialPage = "overview", initialRoutes = {} }:
     RouterProviderProps,
 ) {
   const [currentPage, setCurrentPage] = useState<string>(initialPage);
@@ -79,6 +79,7 @@ export function RouterProvider(
 }
 
 const PAGE_ORDER = [
+  "overview",
   "monitor",
   "cpu-details",
   "memory-details",
@@ -137,7 +138,7 @@ export function getCurrentPage(): string {
     globalThis.location.hash
   ) {
     const page = globalThis.location.hash.slice(1);
-    return page || "monitor";
+    return page || "overview";
   }
   return "monitor";
 }
