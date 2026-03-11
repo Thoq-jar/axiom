@@ -15,11 +15,11 @@ export default defineConfig({
     host: true,
     proxy: {
       "/ws": {
-        target: "ws://localhost:9511",
+        target: "ws://localhost:9598",
         ws: true,
       },
       "/api": {
-        target: "http://localhost:9511",
+        target: "http://localhost:9598",
         changeOrigin: true,
       },
     },
