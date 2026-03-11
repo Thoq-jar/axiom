@@ -33,26 +33,33 @@ function StatCard({
   }, [value, prevValue]);
 
   return (
-    <div class="stat-card">
-      <div class="stat-header">
-        <span class="stat-title">{title}</span>
-        <div class="stat-icon">
+    <div
+      class="stat-card rounded-xl p-7 relative opacity-0 translate-y-5 border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform]"
+      style={{ background: "var(--ui-bg)", animation: "fadeSlideIn 0.5s ease forwards" }}
+    >
+      <div class="flex items-center justify-between mb-6">
+        <span class="text-[0.7rem] font-medium text-[var(--text-muted)] uppercase tracking-[0.12em]">{title}</span>
+        <div class="w-8 h-8 flex items-center justify-center bg-[var(--accent-dim)] rounded-lg text-[var(--accent)] transition-all duration-300 text-[0.9rem]">
           <Icon name={iconName} />
         </div>
       </div>
-      <div class={`stat-value${isUpdating ? " updating" : ""}`}>{value}</div>
-      <div class="stat-details">{details}</div>
-      <div class="progress-container">
-        <div class="progress-bar">
+      <div
+        class={`text-[2.5rem] font-bold text-[var(--text-primary)] mb-1 tracking-tight tabular-nums ${isUpdating ? "" : ""}`}
+        style={isUpdating ? { animation: "valueUpdate 0.3s ease" } : undefined}
+      >
+        {value}
+      </div>
+      <div class="text-[var(--text-secondary)] text-xs tracking-wide">{details}</div>
+      <div class="mt-5">
+        <div class="progress-fill-container w-full h-1 bg-[var(--bg-secondary)] rounded-sm overflow-hidden relative">
           <div
-            class={`progress-fill${
-              progress === 0 ? " progress-fill-initial" : ""
+            class={`progress-fill h-full bg-[var(--accent)] rounded-sm relative transition-[width] duration-400 ${
+              progress === 0 ? "!w-0" : ""
             }`}
             style={{ width: `${progress}%` }}
-          >
-          </div>
+          />
         </div>
-        <div class="progress-labels">
+        <div class="flex justify-between mt-2 text-[0.65rem] text-[var(--text-muted)]">
           <span>0 %</span>
           <span>100 %</span>
         </div>
@@ -65,44 +72,38 @@ function MultiGPUCard({ gpu }: { gpu: GPU }) {
   const memPercent = ((gpu.memory_used / gpu.memory_total) * 100).toFixed(1);
 
   return (
-    <div class="stat-card gpu-detail-card">
-      <div class="stat-header">
-        <span class="stat-title">GPU {gpu.id}: {gpu.name}</span>
-        <div class="stat-icon">
+    <div
+      class="gpu-detail-card stat-card rounded-xl p-7 relative border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform]"
+      style={{ background: "var(--ui-bg)", animation: "fadeSlideIn 0.5s ease" }}
+    >
+      <div class="flex items-center justify-between mb-6">
+        <span class="text-[0.7rem] font-medium text-[var(--text-muted)] uppercase tracking-[0.12em]">GPU {gpu.id}: {gpu.name}</span>
+        <div class="w-8 h-8 flex items-center justify-center bg-[var(--accent-dim)] rounded-lg text-[var(--accent)]">
           <Icon name="cpu" />
         </div>
       </div>
-      <div class="gpu-metrics">
-        <div class="gpu-metric">
-          <div class="gpu-metric-label">Utilization</div>
-          <div class="gpu-metric-value">{gpu.utilization.toFixed(1)} %</div>
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div
-                class="progress-fill"
-                style={{ width: `${gpu.utilization.toFixed(1)}%` }}
-              >
-              </div>
-            </div>
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+          <div class="text-[0.65rem] font-medium text-[var(--text-muted)] uppercase tracking-widest">Utilization</div>
+          <div class="text-2xl font-bold text-[var(--text-primary)] tracking-tight tabular-nums">{gpu.utilization.toFixed(1)} %</div>
+          <div class="w-full h-1 bg-[var(--bg-secondary)] rounded-sm overflow-hidden relative">
+            <div class="progress-fill h-full bg-[var(--accent)] rounded-sm relative" style={{ width: `${gpu.utilization.toFixed(1)}%` }} />
           </div>
         </div>
-        <div class="gpu-metric">
-          <div class="gpu-metric-label">Memory</div>
-          <div class="gpu-metric-value">{memPercent} %</div>
-          <div class="gpu-metric-details">
+        <div class="flex flex-col gap-2">
+          <div class="text-[0.65rem] font-medium text-[var(--text-muted)] uppercase tracking-widest">Memory</div>
+          <div class="text-2xl font-bold text-[var(--text-primary)] tracking-tight tabular-nums">{memPercent} %</div>
+          <div class="text-[0.7rem] text-[var(--text-secondary)] -mt-1">
             {gpu.memory_used.toFixed(0)} / {gpu.memory_total.toFixed(0)} MB
           </div>
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-fill" style={{ width: `${memPercent}%` }}>
-              </div>
-            </div>
+          <div class="w-full h-1 bg-[var(--bg-secondary)] rounded-sm overflow-hidden relative">
+            <div class="progress-fill h-full bg-[var(--accent)] rounded-sm relative" style={{ width: `${memPercent}%` }} />
           </div>
         </div>
         {gpu.temperature !== null && (
-          <div class="gpu-metric">
-            <div class="gpu-metric-label">Temperature</div>
-            <div class="gpu-metric-value">{gpu.temperature.toFixed(0)}°C</div>
+          <div class="flex flex-col gap-2">
+            <div class="text-[0.65rem] font-medium text-[var(--text-muted)] uppercase tracking-widest">Temperature</div>
+            <div class="text-2xl font-bold text-[var(--text-primary)] tracking-tight tabular-nums">{gpu.temperature.toFixed(0)}°C</div>
           </div>
         )}
       </div>
@@ -200,52 +201,32 @@ export function MonitorPage() {
   }
 
   return (
-    <div class="container">
-      <header>
-        <div class="logo">
-          <div class="logo-mark">
+    <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+      <header class="mb-16 opacity-0 flex items-center justify-between" style={{ animation: "fadeSlideIn 0.6s ease forwards" }}>
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
             <Icon name="box" size={24} />
           </div>
-          <div class="logo-content">
-            <h1>Monitor</h1>
-            <p class="subtitle">System Overview</p>
+          <div class="flex flex-col">
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">Monitor</h1>
+            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">System Overview</p>
           </div>
         </div>
       </header>
 
       {error && (
-        <div class="error-banner" id="errorBanner">
-          Connection lost.Attempting to reconnect...
+        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-[var(--danger)] py-4 px-5 rounded-lg text-[0.8rem] mb-6">
+          Connection lost. Attempting to reconnect...
         </div>
       )}
 
-      <div class="stats-grid" id="statsGrid">
-        <StatCard
-          title="Processor"
-          iconName="cpu"
-          value={cpuValue}
-          details={cpuDetails}
-          progress={cpuProgress}
-        />
-
-        <StatCard
-          title="Memory"
-          iconName="memory-stick"
-          value={memValue}
-          details={memDetails}
-          progress={memProgress}
-        />
-
-        <StatCard
-          title="Graphics"
-          iconName="monitor"
-          value={gpuValue}
-          details={gpuDetails}
-          progress={gpuProgress}
-        />
+      <div class="grid grid-cols-3 gap-5 max-[900px]:grid-cols-1" id="statsGrid">
+        <StatCard title="Processor" iconName="cpu" value={cpuValue} details={cpuDetails} progress={cpuProgress} />
+        <StatCard title="Memory" iconName="memory-stick" value={memValue} details={memDetails} progress={memProgress} />
+        <StatCard title="Graphics" iconName="monitor" value={gpuValue} details={gpuDetails} progress={gpuProgress} />
 
         {multiGPUs && (
-          <div class="multi-gpu-container">
+          <div class="col-span-full grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-5 max-[900px]:grid-cols-1">
             {multiGPUs.map((gpu) => <MultiGPUCard key={gpu.id} gpu={gpu} />)}
           </div>
         )}

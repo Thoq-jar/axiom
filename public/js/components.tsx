@@ -40,7 +40,7 @@ export function Icon({ name, size = 16, class: className }: IconProps) {
   const lucideNode = Lucide[iconName];
 
   if (!lucideNode) {
-    return h("span", { class: className || "icon-missing" }, "?");
+    return h("span", { class: className || "" }, "?");
   }
 
   const [tag, attrs, children] = lucideNode as [
@@ -81,19 +81,28 @@ export function Dropdown(
   };
 
   return (
-    <div class={`dropdown${isOpen ? " open" : ""}`} data-dropdown={id}>
+    <div
+      class={`rounded-xl mb-4 opacity-0 translate-y-5 border [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] ${
+        isOpen
+          ? "border-[var(--accent)]"
+          : "border-[var(--ui-border)] hover:border-[var(--border-accent)]"
+      }`}
+      style={{ background: "var(--ui-bg)", animation: "fadeSlideIn 0.5s ease forwards" }}
+      data-dropdown={id}
+    >
       <Button
-        class="dropdown-header"
+        class="w-full py-5 px-6 bg-transparent border-none flex items-center justify-between cursor-pointer text-[var(--text-primary)] font-[inherit] text-base font-semibold transition-all duration-200 hover:bg-[var(--ui-bg-hover)]"
         onClick={handleToggle}
       >
         <span>{title}</span>
         <Icon
           name="chevron-down"
-          class={`dropdown-icon ${isOpen ? "rotated" : ""}`}
+          class={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
         />
       </Button>
       <div
-        class={`dropdown-content${isOpen ? "" : " hidden"}`}
+        class={`px-6 pb-6 ${isOpen ? "block" : "hidden"}`}
+        style={{ animation: isOpen ? "dropdownSlide 0.3s ease" : undefined }}
         data-dropdown-content={id}
       >
         {children}
@@ -151,18 +160,22 @@ export function DetailCard(
   const lucideIconName = getLucideIconName(icon);
 
   return (
-    <div class="detail-card" onClick={onClick}>
-      <div class="detail-header">
-        <div class="detail-icon">
+    <div
+      class="rounded-xl p-6 mb-4 opacity-0 translate-y-5 border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform]"
+      style={{ background: "var(--ui-bg)", animation: "fadeSlideIn 0.5s ease forwards" }}
+      onClick={onClick}
+    >
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-12 h-12 flex items-center justify-center rounded-[10px] text-xl bg-[var(--accent-dim)] text-[var(--accent)]">
           <Icon name={lucideIconName} />
         </div>
-        <div class="detail-title-group">
-          <h3 class="detail-title">{title}</h3>
-          {subtitle && <p class="detail-subtitle">{subtitle}</p>}
+        <div class="flex-1">
+          <h3 class="text-[1.1rem] font-semibold text-[var(--text-primary)] mb-1">{title}</h3>
+          {subtitle && <p class="text-xs text-[var(--text-muted)] uppercase tracking-widest">{subtitle}</p>}
         </div>
       </div>
-      <div class="detail-value">{value}</div>
-      {extra && <div class="detail-extra">{extra}</div>}
+      <div class="text-[2rem] font-bold text-[var(--accent)] tabular-nums mb-2">{value}</div>
+      {extra && <div class="text-[0.85rem] text-[var(--text-secondary)] leading-relaxed">{extra}</div>}
     </div>
   );
 }
@@ -174,9 +187,9 @@ interface InfoRowProps {
 
 export function InfoRow({ label, value }: InfoRowProps) {
   return (
-    <div class="info-row">
-      <span class="info-label">{label}</span>
-      <span class="info-value">{value}</span>
+    <div class="flex justify-between items-center py-3 border-b border-[var(--border-subtle)] last:border-b-0">
+      <span class="text-[0.9rem] text-[var(--text-secondary)]">{label}</span>
+      <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">{value}</span>
     </div>
   );
 }
@@ -195,6 +208,13 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | null>(null);
 
+const toastBorderColors: Record<string, string> = {
+  success: "var(--success)",
+  error: "var(--danger)",
+  warning: "var(--warning)",
+  info: "var(--accent)",
+};
+
 export function ToastProvider({ children }: { children: ComponentChildren }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -211,14 +231,21 @@ export function ToastProvider({ children }: { children: ComponentChildren }) {
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
-      <div class="toast-container">
+      <div class="fixed bottom-5 right-5 z-[10000] flex flex-col gap-2.5 pointer-events-none">
         {toasts.map((toast) => (
-          <div key={toast.id} class={`toast toast-${toast.type}`}>
+          <div
+            key={toast.id}
+            class="bg-[var(--bg-card)] border border-[var(--border-subtle)] py-3 px-4 rounded-lg text-[var(--text-primary)] flex items-center justify-between gap-3 shadow-[0_4px_12px_rgba(0,0,0,0.3)] pointer-events-auto min-w-[200px] max-w-[350px]"
+            style={{
+              animation: "slideIn 0.3s ease-out",
+              borderLeftWidth: "4px",
+              borderLeftColor: toastBorderColors[toast.type],
+            }}
+          >
             <span>{toast.message}</span>
             <Button
-              class="toast-close"
-              onClick={() =>
-                removeToast(toast.id)}
+              class="bg-transparent border-none text-[var(--text-secondary)] cursor-pointer text-[1.2rem] p-0 leading-none hover:text-[var(--text-primary)]"
+              onClick={() => removeToast(toast.id)}
             >
               &times;
             </Button>
@@ -245,17 +272,25 @@ interface ModalProps {
 
 export function Modal({ title, icon, onClose, children, class: className }: ModalProps) {
   return createPortal(
-    <div class="modal-overlay" onClick={onClose}>
+    <div
+      class="modal-overlay fixed top-0 left-0 w-screen h-screen grid place-items-center z-[9999]"
+      style={{ animation: "fadeIn 0.2s ease" }}
+      onClick={onClose}
+    >
       <div
-        class={`modal-content${className ? ` ${className}` : ""}`}
+        class={`bg-[var(--bg-card)] border border-[var(--border-accent)] rounded-2xl w-[90%] max-w-[400px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden ${className || ""}`}
+        style={{ animation: "modalSlideIn 0.3s ease" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div class="modal-header">
-          <div class="modal-title-row">
+        <div class="flex items-center justify-between p-6 border-b border-[var(--border-subtle)]">
+          <div class="flex items-center gap-3 text-[var(--accent)]">
             {icon && <Icon name={icon} size={18} />}
-            <h3>{title}</h3>
+            <h3 class="text-[1.1rem] font-semibold text-[var(--text-primary)]">{title}</h3>
           </div>
-          <button class="modal-close" onClick={onClose}>
+          <button
+            class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-1 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+            onClick={onClose}
+          >
             <Icon name="x" size={16} />
           </button>
         </div>

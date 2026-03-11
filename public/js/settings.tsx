@@ -67,17 +67,21 @@ function ToggleRow({
   onChange: () => void;
 }) {
   return (
-    <div class="setting-row">
-      <div class="setting-info">
-        <div class="setting-label">{label}</div>
-        <div class="setting-desc">{desc}</div>
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex-1">
+        <div class="text-[0.9rem] text-[var(--text-primary)] mb-0.5 font-medium">{label}</div>
+        <div class="text-xs text-[var(--text-muted)]">{desc}</div>
       </div>
       <button
         type="button"
-        class={`toggle-btn${value ? " active" : ""}`}
+        class={`w-11 h-6 rounded-xl relative shrink-0 transition-all duration-200 p-0 cursor-pointer border ${
+          value
+            ? "bg-[var(--accent)] border-[var(--accent)]"
+            : "bg-[var(--bg-secondary)] border-[var(--border-accent)]"
+        }`}
         onClick={onChange}
       >
-        <div class="toggle-thumb" />
+        <div class={`toggle-thumb absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${value ? "translate-x-5" : ""}`} />
       </button>
     </div>
   );
@@ -101,10 +105,10 @@ function SliderRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <div class="slider-row">
-      <div class="slider-row-header">
-        <span class="setting-label">{label}</span>
-        <span class="slider-value">{display}</span>
+    <div class="flex flex-col gap-2">
+      <div class="flex justify-between items-center">
+        <span class="text-[0.9rem] text-[var(--text-primary)] font-medium">{label}</span>
+        <span class="text-[0.8rem] text-[var(--accent)] font-semibold">{display}</span>
       </div>
       <input
         type="range"
@@ -211,16 +215,16 @@ function ThemeMakerPane({
   }, [editingThemeId, onThemeApplied]);
 
   return (
-    <div class="settings-pane">
-      <div class="settings-pane-title">
+    <div class="flex flex-col gap-4">
+      <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
         {editingThemeId ? "Edit Custom Theme" : "Create Custom Theme"}
       </div>
 
-      <div class="theme-maker-form">
-        <div class="theme-maker-field">
-          <label class="theme-maker-label">Name</label>
+      <div class="flex flex-col gap-4 bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-[10px] p-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Name</label>
           <input
-            class="theme-maker-input"
+            class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
             type="text"
             placeholder="My Theme"
             value={themeName}
@@ -228,37 +232,41 @@ function ThemeMakerPane({
           />
         </div>
 
-        <div class="theme-maker-field">
-          <label class="theme-maker-label">Accent Color</label>
-          <div class="theme-maker-color-row">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Accent Color</label>
+          <div class="flex items-center gap-2">
             <input
-              class="theme-maker-color-picker"
+              class="w-9 h-9 border border-[var(--border-subtle)] rounded-md cursor-pointer p-0.5 bg-[var(--bg-card)] shrink-0"
               type="color"
               value={accentColor}
               onInput={(e) => setAccentColor((e.target as HTMLInputElement).value)}
             />
             <input
-              class="theme-maker-input"
+              class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
               type="text"
               placeholder="#8b5cf6"
               value={accentColor}
               onInput={(e) => setAccentColor((e.target as HTMLInputElement).value)}
             />
             <div
-              class="theme-maker-accent-preview"
+              class="w-9 h-9 rounded-md border border-[var(--border-subtle)] shrink-0"
               style={{ background: accentColor }}
             />
           </div>
         </div>
 
-        <div class="theme-maker-field">
-          <label class="theme-maker-label">Background</label>
-          <div class="theme-maker-bg-tabs">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Background</label>
+          <div class="flex gap-1.5">
             {(["none", "color", "image"] as const).map((type) => (
               <button
                 key={type}
                 type="button"
-                class={`theme-maker-bg-tab${backgroundType === type ? " active" : ""}`}
+                class={`flex-1 py-1.5 px-2.5 text-xs font-mono border rounded-md cursor-pointer transition-all duration-150 ${
+                  backgroundType === type
+                    ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
+                    : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                }`}
                 onClick={() => setBackgroundType(type)}
               >
                 {type === "none" ? "None" : type === "color" ? "Color" : "Image URL"}
@@ -267,15 +275,15 @@ function ThemeMakerPane({
           </div>
 
           {backgroundType === "color" && (
-            <div class="theme-maker-color-row" style={{ marginTop: "0.5rem" }}>
+            <div class="flex items-center gap-2 mt-2">
               <input
-                class="theme-maker-color-picker"
+                class="w-9 h-9 border border-[var(--border-subtle)] rounded-md cursor-pointer p-0.5 bg-[var(--bg-card)] shrink-0"
                 type="color"
                 value={backgroundValue || "#000000"}
                 onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
               />
               <input
-                class="theme-maker-input"
+                class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
                 type="text"
                 placeholder="#000000"
                 value={backgroundValue}
@@ -285,27 +293,27 @@ function ThemeMakerPane({
           )}
 
           {backgroundType === "image" && (
-            <div style={{ marginTop: "0.5rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <div class="theme-maker-image-source-tabs">
+            <div class="mt-2 flex flex-col gap-2">
+              <div class="flex gap-1">
                 <button
                   type="button"
-                  class={`theme-maker-image-source-tab${imageSourceMode === "url" ? " active" : ""}`}
-                  onClick={() => {
-                    setImageSourceMode("url");
-                    setBackgroundValue("");
-                    setUploadedFileName(null);
-                  }}
+                  class={`flex-1 py-1 px-2.5 text-[0.72rem] font-mono border rounded cursor-pointer transition-all duration-150 ${
+                    imageSourceMode === "url"
+                      ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
+                      : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                  }`}
+                  onClick={() => { setImageSourceMode("url"); setBackgroundValue(""); setUploadedFileName(null); }}
                 >
                   URL
                 </button>
                 <button
                   type="button"
-                  class={`theme-maker-image-source-tab${imageSourceMode === "upload" ? " active" : ""}`}
-                  onClick={() => {
-                    setImageSourceMode("upload");
-                    setBackgroundValue("");
-                    setUploadedFileName(null);
-                  }}
+                  class={`flex-1 py-1 px-2.5 text-[0.72rem] font-mono border rounded cursor-pointer transition-all duration-150 ${
+                    imageSourceMode === "upload"
+                      ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
+                      : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                  }`}
+                  onClick={() => { setImageSourceMode("upload"); setBackgroundValue(""); setUploadedFileName(null); }}
                 >
                   Upload
                 </button>
@@ -313,7 +321,7 @@ function ThemeMakerPane({
 
               {imageSourceMode === "url" && (
                 <input
-                  class="theme-maker-input"
+                  class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
                   type="text"
                   placeholder="https://example.com/wallpaper.jpg"
                   value={backgroundValue}
@@ -322,7 +330,10 @@ function ThemeMakerPane({
               )}
 
               {imageSourceMode === "upload" && (
-                <div class="theme-maker-upload-area" onClick={() => fileInputRef.current?.click()}>
+                <div
+                  class="border border-dashed border-[var(--border-accent)] rounded-lg py-3 px-4 cursor-pointer transition-all duration-150 bg-[var(--bg-card)] hover:border-[var(--accent)] hover:bg-[var(--accent-dim)]"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -331,12 +342,12 @@ function ThemeMakerPane({
                     onChange={handleFileUpload}
                   />
                   {uploadedFileName ? (
-                    <div class="theme-maker-upload-done">
+                    <div class="flex items-center gap-2 text-[var(--accent)] text-[0.78rem] min-w-0">
                       <Icon name="image" size={14} />
-                      <span>{uploadedFileName}</span>
+                      <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{uploadedFileName}</span>
                       <button
                         type="button"
-                        class="theme-maker-upload-clear"
+                        class="flex items-center justify-center w-[18px] h-[18px] rounded bg-transparent border-none text-[var(--text-muted)] cursor-pointer shrink-0 transition-colors duration-150 hover:text-[var(--danger)]"
                         onClick={(e) => {
                           e.stopPropagation();
                           setBackgroundValue("");
@@ -348,7 +359,7 @@ function ThemeMakerPane({
                       </button>
                     </div>
                   ) : (
-                    <div class="theme-maker-upload-prompt">
+                    <div class="flex items-center justify-center gap-2 text-[var(--text-secondary)] text-[0.78rem]">
                       <Icon name="upload" size={16} />
                       <span>Click to upload image</span>
                     </div>
@@ -360,10 +371,10 @@ function ThemeMakerPane({
         </div>
 
         {backgroundType !== "none" && (
-          <div class="theme-maker-field">
-            <div class="slider-row-header">
-              <label class="theme-maker-label">Overlay Opacity</label>
-              <span class="slider-value">{Math.round(overlayOpacity * 100)}%</span>
+          <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between items-center">
+              <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Overlay Opacity</label>
+              <span class="text-[0.8rem] text-[var(--accent)] font-semibold">{Math.round(overlayOpacity * 100)}%</span>
             </div>
             <input
               type="range"
@@ -377,15 +388,19 @@ function ThemeMakerPane({
           </div>
         )}
 
-        <div class="theme-maker-actions">
+        <div class="flex gap-2 justify-end mt-1">
           {editingThemeId && (
-            <button type="button" class="theme-maker-btn secondary" onClick={resetForm}>
+            <button
+              type="button"
+              class="font-mono text-[0.78rem] py-1.5 px-4 rounded-md cursor-pointer transition-all duration-150 border bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+              onClick={resetForm}
+            >
               Cancel
             </button>
           )}
           <button
             type="button"
-            class="theme-maker-btn primary"
+            class="font-mono text-[0.78rem] py-1.5 px-4 rounded-md cursor-pointer transition-all duration-150 border bg-[var(--accent)] text-white border-[var(--accent)] hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={handleSave}
             disabled={!themeName.trim()}
           >
@@ -396,37 +411,34 @@ function ThemeMakerPane({
 
       {customThemes.length > 0 && (
         <div>
-          <div class="settings-pane-title" style={{ marginTop: "0.5rem" }}>Saved Themes</div>
-          <div class="theme-maker-saved-list">
+          <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1 mt-2">Saved Themes</div>
+          <div class="flex flex-col gap-1.5">
             {customThemes.map((savedTheme) => (
-              <div key={savedTheme.id} class="theme-maker-saved-item">
-                <div class="theme-maker-saved-info">
+              <div key={savedTheme.id} class="flex items-center justify-between bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-lg py-2 px-3 transition-[border-color] duration-150 hover:border-[var(--border-accent)]">
+                <div class="flex items-center gap-2.5 min-w-0">
                   <div
-                    class="theme-maker-saved-swatch"
+                    class="w-[18px] h-[18px] rounded shrink-0 border border-white/10"
                     style={{ background: savedTheme.accent }}
                   />
-                  <span class="theme-maker-saved-name">{savedTheme.label}</span>
+                  <span class="text-[0.8rem] text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{savedTheme.label}</span>
                   {savedTheme.backgroundType !== "none" && (
-                    <span class="theme-maker-saved-badge">
+                    <span class="text-[0.65rem] py-0.5 px-1.5 bg-[var(--accent-dim)] text-[var(--accent)] rounded whitespace-nowrap shrink-0">
                       {savedTheme.backgroundType === "image" ? "img" : "color"} bg
                     </span>
                   )}
                 </div>
-                <div class="theme-maker-saved-btns">
+                <div class="flex gap-1 shrink-0">
                   <button
                     type="button"
-                    class="theme-maker-small-btn"
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
                     title="Apply"
-                    onClick={() => {
-                      applyTheme(savedTheme.id);
-                      onThemeApplied(savedTheme.id);
-                    }}
+                    onClick={() => { applyTheme(savedTheme.id); onThemeApplied(savedTheme.id); }}
                   >
                     <Icon name="check" size={13} />
                   </button>
                   <button
                     type="button"
-                    class="theme-maker-small-btn"
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
                     title="Edit"
                     onClick={() => handleEdit(savedTheme)}
                   >
@@ -434,7 +446,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="theme-maker-small-btn danger"
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--danger)] hover:text-[var(--danger)] hover:bg-[rgba(239,68,68,0.08)]"
                     title="Delete"
                     onClick={() => handleDelete(savedTheme.id)}
                   >
@@ -525,29 +537,38 @@ export function SettingsModal() {
 
   return (
     <div
-      class={`modal-backdrop${isOpen ? " active" : ""}`}
+      class={`fixed top-0 left-0 w-screen h-screen bg-black/60 backdrop-blur-[8px] z-[9999] grid place-items-center ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} transition-opacity duration-200`}
       id="modalBackdrop"
       onClick={handleBackdropClick}
     >
-      <div class="settings-modal-full">
-        <div class="settings-modal-header">
-          <div class="settings-modal-title">
-            <Icon name="settings" size={18} />
+      <div
+        class="bg-[var(--bg-card)] border border-[var(--border-accent)] rounded-2xl w-[92vw] max-w-[680px] h-[80vh] flex flex-col overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+        style={{ animation: "modalSlideIn 0.25s ease" }}
+      >
+        <div class="flex items-center justify-between py-5 px-6 border-b border-[var(--border-subtle)] shrink-0">
+          <div class="text-[1.05rem] font-semibold text-[var(--text-primary)] flex items-center gap-2.5">
+            <Icon name="settings" size={18} class="text-[var(--accent)]" />
             Settings
           </div>
-          <Button class="close-btn" id="closeBtn" onClick={handleClose}>
+          <Button
+            class="w-8 h-8 bg-transparent border-none rounded-md flex items-center justify-center cursor-pointer transition-all duration-200 text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+            id="closeBtn"
+            onClick={handleClose}
+          >
             <Icon name="x" size={16} />
           </Button>
         </div>
 
-        <div class="settings-layout">
-          <nav class="settings-sidebar">
+        <div class="flex flex-1 overflow-hidden">
+          <nav class="settings-content w-40 shrink-0 border-r border-[var(--border-subtle)] py-3 px-2 flex flex-col gap-0.5 bg-[var(--bg-secondary)] overflow-y-auto">
             {categories.map(({ id, label, icon }) => (
               <button
                 type="button"
                 key={id}
-                class={`settings-nav-item${
-                  activeCategory === id ? " active" : ""
+                class={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg border-none bg-transparent font-[inherit] text-[0.85rem] cursor-pointer transition-all duration-150 text-left w-full ${
+                  activeCategory === id
+                    ? "bg-[var(--accent-dim)] text-[var(--accent)]"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]"
                 }`}
                 onClick={() => setActiveCategory(id)}
               >
@@ -557,16 +578,18 @@ export function SettingsModal() {
             ))}
           </nav>
 
-          <div class="settings-content">
+          <div class="settings-content flex-1 overflow-y-auto p-6">
             {activeCategory === "appearance" && (
-              <div class="settings-pane">
-                <div class="settings-pane-title">Accent Color</div>
-                <div class="color-grid">
+              <div class="flex flex-col gap-4">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Accent Color</div>
+                <div class="grid grid-cols-5 gap-3">
                   {themes.map(({ id, label }) => (
                     <div
                       key={id}
-                      class={`color-option${
-                        id === currentTheme ? " active" : ""
+                      class={`color-option aspect-square rounded-[10px] border-2 cursor-pointer transition-all duration-200 relative flex items-center justify-center ${
+                        id === currentTheme
+                          ? "active border-[var(--accent)] shadow-[0_0_0_3px_var(--accent-dim)]"
+                          : "border-[var(--border-subtle)] hover:border-[var(--border-accent)] hover:scale-105"
                       }`}
                       data-color={id}
                       title={label}
@@ -587,15 +610,17 @@ export function SettingsModal() {
             )}
 
             {activeCategory === "dock" && (
-              <div class="settings-pane">
-                <div class="settings-pane-title">Position</div>
-                <div class="dock-position-grid">
+              <div class="flex flex-col gap-4">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Position</div>
+                <div class="grid grid-cols-4 gap-2">
                   {dockPositions.map(({ id, label, icon }) => (
                     <button
                       type="button"
                       key={id}
-                      class={`dock-pos-btn${
-                        dockPosition === id ? " active" : ""
+                      class={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-[10px] border font-[inherit] text-xs cursor-pointer transition-all duration-200 ${
+                        dockPosition === id
+                          ? "border-[var(--accent)] bg-[var(--accent-dim)] text-[var(--accent)]"
+                          : "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                       }`}
                       onClick={() => {
                         setDockPosition(id);
@@ -608,7 +633,7 @@ export function SettingsModal() {
                   ))}
                 </div>
 
-                <div style="margin-top: 1.25rem;">
+                <div class="mt-5">
                   <ToggleRow
                     label="Compact Mode"
                     desc="Icons only, hide labels"
@@ -625,7 +650,7 @@ export function SettingsModal() {
             )}
 
             {activeCategory === "interface" && (
-              <div class="settings-pane">
+              <div class="flex flex-col gap-4">
                 <ToggleRow
                   label="Disable Animations"
                   desc="Turn off all transitions and effects"
@@ -641,7 +666,7 @@ export function SettingsModal() {
             )}
 
             {activeCategory === "style" && (
-              <div class="settings-pane">
+              <div class="flex flex-col gap-4">
                 <SliderRow
                   label="Opacity"
                   value={uiOpacity}
@@ -664,8 +689,8 @@ export function SettingsModal() {
             )}
 
             {activeCategory === "data" && (
-              <div class="settings-pane">
-                <div class="settings-pane-title">
+              <div class="flex flex-col gap-4">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
                   Refresh Interval — {(refreshInterval / 1000).toFixed(1)}s
                 </div>
                 <input
@@ -678,7 +703,7 @@ export function SettingsModal() {
                   class="refresh-slider"
                   onInput={handleRefreshChange}
                 />
-                <div class="refresh-ticks">
+                <div class="flex justify-between mt-1.5 text-[0.65rem] text-[var(--text-muted)]">
                   <span>0.1s</span>
                   <span>5s</span>
                   <span>10s</span>
@@ -687,16 +712,18 @@ export function SettingsModal() {
             )}
 
             {activeCategory === "search" && (
-              <div class="settings-pane">
-                <div class="settings-pane-title">Search Engine</div>
-                <div class="search-engine-options">
+              <div class="flex flex-col gap-4">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Search Engine</div>
+                <div class="flex flex-col gap-2 mb-2">
                   {(["google", "startpage", "custom"] as const).map((e) => (
-                    <label key={e} class="search-engine-option">
+                    <label key={e} class="flex items-center gap-2.5 text-[0.9rem] text-[var(--text-secondary)] cursor-pointer py-1.5 hover:text-[var(--text-primary)]">
                       <input
                         type="radio"
                         name="searchEngine"
                         value={e}
                         checked={searchEngine === e}
+                        class="w-3.5 h-3.5"
+                        style={{ accentColor: "var(--accent)" }}
                         onChange={() => {
                           setSearchEngine(e);
                           localStorage.setItem("searchEngine", e);
@@ -707,11 +734,11 @@ export function SettingsModal() {
                   ))}
                 </div>
                 {searchEngine === "custom" && (
-                  <div style="margin-top: 1rem;">
-                    <div class="settings-pane-title">Custom URL template</div>
-                    <p class="setting-desc" style="margin-bottom: 0.5rem;">Use <code>%s</code> where the query should go.</p>
+                  <div class="mt-4">
+                    <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Custom URL template</div>
+                    <p class="text-xs text-[var(--text-muted)] mb-2">Use <code>%s</code> where the query should go.</p>
                     <input
-                      class="search-engine-url-input"
+                      class="w-full bg-[var(--bg-secondary)] border border-[var(--border-accent)] rounded-lg py-2.5 px-3.5 text-[var(--text-primary)] font-[inherit] text-[0.85rem] outline-none transition-[border-color] duration-200 focus:border-[var(--accent)] placeholder:text-[var(--text-muted)]"
                       type="text"
                       placeholder="https://example.com/search?q=%s"
                       value={customSearchUrl}

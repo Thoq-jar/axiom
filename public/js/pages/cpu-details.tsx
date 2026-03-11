@@ -47,51 +47,37 @@ export function CpuDetailsPage() {
   const model = cpuInfo.model || "Unknown";
 
   return (
-    <div class="container">
-      <header>
-        <div class="logo">
-          <div class="logo-mark">
+    <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+      <header class="mb-16 opacity-0 flex items-center justify-between" style={{ animation: "fadeSlideIn 0.6s ease forwards" }}>
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
             <Icon name="cpu" size={24} />
           </div>
-          <div class="logo-content">
-            <h1>CPU Details</h1>
-            <p class="subtitle">Processor Information</p>
+          <div class="flex flex-col">
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">CPU Details</h1>
+            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">Processor Information</p>
           </div>
         </div>
       </header>
 
       {error && (
-        <div class="error-banner" id="errorBanner">
+        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-[var(--danger)] py-4 px-5 rounded-lg text-[0.8rem] mb-6">
           Connection lost. Attempting to reconnect...
         </div>
       )}
 
-      <div class="details-grid" id="cpuDetailsGrid">
-        <DetailCard
-          title="CPU Usage"
-          icon="fa-solid fa-microchip"
-          value={cpuUsageValue}
-          subtitle="Current Utilization"
-          extra={cpuUsageExtra}
-        />
-        <DetailCard
-          title="Load Average"
-          icon="fa-solid fa-chart-line"
-          value={loadAverage}
-          subtitle="System Load"
-          extra={loadAverageExtra}
-        />
-        <DetailCard
-          title="Core Count"
-          icon="fa-solid fa-list"
-          value={coreCount}
-          subtitle="CPU cores present"
-          extra={coreCountExtra}
-        />
+      <div
+        class="details-grid grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6 mb-8 opacity-0 max-[768px]:grid-cols-1"
+        style={{ animation: "fadeSlideIn 0.5s ease 0.1s forwards" }}
+        id="cpuDetailsGrid"
+      >
+        <DetailCard title="CPU Usage" icon="fa-solid fa-microchip" value={cpuUsageValue} subtitle="Current Utilization" extra={cpuUsageExtra} />
+        <DetailCard title="Load Average" icon="fa-solid fa-chart-line" value={loadAverage} subtitle="System Load" extra={loadAverageExtra} />
+        <DetailCard title="Core Count" icon="fa-solid fa-list" value={coreCount} subtitle="CPU cores present" extra={coreCountExtra} />
       </div>
 
       <Dropdown id="cpu-advanced" title="Advanced CPU Information">
-        <div class="mt-1">
+        <div class="mt-4">
           <InfoRow label="Architecture" value={architecture} />
           <InfoRow label="Cores" value={cores} />
           <InfoRow label="Frequency" value={frequency} />
@@ -102,35 +88,34 @@ export function CpuDetailsPage() {
       </Dropdown>
 
       <Dropdown id="cpu-processes" title="Top Processes by CPU Usage">
-        <div class="mt-1" id="cpu-processes-list">
+        <div class="mt-4" id="cpu-processes-list">
           {data?.processes && Array.isArray(data.processes) &&
               data.processes.length > 0
             ? (
-              <div class="processes-grid">
+              <div class="grid gap-2">
                 {data.processes.map((proc, idx) => (
-                  <div key={idx} class="process-item">
-                    <div class="process-item-content">
-                      <div class="process-item-name">
+                  <div key={idx} class="flex justify-between items-center p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-subtle)]">
+                    <div class="flex-1">
+                      <div class="font-semibold text-[var(--text-primary)] mb-1">
                         {idx + 1}. {proc.name}
                       </div>
-                      <div class="process-item-details">
+                      <div class="text-xs text-[var(--text-secondary)]">
                         CPU: {proc.cpu.toFixed(1)}% | Memory:{" "}
                         {proc.mem.toFixed(1)}%
                       </div>
                     </div>
-                    <div class="process-bar-container">
+                    <div class="w-[60px] h-1 bg-[var(--bg-card)] rounded-sm overflow-hidden ml-4">
                       <div
-                        class="process-bar-fill"
+                        class="h-full bg-[var(--accent)] transition-[width] duration-300"
                         style={{ width: `${proc.cpu}%` }}
-                      >
-                      </div>
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             )
             : (
-              <p class="text-secondary">
+              <p class="text-[var(--text-secondary)]">
                 {data
                   ? "No process information available"
                   : "Loading process information..."}

@@ -111,7 +111,10 @@ function getSearchUrl(query: string): string {
 }
 
 function LocationSetupModal(
-  { onDone, onClose }: { onDone: (location: Location) => void; onClose: () => void },
+  { onDone, onClose }: {
+    onDone: (location: Location) => void;
+    onClose: () => void;
+  },
 ) {
   const [step, setStep] = useState<"ask" | "manual" | "loading">("ask");
   const [manualInput, setManualInput] = useState("");
@@ -188,18 +191,27 @@ function LocationSetupModal(
   };
 
   return (
-    <Modal title="Set your location" icon="map-pin" onClose={onClose} class="location-setup-modal">
-      <div class="overview-location-body">
-        <p class="overview-location-subtitle">
+    <Modal
+      title="Set your location"
+      icon="map-pin"
+      onClose={onClose}
+      class="!w-[420px] !max-w-[95vw]"
+    >
+      <div class="flex flex-col items-center gap-4 p-6 text-center">
+        <p class="text-[0.82rem] text-[var(--text-secondary)] leading-relaxed m-0">
           Used for weather on the overview page. Stored locally only.
         </p>
 
-        {error && <div class="overview-location-error">{error}</div>}
+        {error && (
+          <div class="text-[0.8rem] text-[var(--danger)] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] rounded-lg py-2 px-4 w-full">
+            {error}
+          </div>
+        )}
 
         {step === "ask" && (
-          <div class="overview-location-actions">
+          <div class="flex flex-col gap-2 w-full mt-1">
             <button
-              class="overview-loc-btn primary"
+              class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-[var(--accent)] font-[inherit] transition-all duration-200 w-full bg-[var(--accent)] text-white hover:brightness-110"
               type="button"
               onClick={tryDeviceLocation}
             >
@@ -207,7 +219,7 @@ function LocationSetupModal(
               Use device location
             </button>
             <button
-              class="overview-loc-btn secondary"
+              class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-[var(--accent)] font-[inherit] transition-all duration-200 w-full bg-[var(--accent-dim)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
               type="button"
               onClick={tryIPGeolocation}
             >
@@ -215,7 +227,7 @@ function LocationSetupModal(
               Use IP geolocation
             </button>
             <button
-              class="overview-loc-btn ghost"
+              class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-[var(--border-subtle)] font-[inherit] transition-all duration-200 w-full bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               type="button"
               onClick={() => setStep("manual")}
             >
@@ -226,9 +238,9 @@ function LocationSetupModal(
         )}
 
         {step === "manual" && (
-          <div class="overview-location-manual">
+          <div class="w-full flex flex-col gap-2">
             <input
-              class="overview-loc-input"
+              class="w-full bg-[var(--bg-secondary)] border border-[var(--border-accent)] rounded-lg py-2.5 px-3.5 text-[var(--text-primary)] font-[inherit] text-[0.85rem] outline-none transition-[border-color] duration-200 focus:border-[var(--accent)] placeholder:text-[var(--text-muted)]"
               type="text"
               placeholder="City name, e.g. London"
               value={manualInput}
@@ -237,9 +249,9 @@ function LocationSetupModal(
               onKeyDown={(event) => event.key === "Enter" && tryManualEntry()}
               autoFocus
             />
-            <div class="overview-location-actions">
+            <div class="flex flex-col gap-2 w-full mt-1">
               <button
-                class="overview-loc-btn primary"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-[var(--accent)] font-[inherit] transition-all duration-200 w-full bg-[var(--accent)] text-white hover:brightness-110"
                 type="button"
                 onClick={tryManualEntry}
               >
@@ -247,7 +259,7 @@ function LocationSetupModal(
                 Find location
               </button>
               <button
-                class="overview-loc-btn ghost"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-[var(--border-subtle)] font-[inherit] transition-all duration-200 w-full bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 type="button"
                 onClick={() => {
                   setStep("ask");
@@ -261,8 +273,11 @@ function LocationSetupModal(
         )}
 
         {step === "loading" && (
-          <div class="overview-location-loading">
-            <div class="overview-spinner" />
+          <div class="flex items-center gap-3 text-[var(--text-secondary)] text-[0.85rem] mt-2">
+            <div
+              class="w-5 h-5 border-2 border-[var(--border-accent)] border-t-[var(--accent)] rounded-full shrink-0"
+              style={{ animation: "spin 0.7s linear infinite" }}
+            />
             <span>Fetching location…</span>
           </div>
         )}
@@ -307,10 +322,19 @@ function Clock() {
   const greeting = getGreeting(now.getHours());
 
   return (
-    <div class="overview-clock">
-      <div class="overview-greeting">{greeting}</div>
-      <div class="overview-time">{timeString}</div>
-      <div class="overview-date">{dateString}</div>
+    <div
+      class="mb-6 opacity-0"
+      style={{ animation: "fadeSlideIn 0.5s ease 0.1s forwards" }}
+    >
+      <div class="text-[0.85rem] text-[var(--accent)] uppercase tracking-widest font-semibold mb-1">
+        {greeting}
+      </div>
+      <div class="text-[3.5rem] font-bold tracking-tighter text-[var(--text-primary)] tabular-nums leading-none">
+        {timeString}
+      </div>
+      <div class="text-[0.85rem] text-[var(--text-secondary)] mt-1.5">
+        {dateString}
+      </div>
     </div>
   );
 }
@@ -327,12 +351,23 @@ function SearchBar() {
   };
 
   return (
-    <div class="overview-search-wrapper">
-      <form class="overview-search-bar" onSubmit={handleSubmit}>
-        <Icon name="search" size={16} class="overview-search-icon" />
+    <div
+      class="relative mb-6 opacity-0"
+      style={{ animation: "fadeSlideIn 0.5s ease 0.2s forwards" }}
+    >
+      <form
+        class="flex items-center gap-2 border border-[var(--ui-border)] rounded-[10px] py-2.5 px-3 transition-all duration-200 [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] focus-within:border-[var(--accent)] focus-within:shadow-[0_0_0_3px_var(--accent-dim)]"
+        style={{ background: "var(--ui-bg)" }}
+        onSubmit={handleSubmit}
+      >
+        <Icon
+          name="search"
+          size={16}
+          class="text-[var(--text-muted)] shrink-0"
+        />
         <input
           ref={inputRef}
-          class="overview-search-input"
+          class="flex-1 bg-transparent border-none outline-none text-[var(--text-primary)] font-[inherit] text-[0.9rem] placeholder:text-[var(--text-muted)]"
           type="text"
           placeholder="Search the web…"
           value={query}
@@ -344,7 +379,7 @@ function SearchBar() {
         {query && (
           <button
             type="button"
-            class="overview-search-clear"
+            class="bg-transparent border-none text-[var(--text-muted)] cursor-pointer p-0.5 flex items-center rounded transition-all duration-200 hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
             onClick={() => {
               setQuery("");
               inputRef.current?.focus();
@@ -427,10 +462,7 @@ function WeatherWidget({ location }: { location: Location }) {
             hourlyPoints.push({
               time: new Date(data.hourly.time[index] * 1000).toLocaleTimeString(
                 [],
-                {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                },
+                { hour: "2-digit", minute: "2-digit" },
               ),
               temperature: Math.round(data.hourly.temperature_2m[index]),
               weatherCode: data.hourly.weathercode[index],
@@ -482,8 +514,17 @@ function WeatherWidget({ location }: { location: Location }) {
 
   if (isLoading) {
     return (
-      <div class="overview-weather loading">
-        <div class="overview-spinner" />
+      <div
+        class="flex items-center gap-3 text-[var(--text-secondary)] text-[0.85rem] p-6 rounded-[14px] border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] opacity-0"
+        style={{
+          background: "var(--ui-bg)",
+          animation: "fadeSlideIn 0.5s ease 0.15s forwards",
+        }}
+      >
+        <div
+          class="w-5 h-5 border-2 border-[var(--border-accent)] border-t-[var(--accent)] rounded-full shrink-0"
+          style={{ animation: "spin 0.7s linear infinite" }}
+        />
         <span>Loading weather…</span>
       </div>
     );
@@ -491,7 +532,13 @@ function WeatherWidget({ location }: { location: Location }) {
 
   if (hasError || !weather) {
     return (
-      <div class="overview-weather error">
+      <div
+        class="flex items-center gap-3 text-[var(--text-secondary)] text-[0.85rem] p-6 rounded-[14px] border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] opacity-0"
+        style={{
+          background: "var(--ui-bg)",
+          animation: "fadeSlideIn 0.5s ease 0.15s forwards",
+        }}
+      >
         <Icon name="cloud-off" size={20} />
         <span>Weather unavailable</span>
       </div>
@@ -539,104 +586,145 @@ function WeatherWidget({ location }: { location: Location }) {
   ];
 
   return (
-    <div class="overview-weather">
-      <div class="weather-hero">
-        <div class="weather-hero-main">
+    <div
+      class="flex flex-col rounded-[14px] border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] opacity-0"
+      style={{
+        background: "var(--ui-bg)",
+        animation: "fadeSlideIn 0.5s ease 0.15s forwards",
+      }}
+    >
+      <div class="p-6 pb-4 border-b border-[var(--border-subtle)]">
+        <div class="flex items-center gap-4 mb-2">
           <Icon
             name={wmoIcon(weather.weatherCode)}
             size={56}
-            class="overview-weather-icon"
+            class="text-[var(--accent)]"
           />
           <div>
-            <div class="weather-hero-temp">{weather.temperature}°C</div>
-            <div class="weather-hero-desc">
+            <div class="text-[3rem] font-bold text-[var(--text-primary)] tracking-tighter tabular-nums leading-none">
+              {weather.temperature}°C
+            </div>
+            <div class="text-[0.95rem] text-[var(--text-secondary)] mt-1">
               {wmoDescription(weather.weatherCode)}
             </div>
           </div>
         </div>
-        <div class="weather-hero-location">
+        <div class="flex items-center gap-1 text-xs text-[var(--text-muted)]">
           <Icon name="map-pin" size={12} />
           {location.name}
         </div>
       </div>
 
-      <div class="weather-conditions">
-        {conditions.map(({ icon, label, value }) => (
-          <div key={label} class="weather-condition-item">
+      <div class="grid grid-cols-2 border-b border-[var(--border-subtle)]">
+        {conditions.map(({ icon, label, value }, idx) => (
+          <div
+            key={label}
+            class={`flex items-center gap-2 py-2.5 px-5 text-[0.78rem] text-[var(--text-secondary)] ${
+              idx < conditions.length - 2
+                ? "border-b border-[var(--border-subtle)]"
+                : ""
+            } ${idx % 2 === 0 ? "border-r border-[var(--border-subtle)]" : ""}`}
+          >
             <Icon name={icon} size={13} />
-            <span class="weather-condition-label">{label}</span>
-            <span class="weather-condition-val">{value}</span>
+            <span class="flex-1 text-[var(--text-secondary)] text-[0.72rem]">
+              {label}
+            </span>
+            <span class="font-semibold text-[var(--text-primary)] text-[0.78rem] tabular-nums text-right">
+              {value}
+            </span>
           </div>
         ))}
       </div>
 
-      <div class="weather-section-title">
+      <div class="flex items-center gap-1.5 text-[0.62rem] uppercase tracking-[0.12em] text-[var(--text-muted)] py-3 px-5 pt-3 pb-1.5">
         <Icon name="clock" size={12} />
         Next 24 hours
       </div>
-      <div class="weather-hourly">
+      <div
+        class="weather-hourly flex overflow-x-auto py-1 px-4 pb-3"
+        style={{ scrollbarWidth: "none" }}
+      >
         {weather.hourly.slice(0, 12).map((point) => {
           const barHeight = maxHourlyTemp === minHourlyTemp ? 50 : Math.round(
             ((point.temperature - minHourlyTemp) /
                   (maxHourlyTemp - minHourlyTemp)) * 60 + 10,
           );
           return (
-            <div key={point.time} class="weather-hourly-item">
-              <span class="weather-hourly-time">{point.time}</span>
+            <div
+              key={point.time}
+              class="flex flex-col items-center gap-0.5 min-w-[48px] px-1 shrink-0"
+            >
+              <span class="text-[0.65rem] text-[var(--text-muted)] whitespace-nowrap">
+                {point.time}
+              </span>
               <Icon
                 name={wmoIcon(point.weatherCode)}
                 size={14}
-                class="weather-hourly-icon"
+                class="text-[var(--accent)]"
               />
               {point.precipitation > 0 && (
-                <span class="weather-hourly-precip">
+                <span class="text-[0.6rem] text-[#60a5fa]">
                   {point.precipitation.toFixed(1)}
                 </span>
               )}
-              <div class="weather-hourly-bar-wrap">
+              <div class="h-[70px] w-1.5 bg-[var(--bg-secondary)] rounded-sm flex items-end overflow-hidden my-0.5">
                 <div
-                  class="weather-hourly-bar"
+                  class="w-full bg-[var(--accent)] rounded-sm opacity-70 min-h-1"
                   style={{ height: `${barHeight}px` }}
                 />
               </div>
-              <span class="weather-hourly-temp">{point.temperature}°</span>
+              <span class="text-[0.72rem] font-semibold text-[var(--text-primary)] tabular-nums">
+                {point.temperature}°
+              </span>
             </div>
           );
         })}
       </div>
 
-      <div class="weather-section-title">
+      <div class="flex items-center gap-1.5 text-[0.62rem] uppercase tracking-[0.12em] text-[var(--text-muted)] py-3 px-5 pt-3 pb-1.5">
         <Icon name="calendar-days" size={12} />
         7-day forecast
       </div>
-      <div class="weather-daily">
+      <div class="flex flex-col border-t border-[var(--border-subtle)]">
         {weather.daily.map((point, index) => (
           <div
             key={point.date}
-            class={`weather-daily-row${index === 0 ? " today" : ""}`}
+            class={`flex items-center gap-3 py-2 px-5 border-b border-[var(--border-subtle)] text-[0.8rem] last:border-b-0 ${
+              index === 0 ? "bg-[var(--accent-dim)]" : ""
+            }`}
           >
-            <span class="weather-daily-day">
+            <span
+              class={`w-[52px] text-[0.78rem] shrink-0 ${
+                index === 0
+                  ? "text-[var(--accent)] font-semibold"
+                  : "text-[var(--text-secondary)]"
+              }`}
+            >
               {index === 0 ? "Today" : point.date.split(",")[0]}
             </span>
             <Icon
               name={wmoIcon(point.weatherCode)}
               size={15}
-              class="weather-daily-icon"
+              class="text-[var(--accent)] shrink-0"
             />
-            <div class="weather-daily-bar-wrap">
+            <div class="flex-1 h-1 bg-[var(--bg-secondary)] rounded-sm overflow-hidden">
               <div
-                class="weather-daily-bar"
+                class="h-full bg-[var(--accent)] rounded-sm opacity-70 min-w-0.5"
                 title={`${point.precipitationProbability}% chance`}
                 style={{ width: `${point.precipitationProbability}%` }}
               />
             </div>
             {point.precipitationProbability > 0 && (
-              <span class="weather-daily-precip">
+              <span class="text-[0.68rem] text-[var(--accent)] w-[30px] text-right shrink-0">
                 {point.precipitationProbability}%
               </span>
             )}
-            <span class="weather-daily-low">{point.lowTemperature}°</span>
-            <span class="weather-daily-high">{point.highTemperature}°</span>
+            <span class="text-[0.78rem] text-[var(--text-muted)] w-7 text-right shrink-0 tabular-nums">
+              {point.lowTemperature}°
+            </span>
+            <span class="text-[0.78rem] font-semibold text-[var(--text-primary)] w-7 text-right shrink-0 tabular-nums">
+              {point.highTemperature}°
+            </span>
           </div>
         ))}
       </div>
@@ -698,22 +786,32 @@ function SystemStats() {
     const barColor = getBarColor(percentage);
     return (
       <div
-        class="overview-stat-block"
+        class="rounded-[10px] py-3 px-4 cursor-pointer border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform]"
+        style={{ background: "var(--ui-bg)" }}
         onClick={() => navigate(targetPage)}
       >
-        <div class="overview-stat-block-header">
-          <div class="overview-stat-block-icon">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-[26px] h-[26px] bg-[var(--accent-dim)] rounded-md flex items-center justify-center text-[var(--accent)] shrink-0">
             <Icon name={icon} size={16} />
           </div>
-          <span class="overview-stat-block-label">{label}</span>
-          <span class="overview-stat-block-value" style={{ color: barColor }}>
+          <span class="text-[0.8rem] text-[var(--text-secondary)] flex-1">
+            {label}
+          </span>
+          <span
+            class="text-[0.9rem] font-bold tabular-nums"
+            style={{ color: barColor }}
+          >
             {percentageString}
           </span>
         </div>
-        {detail && <div class="overview-stat-block-sub">{detail}</div>}
-        <div class="overview-stat-block-bar">
+        {detail && (
+          <div class="text-[0.72rem] text-[var(--text-muted)] mb-1.5 pl-8">
+            {detail}
+          </div>
+        )}
+        <div class="h-[3px] bg-[var(--bg-secondary)] rounded-sm overflow-hidden">
           <div
-            class="overview-stat-block-fill"
+            class="h-full rounded-sm min-w-0.5 transition-[width] duration-400"
             style={{ width: `${percentage ?? 0}%`, background: barColor }}
           />
         </div>
@@ -722,12 +820,15 @@ function SystemStats() {
   }
 
   return (
-    <div class="overview-stats-section">
-      <div class="overview-section-title">
+    <div
+      class="mb-6 opacity-0"
+      style={{ animation: "fadeSlideIn 0.5s ease 0.35s forwards" }}
+    >
+      <div class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.12em] text-[var(--text-muted)] mb-3">
         <Icon name="activity" size={14} />
         System
       </div>
-      <div class="overview-stat-blocks">
+      <div class="flex flex-col gap-2">
         <StatBlock
           icon="cpu"
           label="Processor"
@@ -779,29 +880,37 @@ function QuickNav() {
   ];
 
   return (
-    <div class="overview-quicknav-section">
-      <div class="overview-section-title">
+    <div
+      class="opacity-0"
+      style={{ animation: "fadeSlideIn 0.5s ease 0.45s forwards" }}
+    >
+      <div class="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.12em] text-[var(--text-muted)] mb-3">
         <Icon name="layout-grid" size={14} />
         Quick access
       </div>
-      <div class="overview-quicknav-grid">
+      <div class="flex flex-col gap-1.5">
         {navigationCards.map((card) => (
           <div
             key={card.targetPage}
-            class="overview-quicknav-card"
+            class="rounded-[10px] py-3 px-4 flex items-center gap-3 cursor-pointer border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] group"
+            style={{ background: "var(--ui-bg)" }}
             onClick={() => navigate(card.targetPage)}
           >
-            <div class="overview-quicknav-icon">
+            <div class="w-8 h-8 bg-[var(--accent-dim)] rounded-lg flex items-center justify-center text-[var(--accent)] shrink-0">
               <Icon name={card.icon} size={18} />
             </div>
-            <div class="overview-quicknav-text">
-              <span class="overview-quicknav-label">{card.label}</span>
-              <span class="overview-quicknav-desc">{card.description}</span>
+            <div class="flex-1 flex flex-col gap-0.5">
+              <span class="text-[0.85rem] font-semibold text-[var(--text-primary)]">
+                {card.label}
+              </span>
+              <span class="text-[0.72rem] text-[var(--text-muted)]">
+                {card.description}
+              </span>
             </div>
             <Icon
               name="chevron-right"
               size={14}
-              class="overview-quicknav-arrow"
+              class="text-[var(--text-muted)]"
             />
           </div>
         ))}
@@ -834,22 +943,34 @@ export function OverviewPage() {
   };
 
   return (
-    <div class="container">
-      {showLocationSetup && <LocationSetupModal onDone={handleLocationDone} onClose={() => setShowLocationSetup(false)} />}
-      <header>
-        <div class="logo">
-          <div class="logo-mark">
+    <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+      {showLocationSetup && (
+        <LocationSetupModal
+          onDone={handleLocationDone}
+          onClose={() => setShowLocationSetup(false)}
+        />
+      )}
+      <header
+        class="mb-16 opacity-0 flex items-center justify-between"
+        style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
+      >
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
             <Icon name="home" size={24} />
           </div>
-          <div class="logo-content">
-            <h1>Overview</h1>
-            <p class="subtitle">Home</p>
+          <div class="flex flex-col">
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+              Overview
+            </h1>
+            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+              Home
+            </p>
           </div>
         </div>
         {location && (
           <button
             type="button"
-            class="overview-change-loc-btn"
+            class="flex items-center gap-1.5 bg-[var(--accent-dim)] border border-[var(--accent)] text-[var(--accent)] rounded-lg py-1.5 px-3 text-[0.78rem] font-[inherit] cursor-pointer transition-all duration-200 hover:bg-[var(--accent)] hover:text-white"
             onClick={() => setShowLocationSetup(true)}
             title="Change location"
           >
@@ -859,31 +980,32 @@ export function OverviewPage() {
         )}
       </header>
 
-      <div class="overview-grid">
-        <div class="overview-left">
+      <div class="grid grid-cols-[1fr_340px] gap-6 items-start mt-6 max-[860px]:grid-cols-1">
+        <div class="flex flex-col">
           <Clock />
           <SearchBar />
           <SystemStats />
           <QuickNav />
         </div>
 
-        <div class="overview-right">
-          {location
-            ? <WeatherWidget location={location} />
-            : (
-              <div class="overview-weather-placeholder">
-                <Icon name="cloud" size={32} />
-                <p>No location set</p>
-                <button
-                  type="button"
-                  class="overview-loc-btn primary"
-                  onClick={() => setShowLocationSetup(true)}
-                >
-                  <Icon name="map-pin" size={15} />
-                  Set location
-                </button>
-              </div>
-            )}
+        <div class="flex flex-col">
+          {location ? <WeatherWidget location={location} /> : (
+            <div
+              class="rounded-xl p-8 flex flex-col items-center gap-3 text-[var(--text-muted)] text-center border border-[var(--ui-border)] [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform]"
+              style={{ background: "var(--ui-bg)" }}
+            >
+              <Icon name="cloud" size={32} />
+              <p class="text-[0.9rem]">No location set</p>
+              <button
+                type="button"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-[var(--accent)] font-[inherit] transition-all duration-200 w-full bg-[var(--accent)] text-white hover:brightness-110"
+                onClick={() => setShowLocationSetup(true)}
+              >
+                <Icon name="map-pin" size={15} />
+                Set location
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
