@@ -19,6 +19,14 @@ if (!Deno.args.includes("--skip-upgrade")) {
   Deno.exit(0);
 }
 
+const install = new Deno.Command(Deno.execPath(), {
+  args: ["install"],
+  stdout: "inherit",
+  stderr: "inherit",
+});
+
+await install.output();
+
 const viteBuild = new Deno.Command(Deno.execPath(), {
   args: ["task", "build:vite"],
   stdout: "inherit",
