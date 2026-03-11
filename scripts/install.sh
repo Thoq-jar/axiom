@@ -12,7 +12,7 @@ DEBIAN=0
 if [ "$OS_DIST" != "Debian GNU/Linux" ]; then
     echo "Not on Debian, install will not be automated!"
 else
-    $DEBIAN=1
+    DEBIAN=1
 fi
 
 check_dep() {
