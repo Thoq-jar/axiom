@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [preact(), tailwindcss()],
   root: "public",
-  publicDir: "assets",
+  publicDir: ".",
   build: {
     outDir: "../dist",
     emptyOutDir: true,
