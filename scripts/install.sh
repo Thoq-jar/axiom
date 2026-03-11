@@ -40,6 +40,9 @@ install_debian() {
     if ! id -u axiom &>/dev/null; then
         useradd --system --no-create-home --shell /usr/sbin/nologin axiom
     fi
+    if getent group docker &>/dev/null; then
+        usermod -aG docker axiom
+    fi
 
     curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/opt/deno sh
     chown -R axiom:axiom /opt/deno
