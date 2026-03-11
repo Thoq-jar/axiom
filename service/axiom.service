@@ -1,0 +1,15 @@
+[Unit]
+Description=Axiom
+After=network.target
+
+[Service]
+Type=simple
+User=axiom
+WorkingDirectory=/opt/axiom
+ExecStart=/opt/deno/bin/deno task start:prod
+Environment=DENO_DIR=/opt/axiom/.deno-cache
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

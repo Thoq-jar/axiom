@@ -25,7 +25,8 @@
     "dev:vite": "vite",
     "dev:backend": "deno run -P src/main.ts",
     "build:vite": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:prod": "deno run -P scripts/prod.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1.0.19",
