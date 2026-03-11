@@ -24,8 +24,13 @@ install_service() {
     cp /opt/axiom/service/axiom.service /etc/systemd/system/axiom.service
     systemctl daemon-reload
     systemctl enable axiom
-    systemctl start axiom
-    echo "axiom service installed and started."
+    if systemctl is-active --quiet axiom; then
+        systemctl restart axiom
+        echo "axiom service restarted."
+    else
+        systemctl start axiom
+        echo "axiom service installed and started."
+    fi
 }
 
 install_debian() {

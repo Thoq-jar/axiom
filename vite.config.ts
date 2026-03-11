@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true,
     proxy: {
       "/ws": {
         target: "ws://localhost:9511",
@@ -22,5 +23,9 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    port: 9599,
+    host: true,
   },
 });
