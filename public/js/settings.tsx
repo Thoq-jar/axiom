@@ -83,7 +83,7 @@ function ToggleRow({
         onClick={onChange}
       >
         <div
-          class={`toggle-thumb absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${
+          class={`toggle-thumb absolute top-0.75 left-0.75 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${
             value ? "translate-x-5" : ""
           }`}
         />
@@ -391,7 +391,7 @@ function ThemeMakerPane({
                         </span>
                         <button
                           type="button"
-                          class="flex items-center justify-center w-[18px] h-[18px] rounded bg-transparent border-none text-(--text-muted) cursor-pointer shrink-0 transition-colors duration-150 hover:text-(--danger)"
+                          class="flex items-center justify-center w-4.5 h-4.5 rounded bg-transparent border-none text-(--text-muted) cursor-pointer shrink-0 transition-colors duration-150 hover:text-(--danger)"
                           onClick={(e) => {
                             e.stopPropagation();
                             setBackgroundValue("");
@@ -476,7 +476,7 @@ function ThemeMakerPane({
               >
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div
-                    class="w-[18px] h-[18px] rounded shrink-0 border border-white/10"
+                    class="w-4.5 h-4.5 rounded shrink-0 border border-white/10"
                     style={{ background: savedTheme.accent }}
                   />
                   <span class="text-[0.8rem] text-(--text-primary) whitespace-nowrap overflow-hidden text-ellipsis">
@@ -493,7 +493,7 @@ function ThemeMakerPane({
                 <div class="flex gap-1 shrink-0">
                   <button
                     type="button"
-                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
+                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
                     title="Apply"
                     onClick={() => {
                       applyTheme(savedTheme.id);
@@ -504,7 +504,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
+                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
                     title="Edit"
                     onClick={() => handleEdit(savedTheme)}
                   >
@@ -512,7 +512,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--danger) hover:text-(--danger) hover:bg-[rgba(239,68,68,0.08)]"
+                    class="flex items-center justify-center w-6.5 h-6.5unded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--danger) hover:text-(--danger) hover:bg-[rgba(239,68,68,0.08)]"
                     title="Delete"
                     onClick={() => handleDelete(savedTheme.id)}
                   >
@@ -549,9 +549,6 @@ export function SettingsModal() {
   );
   const [uiOpacity, setUiOpacity] = useState(
     parseFloat(localStorage.getItem("uiOpacity") || "1"),
-  );
-  const [uiBlur, setUiBlur] = useState(
-    parseInt(localStorage.getItem("uiBlur") || "0", 10),
   );
   const [searchEngine, setSearchEngine] = useState(
     localStorage.getItem("searchEngine") || "google",
@@ -597,7 +594,7 @@ export function SettingsModal() {
 
   return (
     <div
-      class={`fixed top-0 left-0 w-screen h-screen bg-black/60 backdrop-blur-[8px] z-[9999] grid place-items-center ${
+      class={`fixed top-0 left-0 w-screen h-screen bg-black/60 backdrop-blur-sm z-9999 grid place-items-center ${
         isOpen
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"
@@ -606,7 +603,7 @@ export function SettingsModal() {
       onClick={handleBackdropClick}
     >
       <div
-        class="bg-(--bg-card) border border-(--border-accent) rounded-2xl w-[92vw] max-w-[680px] h-[80vh] flex flex-col overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+        class="bg-(--bg-card) border border-(--border-accent) rounded-2xl w-[92vw] max-w-170 h-[80vh] flex flex-col overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
         style={{ animation: "modalSlideIn 0.25s ease" }}
       >
         <div class="flex items-center justify-between py-5 px-6 border-b border-(--border-subtle) shrink-0">
