@@ -5,6 +5,7 @@
     "icon": "fa-solid fa-play-circle",
     "description": "Organize and stream your personal collection of movies, TV shows, and music.",
     "category": "Media",
+    "webui_path": "/web",
     "deployment": {
       "image": "lscr.io/linuxserver/plex",
       "tag": "latest",
@@ -43,6 +44,7 @@
     "icon": "fa-solid fa-shield",
     "description": "A network-wide ad blocker that acts as a DNS sinkhole to protect your devices.",
     "category": "Network",
+    "webui_path": "/admin",
     "deployment": {
       "image": "pihole/pihole",
       "tag": "latest",
@@ -59,6 +61,231 @@
     "install_steps": [
       { "action": "pull_image", "target": "pihole/pihole:latest" },
       { "action": "run_container", "name": "pihole" }
+    ]
+  },
+  {
+    "id": "portainer",
+    "name": "Portainer",
+    "icon": "fa-solid fa-layer-group",
+    "description": "Lightweight container management UI for Docker and Kubernetes environments.",
+    "category": "Management",
+    "webui_path": "/",
+    "deployment": {
+      "image": "portainer/portainer-ce",
+      "tag": "latest",
+      "restart_policy": "always",
+      "ports": [
+        { "host": 9000, "container": 9000, "protocol": "tcp" }
+      ],
+      "volumes": [
+        {
+          "host_path": "/var/run/docker.sock",
+          "container_path": "/var/run/docker.sock"
+        },
+        { "host_path": "/opt/portainer/data", "container_path": "/data" }
+      ],
+      "env": {}
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "portainer/portainer-ce:latest" },
+      { "action": "run_container", "name": "portainer" }
+    ]
+  },
+  {
+    "id": "nextcloud",
+    "name": "Nextcloud",
+    "icon": "fa-solid fa-cloud",
+    "description": "Self-hosted productivity platform for file sync, calendar, contacts, and collaboration.",
+    "category": "Storage",
+    "webui_path": "/",
+    "deployment": {
+      "image": "nextcloud",
+      "tag": "latest",
+      "restart_policy": "always",
+      "ports": [
+        { "host": 8081, "container": 80, "protocol": "tcp" }
+      ],
+      "volumes": [
+        {
+          "host_path": "/opt/nextcloud/data",
+          "container_path": "/var/www/html"
+        }
+      ],
+      "env": {
+        "NEXTCLOUD_ADMIN_USER": "admin",
+        "NEXTCLOUD_ADMIN_PASSWORD": "changeme"
+      }
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "nextcloud:latest" },
+      { "action": "run_container", "name": "nextcloud" }
+    ]
+  },
+  {
+    "id": "grafana",
+    "name": "Grafana",
+    "icon": "fa-solid fa-chart-line",
+    "description": "Open-source analytics and monitoring platform with beautiful dashboards.",
+    "category": "Monitoring",
+    "webui_path": "/",
+    "deployment": {
+      "image": "grafana/grafana",
+      "tag": "latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        { "host": 3000, "container": 3000, "protocol": "tcp" }
+      ],
+      "volumes": [
+        {
+          "host_path": "/opt/grafana/data",
+          "container_path": "/var/lib/grafana"
+        }
+      ],
+      "env": {
+        "GF_SECURITY_ADMIN_PASSWORD": "admin"
+      }
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "grafana/grafana:latest" },
+      { "action": "run_container", "name": "grafana" }
+    ]
+  },
+  {
+    "id": "home-assistant",
+    "name": "Home Assistant",
+    "icon": "fa-solid fa-house",
+    "description": "Open source home automation platform that puts local control and privacy first.",
+    "category": "Automation",
+    "webui_path": "/",
+    "deployment": {
+      "image": "ghcr.io/home-assistant/home-assistant",
+      "tag": "stable",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        { "host": 8123, "container": 8123, "protocol": "tcp" }
+      ],
+      "volumes": [
+        {
+          "host_path": "/opt/homeassistant/config",
+          "container_path": "/config"
+        }
+      ],
+      "env": {
+        "TZ": "UTC"
+      }
+    },
+    "install_steps": [
+      {
+        "action": "pull_image",
+        "target": "ghcr.io/home-assistant/home-assistant:stable"
+      },
+      { "action": "run_container", "name": "homeassistant" }
+    ]
+  },
+  {
+    "id": "jellyfin",
+    "name": "Jellyfin",
+    "icon": "fa-solid fa-film",
+    "description": "Free software media system that puts you in control of your media.",
+    "category": "Media",
+    "webui_path": "/",
+    "deployment": {
+      "image": "jellyfin/jellyfin",
+      "tag": "latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        { "host": 8096, "container": 8096, "protocol": "tcp" }
+      ],
+      "volumes": [
+        { "host_path": "/opt/jellyfin/config", "container_path": "/config" },
+        { "host_path": "/mnt/media", "container_path": "/media" }
+      ],
+      "env": {}
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "jellyfin/jellyfin:latest" },
+      { "action": "run_container", "name": "jellyfin" }
+    ]
+  },
+  {
+    "id": "vaultwarden",
+    "name": "Vaultwarden",
+    "icon": "fa-solid fa-key",
+    "description": "Unofficial Bitwarden-compatible server written in Rust for self-hosted password management.",
+    "category": "Security",
+    "webui_path": "/",
+    "deployment": {
+      "image": "vaultwarden/server",
+      "tag": "latest",
+      "restart_policy": "always",
+      "ports": [
+        { "host": 8082, "container": 80, "protocol": "tcp" }
+      ],
+      "volumes": [
+        { "host_path": "/opt/vaultwarden/data", "container_path": "/data" }
+      ],
+      "env": {
+        "SIGNUPS_ALLOWED": "false",
+        "ADMIN_TOKEN": "changeme"
+      }
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "vaultwarden/server:latest" },
+      { "action": "run_container", "name": "vaultwarden" }
+    ]
+  },
+  {
+    "id": "uptime-kuma",
+    "name": "Uptime Kuma",
+    "icon": "fa-solid fa-heart-pulse",
+    "description": "Self-hosted monitoring tool for tracking uptime of websites and services.",
+    "category": "Monitoring",
+    "webui_path": "/",
+    "deployment": {
+      "image": "louislam/uptime-kuma",
+      "tag": "latest",
+      "restart_policy": "always",
+      "ports": [
+        { "host": 3001, "container": 3001, "protocol": "tcp" }
+      ],
+      "volumes": [
+        { "host_path": "/opt/uptime-kuma/data", "container_path": "/app/data" }
+      ],
+      "env": {}
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "louislam/uptime-kuma:latest" },
+      { "action": "run_container", "name": "uptime-kuma" }
+    ]
+  },
+  {
+    "id": "nginx-proxy-manager",
+    "name": "Nginx Proxy Manager",
+    "icon": "fa-solid fa-server",
+    "description": "Easily forward services with free SSL, no command line required.",
+    "category": "Network",
+    "webui_path": "/",
+    "deployment": {
+      "image": "jc21/nginx-proxy-manager",
+      "tag": "latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        { "host": 80, "container": 80, "protocol": "tcp" },
+        { "host": 443, "container": 443, "protocol": "tcp" },
+        { "host": 81, "container": 81, "protocol": "tcp" }
+      ],
+      "volumes": [
+        { "host_path": "/opt/npm/data", "container_path": "/data" },
+        {
+          "host_path": "/opt/npm/letsencrypt",
+          "container_path": "/etc/letsencrypt"
+        }
+      ],
+      "env": {}
+    },
+    "install_steps": [
+      { "action": "pull_image", "target": "jc21/nginx-proxy-manager:latest" },
+      { "action": "run_container", "name": "nginx-proxy-manager" }
     ]
   }
 ]

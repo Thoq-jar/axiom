@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { Icon } from "../components/ui/icon.tsx";
 import { Modal } from "../components/ui/modal.tsx";
 import { Button } from "../components/ui/button.tsx";
+import { FileBrowser } from "../components/ui/file-browser.tsx";
 import { useToast } from "../hooks/use-toast.ts";
 
 interface InstallStep {
@@ -16,6 +17,7 @@ interface AppShipment {
   icon: string;
   description: string;
   category: string;
+  webui_path?: string;
   deployment: {
     image: string;
     tag: string;
@@ -35,7 +37,7 @@ interface Container {
 }
 
 const BTN =
-  "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed";
+  "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[0.82rem] font-semibold cursor-pointer border transition-all duration-200 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
 
 export function AppStorePage() {
   const [apps, setApps] = useState<AppShipment[]>([]);
@@ -45,6 +47,7 @@ export function AppStorePage() {
   const [installingId, setInstallingId] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<AppShipment | null>(null);
+  const [showFileBrowser, setShowFileBrowser] = useState(false);
   const { addToast } = useToast();
   const dockerErrorShownRef = useRef(false);
 
@@ -248,6 +251,7 @@ export function AppStorePage() {
           title={selectedApp.name}
           icon={icon}
           onClose={() => setSelectedApp(null)}
+          class="max-w-150!"
         >
           <div class="p-6">
             <div class="flex justify-between py-3 border-b border-(--border-subtle)">
@@ -283,7 +287,36 @@ export function AppStorePage() {
               </span>
             </div>
           </div>
-          <div class="p-6 border-t border-(--border-subtle) flex gap-3">
+          <div class="p-4 border-t border-(--border-subtle) flex flex-wrap gap-2">
+            {selectedContainer.state === "running" && (() => {
+              const match = selectedContainer.ports.match(
+                /(?:[\d.]+:)?(\d+)->(\d+)\/(tcp)/,
+              );
+              const hostPort = match ? match[1] : null;
+              const webuiPath = selectedApp.webui_path || "/";
+              if (!hostPort) return null;
+              return (
+                <a
+                  href={`http://localhost:${hostPort}${webuiPath}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class={`${BTN} bg-(--accent-dim) text-(--accent) border-(--accent) hover:bg-(--accent) no-underline`}
+                >
+                  <Icon name="external-link" size={15} />
+                  Open Web UI
+                </a>
+              );
+            })()}
+
+            <Button
+              class={`${BTN} bg-[rgba(139,92,246,0.15)] text-[#a78bfa] border-[rgba(139,92,246,0.3)] hover:bg-accent`}
+              onClick={() => setShowFileBrowser(true)}
+              disabled={actioningId === selectedContainer.id}
+            >
+              <Icon name="folder-open" size={16} />
+              Browse Files
+            </Button>
+
             {selectedContainer.state === "running"
               ? (
                 <Button
@@ -327,6 +360,13 @@ export function AppStorePage() {
             </Button>
           </div>
         </Modal>
+      )}
+
+      {showFileBrowser && selectedContainer && (
+        <FileBrowser
+          containerId={selectedContainer.id}
+          onClose={() => setShowFileBrowser(false)}
+        />
       )}
     </div>
   );

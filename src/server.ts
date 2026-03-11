@@ -366,6 +366,134 @@ async function handler(req: Request): Promise<Response> {
     }
   }
 
+  if (
+    pathname.startsWith("/api/container/") && pathname.endsWith("/files") &&
+    req.method === "GET"
+  ) {
+    try {
+      const parts = pathname.split("/");
+      const containerId = parts[3];
+      const queryPath = url.searchParams.get("path") || "/";
+
+      const result = await runDockerCommand([
+        "exec",
+        containerId,
+        "sh",
+        "-c",
+        `cd "${queryPath}" && ls -la 2>/dev/null | awk 'NR>1 {type=substr($1,1,1); size=$5; name=$NF; if(name!="." && name!="..") print type"\\t"size"\\t"name}'`,
+      ]);
+
+      if (!result.success && !result.output.trim()) {
+        return new Response(
+          JSON.stringify({ error: result.error || "Failed to list directory" }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      const entries = result.output.trim().split("\n").filter(Boolean)
+        .map((line) => {
+          const [type, size, ...rest] = line.split("\t");
+          const name = rest.join("\t").trim();
+          const isDir = type === "d";
+          const isLink = type === "l";
+          return {
+            name,
+            isDir,
+            isLink,
+            size: parseInt(size) || 0,
+            modified: "",
+          };
+        })
+        .filter((e) => e.name !== "" && e.name !== "." && e.name !== "..")
+        .sort((a, b) => {
+          if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+
+      return new Response(JSON.stringify({ path: queryPath, entries }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (
+    pathname.startsWith("/api/container/") && pathname.endsWith("/file") &&
+    req.method === "GET"
+  ) {
+    try {
+      const containerId = pathname.split("/")[3];
+      const filePath = url.searchParams.get("path");
+      if (!filePath) {
+        return new Response(JSON.stringify({ error: "path required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const result = await runDockerCommand([
+        "exec",
+        containerId,
+        "cat",
+        filePath,
+      ]);
+      if (!result.success) {
+        return new Response(
+          JSON.stringify({ error: result.error || result.output }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify({ content: result.output }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (
+    pathname.startsWith("/api/container/") && pathname.endsWith("/file") &&
+    req.method === "POST"
+  ) {
+    try {
+      const containerId = pathname.split("/")[3];
+      const { path: filePath, content } = await req.json();
+      if (!filePath) {
+        return new Response(JSON.stringify({ error: "path required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const writeResult = await runDockerCommand([
+        "exec",
+        containerId,
+        "sh",
+        "-c",
+        `printf '%s' ${JSON.stringify(content)} > "${filePath}"`,
+      ]);
+      if (!writeResult.success) {
+        return new Response(
+          JSON.stringify({ error: writeResult.error || "Write failed" }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
   if (pathname === "/api/stats") {
     try {
       const stats = await start_monitor();
