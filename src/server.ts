@@ -1,7 +1,7 @@
 import { start_monitor } from "~/src/monitor.ts";
 
 const PORT = 9598;
-const PUBLIC_DIR = "./public";
+const PUBLIC_DIR = `${new URL("../public", import.meta.url).pathname}`;
 
 const globalClients = new Set<WebSocket>();
 
