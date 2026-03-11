@@ -12,6 +12,7 @@ export default defineConfig({
       name: "copy-assets",
       closeBundle() {
         cpSync("public/assets", "dist/assets", { recursive: true });
+        cpSync("public/data", "dist/data", { recursive: true });
       },
     },
   ],
