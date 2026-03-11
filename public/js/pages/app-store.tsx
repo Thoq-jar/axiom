@@ -34,160 +34,8 @@ interface Container {
   created: string;
 }
 
-function AppCard({
-  app,
-  container,
-  onClick,
-}: {
-  app: AppShipment;
-  container?: Container;
-  onClick: () => void;
-  loading: boolean;
-}) {
-  const isInstalled = !!container;
-  const isRunning = container?.state === "running";
-
-  return (
-    <div
-      class={`rounded-xl p-5 cursor-pointer flex gap-4 border backdrop-blur-sm  will-change-transform ${
-        isInstalled ? "border-(--accent)" : "border-(--ui-border)"
-      }`}
-      onClick={onClick}
-    >
-      <div
-        class={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200 border ${
-          isInstalled
-            ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
-            : "bg-(--ui-bg) border-(--ui-border) text-(--text-primary)"
-        }`}
-      >
-        <Icon
-          name={app.icon.split(" ").pop()?.replace("fa-", "") || "box"}
-          size={28}
-        />
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <h3 class="text-base font-semibold text-(--text-primary)">
-            {app.name}
-          </h3>
-          <span
-            class={`text-[0.7rem] font-semibold py-1 px-2 rounded-md uppercase whitespace-nowrap ${
-              isInstalled
-                ? isRunning
-                  ? "bg-[rgba(34,197,94,0.15)] text-success"
-                  : "bg-[rgba(239,68,68,0.15)] text-danger"
-                : "bg-(--accent-dim) text-(--accent)"
-            }`}
-          >
-            {isInstalled ? (isRunning ? "Running" : "Stopped") : "Install"}
-          </span>
-        </div>
-        <p class="app-card-desc text-[0.8rem] text-(--text-secondary) leading-snug">
-          {app.description}
-        </p>
-        {isInstalled && container && (
-          <div class="mt-2 text-xs text-(--text-muted)">
-            <span>{container.name}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ManageModal({
-  app,
-  container,
-  onClose,
-  onAction,
-  actioning,
-}: {
-  app: AppShipment;
-  container: Container;
-  onClose: () => void;
-  onAction: (action: string) => void;
-  actioning: boolean;
-}) {
-  const icon = app.icon.split(" ").pop()?.replace("fa-", "") || "box";
-  return (
-    <Modal title={app.name} icon={icon} onClose={onClose}>
-      <div class="p-6">
-        <div class="flex justify-between py-3 border-b border-(--border-subtle)">
-          <span class="text-[0.9rem] text-(--text-secondary)">Status</span>
-          <span
-            class={`text-[0.9rem] font-semibold ${
-              container.state === "running" ? "text-success" : "text-danger"
-            }`}
-          >
-            {container.state}
-          </span>
-        </div>
-        <div class="flex justify-between py-3 border-b border-(--border-subtle)">
-          <span class="text-[0.9rem] text-(--text-secondary)">
-            Container
-          </span>
-          <span class="text-[0.9rem] font-semibold text-(--text-primary)">
-            {container.name}
-          </span>
-        </div>
-        <div class="flex justify-between py-3 border-b border-(--border-subtle)">
-          <span class="text-[0.9rem] text-(--text-secondary)">Image</span>
-          <span class="text-[0.9rem] font-semibold text-(--text-primary)">
-            {app.deployment.image}:{app.deployment.tag}
-          </span>
-        </div>
-        <div class="flex justify-between py-3">
-          <span class="text-[0.9rem] text-(--text-secondary)">Ports</span>
-          <span class="text-[0.9rem] font-semibold text-(--text-primary)">
-            {container.ports || "None"}
-          </span>
-        </div>
-      </div>
-      <div class="p-6 border-t border-(--border-subtle) flex gap-3">
-        {container.state === "running"
-          ? (
-            <Button
-              class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(239,68,68,0.15)] text-danger border-[rgba(239,68,68,0.3)] hover:bg-danger hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => onAction("stop")}
-              disabled={actioning}
-            >
-              <Icon name="power" size={16} />
-              Stop
-            </Button>
-          )
-          : (
-            <Button
-              class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(34,197,94,0.15)] text-success border-[rgba(34,197,94,0.3)] hover:bg-success hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => onAction("start")}
-              disabled={actioning}
-            >
-              <Icon name="play" size={16} />
-              Start
-            </Button>
-          )}
-        <Button
-          class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(234,179,8,0.15)] text-warning border-[rgba(234,179,8,0.3)] hover:bg-warning hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => onAction("restart")}
-          disabled={actioning}
-        >
-          <Icon name="refresh-cw" size={16} />
-          Restart
-        </Button>
-        <Button
-          class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(107,114,128,0.15)] text-[#9ca3af] border-[rgba(107,114,128,0.3)] hover:bg-[#6b7280] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => {
-            if (confirm(`Uninstall ${app.name}?`)) onAction("remove");
-          }}
-          disabled={actioning}
-        >
-          <Icon name="trash-2" size={16} />
-          Uninstall
-        </Button>
-      </div>
-    </Modal>
-  );
-}
+const BTN =
+  "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed";
 
 export function AppStorePage() {
   const [apps, setApps] = useState<AppShipment[]>([]);
@@ -231,23 +79,14 @@ export function AppStorePage() {
   }, []);
 
   const getContainer = (app: AppShipment): Container | undefined => {
-    return containers.find((c) => {
+    return containers.find((container) => {
       const appName = app.name.toLowerCase().replace(/\s+/g, "-");
       const appId = app.id.toLowerCase();
-      const containerName = c.name.toLowerCase();
-      const imageName = c.image.toLowerCase().split("/").pop() || "";
+      const containerName = container.name.toLowerCase();
+      const imageName = container.image.toLowerCase().split("/").pop() || "";
       return containerName.includes(appName) || containerName.includes(appId) ||
         imageName.includes(appId);
     });
-  };
-
-  const handleCardClick = async (app: AppShipment) => {
-    const container = getContainer(app);
-    if (container) {
-      setSelectedApp(app);
-    } else {
-      await installApp(app);
-    }
   };
 
   const installApp = async (app: AppShipment) => {
@@ -258,7 +97,6 @@ export function AppStorePage() {
     }
     setInstallingId(app.id);
     addToast(`Installing ${app.name}...`, "info");
-
     try {
       const res = await fetch("/api/install", {
         method: "POST",
@@ -302,54 +140,42 @@ export function AppStorePage() {
     }
   };
 
+  const header = (
+    <header
+      class="mb-16 opacity-0 flex items-center justify-between"
+      style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
+    >
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
+          <Icon name="package" size={24} />
+        </div>
+        <div class="flex flex-col">
+          <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
+            Apps
+          </h1>
+          <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
+            Manage your applications
+          </p>
+        </div>
+      </div>
+    </header>
+  );
+
   if (loading) {
     return (
       <div class="max-w-275 mx-auto py-12 px-8 relative z-1">
-        <header
-          class="mb-16 opacity-0 flex items-center justify-between"
-          style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
-        >
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
-              <Icon name="package" size={24} />
-            </div>
-            <div class="flex flex-col">
-              <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
-                Apps
-              </h1>
-              <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
-                Manage your applications
-              </p>
-            </div>
-          </div>
-        </header>
-        <div class="text-(--text-secondary) text-center p-8">
-          Loading...
-        </div>
+        {header}
+        <div class="text-(--text-secondary) text-center p-8">Loading...</div>
       </div>
     );
   }
 
+  const selectedContainer = selectedApp ? getContainer(selectedApp) : undefined;
+  const icon = selectedApp?.icon.split(" ").pop()?.replace("fa-", "") || "box";
+
   return (
     <div class="max-w-275 mx-auto py-12 px-8 relative z-1">
-      <header
-        class="mb-16 opacity-0 flex items-center justify-between"
-        style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
-      >
-        <div class="flex items-center gap-4">
-          <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
-            <Icon name="package" size={24} />
-          </div>
-          <div class="flex flex-col">
-            <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
-              Apps
-            </h1>
-            <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
-              Manage your applications
-            </p>
-          </div>
-        </div>
-      </header>
+      {header}
 
       {dockerError && (
         <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6 flex items-center gap-2">
@@ -361,27 +187,146 @@ export function AppStorePage() {
       <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
         {apps.map((app) => {
           const container = getContainer(app);
+          const isInstalled = !!container;
+          const isRunning = container?.state === "running";
           return (
-            <AppCard
+            <div
               key={app.id}
-              app={app}
-              container={container}
-              onClick={() => handleCardClick(app)}
-              loading={installingId === app.id}
-            />
+              class={`rounded-xl p-5 cursor-pointer flex gap-4 border backdrop-blur-sm will-change-transform ${
+                isInstalled ? "border-(--accent)" : "border-(--ui-border)"
+              }`}
+              onClick={() =>
+                isInstalled ? setSelectedApp(app) : installApp(app)}
+            >
+              <div
+                class={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200 border ${
+                  isInstalled
+                    ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
+                    : "bg-(--ui-bg) border-(--ui-border) text-(--text-primary)"
+                }`}
+              >
+                <Icon
+                  name={app.icon.split(" ").pop()?.replace("fa-", "") || "box"}
+                  size={28}
+                />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <h3 class="text-base font-semibold text-(--text-primary)">
+                    {app.name}
+                  </h3>
+                  <span
+                    class={`text-[0.7rem] font-semibold py-1 px-2 rounded-md uppercase whitespace-nowrap ${
+                      isInstalled
+                        ? isRunning
+                          ? "bg-[rgba(34,197,94,0.15)] text-success"
+                          : "bg-[rgba(239,68,68,0.15)] text-danger"
+                        : "bg-(--accent-dim) text-(--accent)"
+                    }`}
+                  >
+                    {isInstalled
+                      ? (isRunning ? "Running" : "Stopped")
+                      : "Install"}
+                  </span>
+                </div>
+                <p class="app-card-desc text-[0.8rem] text-(--text-secondary) leading-snug">
+                  {app.description}
+                </p>
+                {isInstalled && (
+                  <div class="mt-2 text-xs text-(--text-muted)">
+                    {container.name}
+                  </div>
+                )}
+              </div>
+            </div>
           );
         })}
       </div>
 
-      {selectedApp && (
-        <ManageModal
-          app={selectedApp}
-          container={getContainer(selectedApp)!}
+      {selectedApp && selectedContainer && (
+        <Modal
+          title={selectedApp.name}
+          icon={icon}
           onClose={() => setSelectedApp(null)}
-          onAction={(action) =>
-            handleAction(getContainer(selectedApp)!.id, action)}
-          actioning={actioningId === getContainer(selectedApp)?.id}
-        />
+        >
+          <div class="p-6">
+            <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+              <span class="text-[0.9rem] text-(--text-secondary)">Status</span>
+              <span
+                class={`text-[0.9rem] font-semibold ${
+                  selectedContainer.state === "running"
+                    ? "text-success"
+                    : "text-danger"
+                }`}
+              >
+                {selectedContainer.state}
+              </span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+              <span class="text-[0.9rem] text-(--text-secondary)">
+                Container
+              </span>
+              <span class="text-[0.9rem] font-semibold text-(--text-primary)">
+                {selectedContainer.name}
+              </span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+              <span class="text-[0.9rem] text-(--text-secondary)">Image</span>
+              <span class="text-[0.9rem] font-semibold text-(--text-primary)">
+                {selectedApp.deployment.image}:{selectedApp.deployment.tag}
+              </span>
+            </div>
+            <div class="flex justify-between py-3">
+              <span class="text-[0.9rem] text-(--text-secondary)">Ports</span>
+              <span class="text-[0.9rem] font-semibold text-(--text-primary)">
+                {selectedContainer.ports || "None"}
+              </span>
+            </div>
+          </div>
+          <div class="p-6 border-t border-(--border-subtle) flex gap-3">
+            {selectedContainer.state === "running"
+              ? (
+                <Button
+                  class={`${BTN} bg-[rgba(239,68,68,0.15)] text-danger border-[rgba(239,68,68,0.3)] hover:bg-danger`}
+                  onClick={() => handleAction(selectedContainer.id, "stop")}
+                  disabled={actioningId === selectedContainer.id}
+                >
+                  <Icon name="power" size={16} />
+                  Stop
+                </Button>
+              )
+              : (
+                <Button
+                  class={`${BTN} bg-[rgba(34,197,94,0.15)] text-success border-[rgba(34,197,94,0.3)] hover:bg-success`}
+                  onClick={() => handleAction(selectedContainer.id, "start")}
+                  disabled={actioningId === selectedContainer.id}
+                >
+                  <Icon name="play" size={16} />
+                  Start
+                </Button>
+              )}
+            <Button
+              class={`${BTN} bg-[rgba(234,179,8,0.15)] text-warning border-[rgba(234,179,8,0.3)] hover:bg-warning`}
+              onClick={() => handleAction(selectedContainer.id, "restart")}
+              disabled={actioningId === selectedContainer.id}
+            >
+              <Icon name="refresh-cw" size={16} />
+              Restart
+            </Button>
+            <Button
+              class={`${BTN} bg-[rgba(107,114,128,0.15)] text-[#9ca3af] border-[rgba(107,114,128,0.3)] hover:bg-[#6b7280]`}
+              onClick={() => {
+                if (confirm(`Uninstall ${selectedApp.name}?`)) {
+                  handleAction(selectedContainer.id, "remove");
+                }
+              }}
+              disabled={actioningId === selectedContainer.id}
+            >
+              <Icon name="trash-2" size={16} />
+              Uninstall
+            </Button>
+          </div>
+        </Modal>
       )}
     </div>
   );

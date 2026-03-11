@@ -41,7 +41,8 @@ async function getContainers(): Promise<
   ]);
 
   if (!success) {
-    const msg = error?.includes("Cannot connect") || error?.includes("Is the docker daemon running")
+    const msg = error?.includes("Cannot connect") ||
+        error?.includes("Is the docker daemon running")
       ? "Docker is not running"
       : "Failed to reach Docker";
     console.error("Failed to get containers:", error || output);

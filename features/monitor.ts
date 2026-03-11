@@ -11,7 +11,7 @@ export const start_monitor = async () => {
       });
       const { stdout } = await command.output();
       const outStr = new TextDecoder().decode(stdout);
-      const lines = outStr.split("\n").filter((l) => l.includes("%Cpu"));
+      const lines = outStr.split("\n").filter((line) => line.includes("%Cpu"));
       if (lines.length) {
         const match = lines[lines.length - 1].match(/(\d+\.\d+)\s*id/);
         if (match) {
@@ -26,7 +26,9 @@ export const start_monitor = async () => {
       });
       const { stdout } = await command.output();
       const outStr = new TextDecoder().decode(stdout);
-      const lines = outStr.split("\n").filter((l) => l.includes("CPU usage:"));
+      const lines = outStr.split("\n").filter((line) =>
+        line.includes("CPU usage:")
+      );
       if (lines.length) {
         const last = lines[lines.length - 1];
         const idleMatch = last.match(/([\d.]+)% idle/);
@@ -121,7 +123,7 @@ export const start_monitor = async () => {
 
               if (lines.length > 0) {
                 const gpus = lines.map((line) => {
-                  const parts = line.split(",").map((p) => p.trim());
+                  const parts = line.split(",").map((part) => part.trim());
                   if (parts.length >= 6) {
                     return {
                       id: parseInt(parts[0]) || 0,
@@ -301,7 +303,7 @@ export const start_monitor = async () => {
             };
           }
           return null;
-        }).filter((p) => p !== null) as Array<
+        }).filter((part) => part !== null) as Array<
           { name: string; cpu: number; mem: number }
         >;
       } else if (isMac) {
@@ -323,7 +325,7 @@ export const start_monitor = async () => {
             };
           }
           return null;
-        }).filter((p) => p !== null) as Array<
+        }).filter((part) => part !== null) as Array<
           { name: string; cpu: number; mem: number }
         >;
       }

@@ -10,6 +10,8 @@ import {
 } from "./theme.ts";
 import { Button } from "./components/ui/button.tsx";
 import { Icon } from "./components/ui/icon.tsx";
+import { SliderRow } from "./components/ui/slider-row.tsx";
+import { ToggleRow } from "./components/ui/toggle-row.tsx";
 
 const dockPositions = [
   { id: "top", label: "Top", icon: "panel-top" },
@@ -52,85 +54,6 @@ export function initDockSettings() {
   root.setProperty("--ui-bg", `rgba(22, 22, 24, ${uiOpacity})`);
   root.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${uiOpacity})`);
   root.setProperty("--ui-border", `rgba(34, 34, 37, ${uiOpacity})`);
-}
-
-function ToggleRow({
-  label,
-  desc,
-  value,
-  onChange,
-}: {
-  label: string;
-  desc: string;
-  value: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex-1">
-        <div class="text-[0.9rem] text-(--text-primary) mb-0.5 font-medium">
-          {label}
-        </div>
-        <div class="text-xs text-(--text-muted)">{desc}</div>
-      </div>
-      <button
-        type="button"
-        class={`w-11 h-6 rounded-xl relative shrink-0 transition-all duration-200 p-0 cursor-pointer border ${
-          value
-            ? "bg-(--accent) border-(--accent)"
-            : "bg-(--bg-secondary) border-(--border-accent)"
-        }`}
-        onClick={onChange}
-      >
-        <div
-          class={`toggle-thumb absolute top-0.75 left-0.75 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${
-            value ? "translate-x-5" : ""
-          }`}
-        />
-      </button>
-    </div>
-  );
-}
-
-function SliderRow({
-  label,
-  value,
-  min,
-  max,
-  step,
-  display,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  display: string;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div class="flex flex-col gap-2">
-      <div class="flex justify-between items-center">
-        <span class="text-[0.9rem] text-(--text-primary) font-medium">
-          {label}
-        </span>
-        <span class="text-[0.8rem] text-(--accent) font-semibold">
-          {display}
-        </span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        class="refresh-slider"
-        onInput={(e) =>
-          onChange(parseFloat((e.target as HTMLInputElement).value))}
-      />
-    </div>
-  );
 }
 
 function generateThemeId(): string {
@@ -248,7 +171,8 @@ function ThemeMakerPane({
             type="text"
             placeholder="My Theme"
             value={themeName}
-            onInput={(e) => setThemeName((e.target as HTMLInputElement).value)}
+            onInput={(event) =>
+              setThemeName((event.target as HTMLInputElement).value)}
           />
         </div>
 
@@ -261,16 +185,16 @@ function ThemeMakerPane({
               class="w-9 h-9 border border-(--border-subtle) rounded-md cursor-pointer p-0.5 bg-(--bg-card) shrink-0"
               type="color"
               value={accentColor}
-              onInput={(e) =>
-                setAccentColor((e.target as HTMLInputElement).value)}
+              onInput={(event) =>
+                setAccentColor((event.target as HTMLInputElement).value)}
             />
             <input
               class="bg-(--bg-card) border border-(--border-subtle) rounded-md text-(--text-primary) font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-(--accent)"
               type="text"
               placeholder="#8b5cf6"
               value={accentColor}
-              onInput={(e) =>
-                setAccentColor((e.target as HTMLInputElement).value)}
+              onInput={(event) =>
+                setAccentColor((event.target as HTMLInputElement).value)}
             />
             <div
               class="w-9 h-9 rounded-md border border-(--border-subtle) shrink-0"
@@ -310,16 +234,16 @@ function ThemeMakerPane({
                 class="w-9 h-9 border border-(--border-subtle) rounded-md cursor-pointer p-0.5 bg-(--bg-card) shrink-0"
                 type="color"
                 value={backgroundValue || "#000000"}
-                onInput={(e) =>
-                  setBackgroundValue((e.target as HTMLInputElement).value)}
+                onInput={(event) =>
+                  setBackgroundValue((event.target as HTMLInputElement).value)}
               />
               <input
                 class="bg-(--bg-card) border border-(--border-subtle) rounded-md text-(--text-primary) font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-(--accent)"
                 type="text"
                 placeholder="#000000"
                 value={backgroundValue}
-                onInput={(e) =>
-                  setBackgroundValue((e.target as HTMLInputElement).value)}
+                onInput={(event) =>
+                  setBackgroundValue((event.target as HTMLInputElement).value)}
               />
             </div>
           )}
@@ -365,8 +289,10 @@ function ThemeMakerPane({
                   type="text"
                   placeholder="https://example.com/wallpaper.jpg"
                   value={backgroundValue}
-                  onInput={(e) =>
-                    setBackgroundValue((e.target as HTMLInputElement).value)}
+                  onInput={(event) =>
+                    setBackgroundValue(
+                      (event.target as HTMLInputElement).value,
+                    )}
                 />
               )}
 
@@ -392,8 +318,8 @@ function ThemeMakerPane({
                         <button
                           type="button"
                           class="flex items-center justify-center w-4.5 h-4.5 rounded bg-transparent border-none text-(--text-muted) cursor-pointer shrink-0 transition-colors duration-150 hover:text-(--danger)"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={(event) => {
+                            event.stopPropagation();
                             setBackgroundValue("");
                             setUploadedFileName(null);
                             if (fileInputRef.current) {
@@ -434,9 +360,9 @@ function ThemeMakerPane({
               max="1"
               step="0.05"
               value={overlayOpacity}
-              onInput={(e) =>
+              onInput={(event) =>
                 setOverlayOpacity(
-                  parseFloat((e.target as HTMLInputElement).value),
+                  parseFloat((event.target as HTMLInputElement).value),
                 )}
             />
           </div>
@@ -574,12 +500,12 @@ export function SettingsModal() {
   const setCSSVar = (name: string, value: string) =>
     document.documentElement.style.setProperty(name, value);
 
-  const handleUiOpacity = (v: number) => {
-    setUiOpacity(v);
-    localStorage.setItem("uiOpacity", v.toString());
-    setCSSVar("--ui-bg", `rgba(22, 22, 24, ${v})`);
-    setCSSVar("--ui-bg-hover", `rgba(26, 26, 29, ${v})`);
-    setCSSVar("--ui-border", `rgba(34, 34, 37, ${v})`);
+  const handleUiOpacity = (val: number) => {
+    setUiOpacity(val);
+    localStorage.setItem("uiOpacity", val.toString());
+    setCSSVar("--ui-bg", `rgba(22, 22, 24, ${val})`);
+    setCSSVar("--ui-bg-hover", `rgba(26, 26, 29, ${val})`);
+    setCSSVar("--ui-border", `rgba(34, 34, 37, ${val})`);
   };
 
   const handleRefreshChange = (e: Event) => {
@@ -773,24 +699,26 @@ export function SettingsModal() {
                   Search Engine
                 </div>
                 <div class="flex flex-col gap-2 mb-2">
-                  {(["google", "startpage", "custom"] as const).map((e) => (
+                  {(["google", "startpage", "custom"] as const).map((event) => (
                     <label
-                      key={e}
+                      key={event}
                       class="flex items-center gap-2.5 text-[0.9rem] text-(--text-secondary) cursor-pointer py-1.5 hover:text-(--text-primary)"
                     >
                       <input
                         type="radio"
                         name="searchEngine"
-                        value={e}
-                        checked={searchEngine === e}
+                        value={event}
+                        checked={searchEngine === event}
                         class="w-3.5 h-3.5"
                         style={{ accentColor: "var(--accent)" }}
                         onChange={() => {
-                          setSearchEngine(e);
-                          localStorage.setItem("searchEngine", e);
+                          setSearchEngine(event);
+                          localStorage.setItem("searchEngine", event);
                         }}
                       />
-                      <span>{e.charAt(0).toUpperCase() + e.slice(1)}</span>
+                      <span>
+                        {event.charAt(0).toUpperCase() + event.slice(1)}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -807,10 +735,10 @@ export function SettingsModal() {
                       type="text"
                       placeholder="https://example.com/search?q=%s"
                       value={customSearchUrl}
-                      onInput={(e) => {
-                        const v = (e.target as HTMLInputElement).value;
-                        setCustomSearchUrl(v);
-                        localStorage.setItem("customSearchUrl", v);
+                      onInput={(event) => {
+                        const val = (event.target as HTMLInputElement).value;
+                        setCustomSearchUrl(val);
+                        localStorage.setItem("customSearchUrl", val);
                       }}
                     />
                   </div>

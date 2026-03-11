@@ -20,7 +20,7 @@ export function ToastProvider({ children }: { children: ComponentChildren }) {
   };
 
   const removeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   return (

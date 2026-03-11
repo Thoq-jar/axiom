@@ -24,7 +24,7 @@ export function Modal(
           className || ""
         }`}
         style={{ animation: "modalSlideIn 0.3s ease" }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <div class="flex items-center justify-between p-6 border-b border-(--border-subtle)">
           <div class="flex items-center gap-3 text-(--accent)">

@@ -9,9 +9,10 @@ export const Footer = () => {
   const [lastUpdate, setLastUpdate] = useState("—");
 
   useEffect(() => {
-    fetch("/api/version").then((r) => r.text()).then(setVersion).catch(
-      () => {},
-    );
+    fetch("/api/version").then((response) => response.text()).then(setVersion)
+      .catch(
+        () => {},
+      );
   }, []);
 
   useEffect(() => {

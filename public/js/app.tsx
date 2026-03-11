@@ -15,36 +15,38 @@ import { ToastProvider } from "./components/ui/toast.tsx";
 import { Footer } from "./components/footer.tsx";
 import { AboutPage } from "./pages/about-page.tsx";
 
-function GlobalWebSocketListener() {
-  const { addToast } = useToast();
-  const addToastRef = useRef(addToast);
-  addToastRef.current = addToast;
-
-  useEffect(() => {
-    const protocol = globalThis.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(`${protocol}//${globalThis.location.host}/ws`);
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === "installation_finished") {
-          addToastRef.current("Installation finished!", "success");
-        }
-      } catch (error) {
-        console.error("WS error", error);
-      }
-    };
-
-    return () => ws.close();
-  }, []);
-
-  return null;
-}
-
 function App() {
+  const WebSocketListener = () => {
+    const { addToast } = useToast();
+    const addToastRef = useRef(addToast);
+    addToastRef.current = addToast;
+
+    useEffect(() => {
+      const protocol = globalThis.location.protocol === "https:"
+        ? "wss:"
+        : "ws:";
+      const ws = new WebSocket(`${protocol}//${globalThis.location.host}/ws`);
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "installation_finished") {
+            addToastRef.current("Installation finished!", "success");
+          }
+        } catch (error) {
+          console.error("WS error", error);
+        }
+      };
+
+      return () => ws.close();
+    }, []);
+
+    return null;
+  };
+
   return (
     <ToastProvider>
-      <GlobalWebSocketListener />
+      <WebSocketListener />
       <Dock />
       <div id="app">
         <RouterOutlet />
@@ -57,10 +59,10 @@ function App() {
 
 function initUIStyle() {
   const opacity = localStorage.getItem("uiOpacity") || "1";
-  const r = document.documentElement;
-  r.style.setProperty("--ui-bg", `rgba(22, 22, 24, ${opacity})`);
-  r.style.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${opacity})`);
-  r.style.setProperty("--ui-border", `rgba(34, 34, 37, ${opacity})`);
+  const document_ = document.documentElement;
+  document_.style.setProperty("--ui-bg", `rgba(22, 22, 24, ${opacity})`);
+  document_.style.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${opacity})`);
+  document_.style.setProperty("--ui-border", `rgba(34, 34, 37, ${opacity})`);
 }
 
 function init(): void {
