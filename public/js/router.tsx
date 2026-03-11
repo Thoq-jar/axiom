@@ -94,12 +94,14 @@ function animationsDisabled() {
 export function RouterOutlet() {
   const { currentPage, routes } = useRouter();
   const [displayPage, setDisplayPage] = useState(currentPage);
-  const [animClass, setAnimClass] = useState("page-enter-right");
+  const [animClass, setAnimClass] = useState("");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (currentPage === displayPage) return;
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (clearRef.current) clearTimeout(clearRef.current);
 
     const fromIdx = PAGE_ORDER.indexOf(displayPage);
     const toIdx = PAGE_ORDER.indexOf(currentPage);
@@ -107,18 +109,21 @@ export function RouterOutlet() {
 
     if (animationsDisabled()) {
       setDisplayPage(currentPage);
-      setAnimClass(forward ? "page-enter-right" : "page-enter-left");
+      setAnimClass("");
       return;
     }
 
     setAnimClass(forward ? "page-exit-left" : "page-exit-right");
     timerRef.current = setTimeout(() => {
       setDisplayPage(currentPage);
-      setAnimClass(forward ? "page-enter-right" : "page-enter-left");
+      const enterClass = forward ? "page-enter-right" : "page-enter-left";
+      setAnimClass(enterClass);
+      clearRef.current = setTimeout(() => setAnimClass(""), 250);
     }, 150);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (clearRef.current) clearTimeout(clearRef.current);
     };
   }, [currentPage]);
 
@@ -126,7 +131,7 @@ export function RouterOutlet() {
   if (!CurrentComponent) return null;
 
   return (
-    <div class={animClass}>
+    <div class={animClass || undefined}>
       {CurrentComponent()}
     </div>
   );

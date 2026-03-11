@@ -6,7 +6,7 @@ import {
   sendWebSocketMessage,
   SystemData,
 } from "./websocket.ts";
-import { Button, Icon } from "./components.tsx";
+import { Icon } from "./components.tsx";
 
 function StatCard({
   title,

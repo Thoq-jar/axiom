@@ -1,6 +1,13 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState, useCallback, useRef } from "preact/hooks";
 import { sendWebSocketMessage } from "./websocket.ts";
-import { applyTheme, themeList as themes } from "./theme.ts";
+import {
+  applyTheme,
+  themeList as themes,
+  loadCustomThemes,
+  saveCustomTheme,
+  deleteCustomTheme,
+  type CustomTheme,
+} from "./theme.ts";
 import { Button, Icon } from "./components.tsx";
 
 const dockPositions = [
@@ -12,6 +19,7 @@ const dockPositions = [
 
 const categories = [
   { id: "appearance", label: "Appearance", icon: "palette" },
+  { id: "theme-maker", label: "Theme Maker", icon: "wand-sparkles" },
   { id: "dock", label: "Dock", icon: "layout-dashboard" },
   { id: "interface", label: "Interface", icon: "zap" },
   { id: "style", label: "Style", icon: "sparkles" },
@@ -37,6 +45,14 @@ export function initDockSettings() {
   applyDockPosition(pos);
   const compact = localStorage.getItem("compactDock") === "true";
   if (compact) document.body.classList.add("dock-compact");
+
+  const uiOpacity = parseFloat(localStorage.getItem("uiOpacity") || "1");
+  const uiBlur = parseInt(localStorage.getItem("uiBlur") || "0", 10);
+  const root = document.documentElement.style;
+  root.setProperty("--ui-bg", `rgba(22, 22, 24, ${uiOpacity})`);
+  root.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${uiOpacity})`);
+  root.setProperty("--ui-border", `rgba(34, 34, 37, ${uiOpacity})`);
+  root.setProperty("--ui-blur", `${uiBlur}px`);
 }
 
 function ToggleRow({
@@ -100,6 +116,336 @@ function SliderRow({
         onInput={(e) =>
           onChange(parseFloat((e.target as HTMLInputElement).value))}
       />
+    </div>
+  );
+}
+
+function generateThemeId(): string {
+  return `custom-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+function ThemeMakerPane({
+  onThemeApplied,
+}: {
+  onThemeApplied: (themeId: string) => void;
+}) {
+  const [customThemes, setCustomThemes] = useState<CustomTheme[]>(loadCustomThemes);
+  const [themeName, setThemeName] = useState("");
+  const [accentColor, setAccentColor] = useState("#8b5cf6");
+  const [backgroundType, setBackgroundType] = useState<"none" | "color" | "image">("none");
+  const [backgroundValue, setBackgroundValue] = useState("");
+  const [imageSourceMode, setImageSourceMode] = useState<"url" | "upload">("url");
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.9);
+  const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const resetForm = useCallback(() => {
+    setThemeName("");
+    setAccentColor("#8b5cf6");
+    setBackgroundType("none");
+    setBackgroundValue("");
+    setImageSourceMode("url");
+    setUploadedFileName(null);
+    setOverlayOpacity(0.9);
+    setEditingThemeId(null);
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (!themeName.trim()) return;
+    const themeId = editingThemeId ?? generateThemeId();
+    const newTheme: CustomTheme = {
+      id: themeId,
+      label: themeName.trim(),
+      accent: accentColor,
+      backgroundType,
+      backgroundValue,
+      overlayOpacity,
+    };
+    saveCustomTheme(newTheme);
+    setCustomThemes(loadCustomThemes());
+    applyTheme(themeId);
+    onThemeApplied(themeId);
+    resetForm();
+  }, [themeName, accentColor, backgroundType, backgroundValue, overlayOpacity, editingThemeId, onThemeApplied, resetForm]);
+
+  const handleEdit = useCallback((theme: CustomTheme) => {
+    setThemeName(theme.label);
+    setAccentColor(theme.accent);
+    setBackgroundType(theme.backgroundType);
+    setBackgroundValue(theme.backgroundValue);
+    setOverlayOpacity(theme.overlayOpacity);
+    setEditingThemeId(theme.id);
+    if (theme.backgroundType === "image") {
+      const isDataUrl = theme.backgroundValue.startsWith("data:");
+      setImageSourceMode(isDataUrl ? "upload" : "url");
+      setUploadedFileName(isDataUrl ? "uploaded image" : null);
+    } else {
+      setImageSourceMode("url");
+      setUploadedFileName(null);
+    }
+  }, []);
+
+  const handleDelete = useCallback((themeId: string) => {
+    deleteCustomTheme(themeId);
+    setCustomThemes(loadCustomThemes());
+    if (editingThemeId === themeId) resetForm();
+  }, [editingThemeId, resetForm]);
+
+  const handleFileUpload = useCallback((e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const dataUrl = loadEvent.target?.result as string;
+      setBackgroundValue(dataUrl);
+      setUploadedFileName(file.name);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handlePreview = useCallback(() => {
+    if (!editingThemeId) return;
+    applyTheme(editingThemeId);
+    onThemeApplied(editingThemeId);
+  }, [editingThemeId, onThemeApplied]);
+
+  return (
+    <div class="settings-pane">
+      <div class="settings-pane-title">
+        {editingThemeId ? "Edit Custom Theme" : "Create Custom Theme"}
+      </div>
+
+      <div class="theme-maker-form">
+        <div class="theme-maker-field">
+          <label class="theme-maker-label">Name</label>
+          <input
+            class="theme-maker-input"
+            type="text"
+            placeholder="My Theme"
+            value={themeName}
+            onInput={(e) => setThemeName((e.target as HTMLInputElement).value)}
+          />
+        </div>
+
+        <div class="theme-maker-field">
+          <label class="theme-maker-label">Accent Color</label>
+          <div class="theme-maker-color-row">
+            <input
+              class="theme-maker-color-picker"
+              type="color"
+              value={accentColor}
+              onInput={(e) => setAccentColor((e.target as HTMLInputElement).value)}
+            />
+            <input
+              class="theme-maker-input"
+              type="text"
+              placeholder="#8b5cf6"
+              value={accentColor}
+              onInput={(e) => setAccentColor((e.target as HTMLInputElement).value)}
+            />
+            <div
+              class="theme-maker-accent-preview"
+              style={{ background: accentColor }}
+            />
+          </div>
+        </div>
+
+        <div class="theme-maker-field">
+          <label class="theme-maker-label">Background</label>
+          <div class="theme-maker-bg-tabs">
+            {(["none", "color", "image"] as const).map((type) => (
+              <button
+                key={type}
+                type="button"
+                class={`theme-maker-bg-tab${backgroundType === type ? " active" : ""}`}
+                onClick={() => setBackgroundType(type)}
+              >
+                {type === "none" ? "None" : type === "color" ? "Color" : "Image URL"}
+              </button>
+            ))}
+          </div>
+
+          {backgroundType === "color" && (
+            <div class="theme-maker-color-row" style={{ marginTop: "0.5rem" }}>
+              <input
+                class="theme-maker-color-picker"
+                type="color"
+                value={backgroundValue || "#000000"}
+                onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
+              />
+              <input
+                class="theme-maker-input"
+                type="text"
+                placeholder="#000000"
+                value={backgroundValue}
+                onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
+              />
+            </div>
+          )}
+
+          {backgroundType === "image" && (
+            <div style={{ marginTop: "0.5rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div class="theme-maker-image-source-tabs">
+                <button
+                  type="button"
+                  class={`theme-maker-image-source-tab${imageSourceMode === "url" ? " active" : ""}`}
+                  onClick={() => {
+                    setImageSourceMode("url");
+                    setBackgroundValue("");
+                    setUploadedFileName(null);
+                  }}
+                >
+                  URL
+                </button>
+                <button
+                  type="button"
+                  class={`theme-maker-image-source-tab${imageSourceMode === "upload" ? " active" : ""}`}
+                  onClick={() => {
+                    setImageSourceMode("upload");
+                    setBackgroundValue("");
+                    setUploadedFileName(null);
+                  }}
+                >
+                  Upload
+                </button>
+              </div>
+
+              {imageSourceMode === "url" && (
+                <input
+                  class="theme-maker-input"
+                  type="text"
+                  placeholder="https://example.com/wallpaper.jpg"
+                  value={backgroundValue}
+                  onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
+                />
+              )}
+
+              {imageSourceMode === "upload" && (
+                <div class="theme-maker-upload-area" onClick={() => fileInputRef.current?.click()}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleFileUpload}
+                  />
+                  {uploadedFileName ? (
+                    <div class="theme-maker-upload-done">
+                      <Icon name="image" size={14} />
+                      <span>{uploadedFileName}</span>
+                      <button
+                        type="button"
+                        class="theme-maker-upload-clear"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setBackgroundValue("");
+                          setUploadedFileName(null);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }}
+                      >
+                        <Icon name="x" size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div class="theme-maker-upload-prompt">
+                      <Icon name="upload" size={16} />
+                      <span>Click to upload image</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {backgroundType !== "none" && (
+          <div class="theme-maker-field">
+            <div class="slider-row-header">
+              <label class="theme-maker-label">Overlay Opacity</label>
+              <span class="slider-value">{Math.round(overlayOpacity * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              class="refresh-slider"
+              min="0"
+              max="1"
+              step="0.05"
+              value={overlayOpacity}
+              onInput={(e) => setOverlayOpacity(parseFloat((e.target as HTMLInputElement).value))}
+            />
+          </div>
+        )}
+
+        <div class="theme-maker-actions">
+          {editingThemeId && (
+            <button type="button" class="theme-maker-btn secondary" onClick={resetForm}>
+              Cancel
+            </button>
+          )}
+          <button
+            type="button"
+            class="theme-maker-btn primary"
+            onClick={handleSave}
+            disabled={!themeName.trim()}
+          >
+            {editingThemeId ? "Update Theme" : "Save Theme"}
+          </button>
+        </div>
+      </div>
+
+      {customThemes.length > 0 && (
+        <div>
+          <div class="settings-pane-title" style={{ marginTop: "0.5rem" }}>Saved Themes</div>
+          <div class="theme-maker-saved-list">
+            {customThemes.map((savedTheme) => (
+              <div key={savedTheme.id} class="theme-maker-saved-item">
+                <div class="theme-maker-saved-info">
+                  <div
+                    class="theme-maker-saved-swatch"
+                    style={{ background: savedTheme.accent }}
+                  />
+                  <span class="theme-maker-saved-name">{savedTheme.label}</span>
+                  {savedTheme.backgroundType !== "none" && (
+                    <span class="theme-maker-saved-badge">
+                      {savedTheme.backgroundType === "image" ? "img" : "color"} bg
+                    </span>
+                  )}
+                </div>
+                <div class="theme-maker-saved-btns">
+                  <button
+                    type="button"
+                    class="theme-maker-small-btn"
+                    title="Apply"
+                    onClick={() => {
+                      applyTheme(savedTheme.id);
+                      onThemeApplied(savedTheme.id);
+                    }}
+                  >
+                    <Icon name="check" size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    class="theme-maker-small-btn"
+                    title="Edit"
+                    onClick={() => handleEdit(savedTheme)}
+                  >
+                    <Icon name="pencil" size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    class="theme-maker-small-btn danger"
+                    title="Delete"
+                    onClick={() => handleDelete(savedTheme.id)}
+                  >
+                    <Icon name="trash-2" size={13} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -232,6 +578,12 @@ export function SettingsModal() {
                   ))}
                 </div>
               </div>
+            )}
+
+            {activeCategory === "theme-maker" && (
+              <ThemeMakerPane
+                onThemeApplied={(themeId) => setCurrentTheme(themeId)}
+              />
             )}
 
             {activeCategory === "dock" && (

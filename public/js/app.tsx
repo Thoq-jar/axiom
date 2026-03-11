@@ -7,6 +7,7 @@ import { CpuDetailsPage } from "./pages/cpu-details.tsx";
 import { MemoryDetailsPage } from "./pages/memory-details.tsx";
 import { initDockSettings, SettingsModal } from "./settings.tsx";
 import { initTheme } from "./theme.ts";
+import { initGlobalDataStore } from "./store.ts";
 import { AppStorePage } from "./pages/app-store.tsx";
 import { OverviewPage } from "./pages/overview.tsx";
 import { Button, Icon, Modal, ToastProvider, useToast } from "./components.tsx";
@@ -178,6 +179,7 @@ function initUIStyle() {
 function init(): void {
   initTheme();
   initDockSettings();
+  initGlobalDataStore();
   initUIStyle();
   if (localStorage.getItem("disableAnimations") === "true") {
     document.body.classList.add("no-animations");

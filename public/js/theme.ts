@@ -4,6 +4,15 @@ interface ColorTheme {
   accentShadow: string;
 }
 
+export interface CustomTheme {
+  id: string;
+  label: string;
+  accent: string;
+  backgroundType: "none" | "color" | "image";
+  backgroundValue: string;
+  overlayOpacity: number;
+}
+
 export const themeList: { id: string; label: string }[] = [
   { id: "violet", label: "Violet" },
   { id: "blue", label: "Blue" },
@@ -17,7 +26,7 @@ export const themeList: { id: string; label: string }[] = [
   { id: "slate", label: "Slate" },
 ];
 
-const colorThemes: Record<string, ColorTheme> = {
+const builtinColorThemes: Record<string, ColorTheme> = {
   violet: {
     accent: "#8b5cf6",
     accentDim: "rgba(139, 92, 246, 0.15)",
@@ -70,10 +79,168 @@ const colorThemes: Record<string, ColorTheme> = {
   },
 };
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return null;
+  return {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  };
+}
+
+function buildColorThemeFromHex(hex: string): ColorTheme {
+  const rgb = hexToRgb(hex);
+  if (!rgb) {
+    return { accent: hex, accentDim: `${hex}26`, accentShadow: `${hex}4d` };
+  }
+  return {
+    accent: hex,
+    accentDim: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
+    accentShadow: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`,
+  };
+}
+
+export function loadCustomThemes(): CustomTheme[] {
+  try {
+    const stored = localStorage.getItem("customThemes");
+    if (!stored) return [];
+    return JSON.parse(stored) as CustomTheme[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomTheme(theme: CustomTheme): void {
+  const existing = loadCustomThemes();
+  const index = existing.findIndex((stored) => stored.id === theme.id);
+  if (index >= 0) {
+    existing[index] = theme;
+  } else {
+    existing.push(theme);
+  }
+  localStorage.setItem("customThemes", JSON.stringify(existing));
+}
+
+export function deleteCustomTheme(themeId: string): void {
+  const existing = loadCustomThemes();
+  const filtered = existing.filter((stored) => stored.id !== themeId);
+  localStorage.setItem("customThemes", JSON.stringify(filtered));
+}
+
+function applyBackground(
+  backgroundType: "none" | "color" | "image",
+  backgroundValue: string,
+  overlayOpacity: number,
+): void {
+  let overlay = document.querySelector(".theme-bg-overlay") as HTMLElement;
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "theme-bg-overlay";
+    document.body.insertBefore(overlay, document.body.firstChild);
+  }
+
+  if (backgroundType === "none") {
+    document.body.style.backgroundImage = "";
+    document.body.style.backgroundColor = "";
+    overlay.style.setProperty("opacity", "1", "important");
+    overlay.style.setProperty("background", "var(--bg-primary)", "important");
+    overlay.style.setProperty(
+      "background-color",
+      "var(--bg-primary)",
+      "important",
+    );
+    return;
+  }
+
+  if (backgroundType === "color") {
+    document.body.style.backgroundImage = "";
+    document.body.style.backgroundColor = backgroundValue;
+    overlay.style.setProperty(
+      "opacity",
+      overlayOpacity.toString(),
+      "important",
+    );
+    overlay.style.setProperty(
+      "background",
+      `rgba(10, 10, 11, ${overlayOpacity})`,
+      "important",
+    );
+    overlay.style.setProperty(
+      "background-color",
+      `rgba(10, 10, 11, ${overlayOpacity})`,
+      "important",
+    );
+    return;
+  }
+
+  if (backgroundType === "image") {
+    document.body.style.backgroundImage = `url('${backgroundValue}')`;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundRepeat = "no-repeat";
+    overlay.style.setProperty(
+      "opacity",
+      overlayOpacity.toString(),
+      "important",
+    );
+    overlay.style.setProperty(
+      "background",
+      `rgba(10, 10, 11, ${overlayOpacity})`,
+      "important",
+    );
+    overlay.style.setProperty(
+      "background-color",
+      `rgba(10, 10, 11, ${overlayOpacity})`,
+      "important",
+    );
+    return;
+  }
+}
+
 let currentTheme: string = localStorage.getItem("theme") || "violet";
 
 export function applyTheme(themeName: string): void {
-  const theme = colorThemes[themeName];
+  const customThemes = loadCustomThemes();
+  const customTheme = customThemes.find((stored) => stored.id === themeName);
+
+  if (customTheme) {
+    const colorTheme = buildColorThemeFromHex(customTheme.accent);
+    document.documentElement.style.setProperty("--accent", colorTheme.accent);
+    document.documentElement.style.setProperty(
+      "--accent-dim",
+      colorTheme.accentDim,
+    );
+    document.documentElement.style.setProperty(
+      "--accent-shadow",
+      colorTheme.accentShadow,
+    );
+    applyBackground(
+      customTheme.backgroundType,
+      customTheme.backgroundValue,
+      customTheme.overlayOpacity,
+    );
+    currentTheme = themeName;
+    localStorage.setItem("theme", themeName);
+    return;
+  }
+
+  if (themeName === "femboy") {
+    const theme = builtinColorThemes[themeName];
+    document.documentElement.style.setProperty("--accent", theme.accent);
+    document.documentElement.style.setProperty("--accent-dim", theme.accentDim);
+    document.documentElement.style.setProperty(
+      "--accent-shadow",
+      theme.accentShadow,
+    );
+    applyBackground("image", "/assets/special.jpg", 0.90);
+    currentTheme = themeName;
+    localStorage.setItem("theme", themeName);
+    return;
+  }
+
+  const theme = builtinColorThemes[themeName];
   if (!theme) return;
 
   document.documentElement.style.setProperty("--accent", theme.accent);
@@ -82,51 +249,13 @@ export function applyTheme(themeName: string): void {
     "--accent-shadow",
     theme.accentShadow,
   );
-
-  if (themeName === "femboy") {
-    document.body.style.backgroundImage = "url('/assets/special.jpg')";
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.opacity = "1";
-
-    let overlay = document.querySelector(".theme-bg-overlay") as HTMLElement;
-    if (!overlay) {
-      overlay = document.createElement("div");
-      overlay.className = "theme-bg-overlay";
-      document.body.insertBefore(overlay, document.body.firstChild);
-    }
-    overlay.style.setProperty("opacity", "0.90", "important");
-    overlay.style.setProperty(
-      "background",
-      "rgba(10, 10, 11, 0.90)",
-      "important",
-    );
-    overlay.style.setProperty(
-      "background-color",
-      "rgba(10, 10, 11, 0.90)",
-      "important",
-    );
-  } else {
-    document.body.style.backgroundImage = "";
-    const overlay = document.querySelector(".theme-bg-overlay") as HTMLElement;
-    if (overlay) {
-      overlay.style.setProperty("opacity", "1", "important");
-      overlay.style.setProperty("background", "var(--bg-primary)", "important");
-      overlay.style.setProperty(
-        "background-color",
-        "var(--bg-primary)",
-        "important",
-      );
-    }
-  }
+  applyBackground("none", "", 1);
 
   currentTheme = themeName;
   localStorage.setItem("theme", themeName);
 }
 
-// im sorry, however we live in a cruel world
+// we live in a cruel world
 export function initTheme(): void {
   let times = 0;
   applyTheme(currentTheme);

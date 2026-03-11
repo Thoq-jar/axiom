@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { Icon } from "../components.tsx";
+import { Icon, Modal } from "../components.tsx";
 import { connectWebSocket, SystemData } from "../websocket.ts";
 import { formatBytes } from "../utils.ts";
 import { useRouter } from "../router.tsx";
@@ -111,7 +111,7 @@ function getSearchUrl(query: string): string {
 }
 
 function LocationSetupModal(
-  { onDone }: { onDone: (location: Location) => void },
+  { onDone, onClose }: { onDone: (location: Location) => void; onClose: () => void },
 ) {
   const [step, setStep] = useState<"ask" | "manual" | "loading">("ask");
   const [manualInput, setManualInput] = useState("");
@@ -188,13 +188,11 @@ function LocationSetupModal(
   };
 
   return (
-    <div class="overview-location-backdrop">
-      <div class="overview-location-modal">
-        <div class="overview-location-icon">
-          <Icon name="map-pin" size={32} />
-        </div>
-        <h2>Set your location</h2>
-        <p>Used for weather on the overview page. Stored locally only.</p>
+    <Modal title="Set your location" icon="map-pin" onClose={onClose} class="location-setup-modal">
+      <div class="overview-location-body">
+        <p class="overview-location-subtitle">
+          Used for weather on the overview page. Stored locally only.
+        </p>
 
         {error && <div class="overview-location-error">{error}</div>}
 
@@ -269,7 +267,7 @@ function LocationSetupModal(
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -837,8 +835,7 @@ export function OverviewPage() {
 
   return (
     <div class="container">
-      {showLocationSetup && <LocationSetupModal onDone={handleLocationDone} />}
-
+      {showLocationSetup && <LocationSetupModal onDone={handleLocationDone} onClose={() => setShowLocationSetup(false)} />}
       <header>
         <div class="logo">
           <div class="logo-mark">
