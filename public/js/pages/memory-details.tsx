@@ -1,7 +1,10 @@
 import { useEffect, useState } from "preact/hooks";
-import { DetailCard, Dropdown, Icon, InfoRow } from "../components.tsx";
-import { formatBytes } from "../utils.ts";
+import { formatBytes } from "../utils/lib.ts";
 import { connectWebSocket, SystemData } from "../websocket.ts";
+import { Icon } from "../components/ui/icon.tsx";
+import { DetailCard } from "../components/ui/detail-card.tsx";
+import { Dropdown } from "../components/ui/dropdown.tsx";
+import { InfoRow } from "../components/ui/info-row.tsx";
 
 export function MemoryDetailsPage() {
   const [data, setData] = useState<SystemData | null>(null);
@@ -60,14 +63,21 @@ export function MemoryDetailsPage() {
 
   return (
     <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
-      <header class="mb-16 opacity-0 flex items-center justify-between" style={{ animation: "fadeSlideIn 0.6s ease forwards" }}>
+      <header
+        class="mb-16 opacity-0 flex items-center justify-between"
+        style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
+      >
         <div class="flex items-center gap-4">
           <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
             <Icon name="memory-stick" size={24} />
           </div>
           <div class="flex flex-col">
-            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">Memory Details</h1>
-            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">RAM Information</p>
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+              Memory Details
+            </h1>
+            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+              RAM Information
+            </p>
           </div>
         </div>
       </header>
@@ -83,10 +93,34 @@ export function MemoryDetailsPage() {
         style={{ animation: "fadeSlideIn 0.5s ease 0.1s forwards" }}
         id="memoryDetailsGrid"
       >
-        <DetailCard title="Total Memory" icon="fa-solid fa-server" value={totalMemory} subtitle="System RAM" extra={totalMemoryExtra} />
-        <DetailCard title="Used Memory" icon="fa-solid fa-chart-pie" value={usedMemory} subtitle="Currently Used" extra={usedMemoryExtra} />
-        <DetailCard title="Free Memory" icon="fa-solid fa-check-circle" value={freeMemory} subtitle="Available" extra={freeMemoryExtra} />
-        <DetailCard title="Usage Percentage" icon="fa-solid fa-percent" value={usagePercentage} subtitle="Memory Utilization" extra={usagePercentageExtra} />
+        <DetailCard
+          title="Total Memory"
+          icon="fa-solid fa-server"
+          value={totalMemory}
+          subtitle="System RAM"
+          extra={totalMemoryExtra}
+        />
+        <DetailCard
+          title="Used Memory"
+          icon="fa-solid fa-chart-pie"
+          value={usedMemory}
+          subtitle="Currently Used"
+          extra={usedMemoryExtra}
+        />
+        <DetailCard
+          title="Free Memory"
+          icon="fa-solid fa-check-circle"
+          value={freeMemory}
+          subtitle="Available"
+          extra={freeMemoryExtra}
+        />
+        <DetailCard
+          title="Usage Percentage"
+          icon="fa-solid fa-percent"
+          value={usagePercentage}
+          subtitle="Memory Utilization"
+          extra={usagePercentageExtra}
+        />
       </div>
 
       <Dropdown id="memory-breakdown" title="Memory Breakdown">
@@ -106,7 +140,10 @@ export function MemoryDetailsPage() {
             <div class="text-xs text-[var(--text-muted)] mb-2">
               Recent memory usage (last 10 updates)
             </div>
-            <div class="h-[120px] flex items-end gap-1 border-b border-[var(--border-subtle)] pb-2" id="memory-chart-bars">
+            <div
+              class="h-[120px] flex items-end gap-1 border-b border-[var(--border-subtle)] pb-2"
+              id="memory-chart-bars"
+            >
               {memoryHistory.length > 0
                 ? memoryHistory.map((value, idx) => {
                   const barHeightPx = Math.max(
@@ -119,14 +156,22 @@ export function MemoryDetailsPage() {
                     ? "var(--warning)"
                     : "var(--accent)";
                   return (
-                    <div key={idx} class="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      key={idx}
+                      class="flex-1 flex flex-col items-center gap-1"
+                    >
                       <div class="w-full bg-[var(--bg-secondary)] rounded-t h-[100px] flex items-end relative">
                         <div
                           class="w-full rounded-t transition-[height] duration-300 min-h-[2px]"
-                          style={{ background: color, height: `${barHeightPx}px` }}
+                          style={{
+                            background: color,
+                            height: `${barHeightPx}px`,
+                          }}
                         />
                       </div>
-                      <div class="chart-bar-label text-[0.65rem] text-[var(--text-muted)]">{value.toFixed(0)}%</div>
+                      <div class="chart-bar-label text-[0.65rem] text-[var(--text-muted)]">
+                        {value.toFixed(0)}%
+                      </div>
                     </div>
                   );
                 })

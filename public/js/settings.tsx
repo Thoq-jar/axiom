@@ -1,14 +1,15 @@
-import { useEffect, useState, useCallback, useRef } from "preact/hooks";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import { sendWebSocketMessage } from "./websocket.ts";
 import {
   applyTheme,
-  themeList as themes,
+  type CustomTheme,
+  deleteCustomTheme,
   loadCustomThemes,
   saveCustomTheme,
-  deleteCustomTheme,
-  type CustomTheme,
+  themeList as themes,
 } from "./theme.ts";
-import { Button, Icon } from "./components.tsx";
+import { Button } from "./components/ui/button.tsx";
+import { Icon } from "./components/ui/icon.tsx";
 
 const dockPositions = [
   { id: "top", label: "Top", icon: "panel-top" },
@@ -69,7 +70,9 @@ function ToggleRow({
   return (
     <div class="flex items-center justify-between gap-4">
       <div class="flex-1">
-        <div class="text-[0.9rem] text-[var(--text-primary)] mb-0.5 font-medium">{label}</div>
+        <div class="text-[0.9rem] text-[var(--text-primary)] mb-0.5 font-medium">
+          {label}
+        </div>
         <div class="text-xs text-[var(--text-muted)]">{desc}</div>
       </div>
       <button
@@ -81,7 +84,11 @@ function ToggleRow({
         }`}
         onClick={onChange}
       >
-        <div class={`toggle-thumb absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${value ? "translate-x-5" : ""}`} />
+        <div
+          class={`toggle-thumb absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${
+            value ? "translate-x-5" : ""
+          }`}
+        />
       </button>
     </div>
   );
@@ -107,8 +114,12 @@ function SliderRow({
   return (
     <div class="flex flex-col gap-2">
       <div class="flex justify-between items-center">
-        <span class="text-[0.9rem] text-[var(--text-primary)] font-medium">{label}</span>
-        <span class="text-[0.8rem] text-[var(--accent)] font-semibold">{display}</span>
+        <span class="text-[0.9rem] text-[var(--text-primary)] font-medium">
+          {label}
+        </span>
+        <span class="text-[0.8rem] text-[var(--accent)] font-semibold">
+          {display}
+        </span>
       </div>
       <input
         type="range"
@@ -133,12 +144,18 @@ function ThemeMakerPane({
 }: {
   onThemeApplied: (themeId: string) => void;
 }) {
-  const [customThemes, setCustomThemes] = useState<CustomTheme[]>(loadCustomThemes);
+  const [customThemes, setCustomThemes] = useState<CustomTheme[]>(
+    loadCustomThemes,
+  );
   const [themeName, setThemeName] = useState("");
   const [accentColor, setAccentColor] = useState("#8b5cf6");
-  const [backgroundType, setBackgroundType] = useState<"none" | "color" | "image">("none");
+  const [backgroundType, setBackgroundType] = useState<
+    "none" | "color" | "image"
+  >("none");
   const [backgroundValue, setBackgroundValue] = useState("");
-  const [imageSourceMode, setImageSourceMode] = useState<"url" | "upload">("url");
+  const [imageSourceMode, setImageSourceMode] = useState<"url" | "upload">(
+    "url",
+  );
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [overlayOpacity, setOverlayOpacity] = useState(0.9);
   const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
@@ -171,7 +188,16 @@ function ThemeMakerPane({
     applyTheme(themeId);
     onThemeApplied(themeId);
     resetForm();
-  }, [themeName, accentColor, backgroundType, backgroundValue, overlayOpacity, editingThemeId, onThemeApplied, resetForm]);
+  }, [
+    themeName,
+    accentColor,
+    backgroundType,
+    backgroundValue,
+    overlayOpacity,
+    editingThemeId,
+    onThemeApplied,
+    resetForm,
+  ]);
 
   const handleEdit = useCallback((theme: CustomTheme) => {
     setThemeName(theme.label);
@@ -222,7 +248,9 @@ function ThemeMakerPane({
 
       <div class="flex flex-col gap-4 bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-[10px] p-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Name</label>
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+            Name
+          </label>
           <input
             class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
             type="text"
@@ -233,20 +261,24 @@ function ThemeMakerPane({
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Accent Color</label>
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+            Accent Color
+          </label>
           <div class="flex items-center gap-2">
             <input
               class="w-9 h-9 border border-[var(--border-subtle)] rounded-md cursor-pointer p-0.5 bg-[var(--bg-card)] shrink-0"
               type="color"
               value={accentColor}
-              onInput={(e) => setAccentColor((e.target as HTMLInputElement).value)}
+              onInput={(e) =>
+                setAccentColor((e.target as HTMLInputElement).value)}
             />
             <input
               class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
               type="text"
               placeholder="#8b5cf6"
               value={accentColor}
-              onInput={(e) => setAccentColor((e.target as HTMLInputElement).value)}
+              onInput={(e) =>
+                setAccentColor((e.target as HTMLInputElement).value)}
             />
             <div
               class="w-9 h-9 rounded-md border border-[var(--border-subtle)] shrink-0"
@@ -256,7 +288,9 @@ function ThemeMakerPane({
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Background</label>
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+            Background
+          </label>
           <div class="flex gap-1.5">
             {(["none", "color", "image"] as const).map((type) => (
               <button
@@ -269,7 +303,11 @@ function ThemeMakerPane({
                 }`}
                 onClick={() => setBackgroundType(type)}
               >
-                {type === "none" ? "None" : type === "color" ? "Color" : "Image URL"}
+                {type === "none"
+                  ? "None"
+                  : type === "color"
+                  ? "Color"
+                  : "Image URL"}
               </button>
             ))}
           </div>
@@ -280,14 +318,16 @@ function ThemeMakerPane({
                 class="w-9 h-9 border border-[var(--border-subtle)] rounded-md cursor-pointer p-0.5 bg-[var(--bg-card)] shrink-0"
                 type="color"
                 value={backgroundValue || "#000000"}
-                onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
+                onInput={(e) =>
+                  setBackgroundValue((e.target as HTMLInputElement).value)}
               />
               <input
                 class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
                 type="text"
                 placeholder="#000000"
                 value={backgroundValue}
-                onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
+                onInput={(e) =>
+                  setBackgroundValue((e.target as HTMLInputElement).value)}
               />
             </div>
           )}
@@ -302,7 +342,11 @@ function ThemeMakerPane({
                       ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
                       : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
                   }`}
-                  onClick={() => { setImageSourceMode("url"); setBackgroundValue(""); setUploadedFileName(null); }}
+                  onClick={() => {
+                    setImageSourceMode("url");
+                    setBackgroundValue("");
+                    setUploadedFileName(null);
+                  }}
                 >
                   URL
                 </button>
@@ -313,7 +357,11 @@ function ThemeMakerPane({
                       ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
                       : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
                   }`}
-                  onClick={() => { setImageSourceMode("upload"); setBackgroundValue(""); setUploadedFileName(null); }}
+                  onClick={() => {
+                    setImageSourceMode("upload");
+                    setBackgroundValue("");
+                    setUploadedFileName(null);
+                  }}
                 >
                   Upload
                 </button>
@@ -325,7 +373,8 @@ function ThemeMakerPane({
                   type="text"
                   placeholder="https://example.com/wallpaper.jpg"
                   value={backgroundValue}
-                  onInput={(e) => setBackgroundValue((e.target as HTMLInputElement).value)}
+                  onInput={(e) =>
+                    setBackgroundValue((e.target as HTMLInputElement).value)}
                 />
               )}
 
@@ -341,29 +390,35 @@ function ThemeMakerPane({
                     style={{ display: "none" }}
                     onChange={handleFileUpload}
                   />
-                  {uploadedFileName ? (
-                    <div class="flex items-center gap-2 text-[var(--accent)] text-[0.78rem] min-w-0">
-                      <Icon name="image" size={14} />
-                      <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{uploadedFileName}</span>
-                      <button
-                        type="button"
-                        class="flex items-center justify-center w-[18px] h-[18px] rounded bg-transparent border-none text-[var(--text-muted)] cursor-pointer shrink-0 transition-colors duration-150 hover:text-[var(--danger)]"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setBackgroundValue("");
-                          setUploadedFileName(null);
-                          if (fileInputRef.current) fileInputRef.current.value = "";
-                        }}
-                      >
-                        <Icon name="x" size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div class="flex items-center justify-center gap-2 text-[var(--text-secondary)] text-[0.78rem]">
-                      <Icon name="upload" size={16} />
-                      <span>Click to upload image</span>
-                    </div>
-                  )}
+                  {uploadedFileName
+                    ? (
+                      <div class="flex items-center gap-2 text-[var(--accent)] text-[0.78rem] min-w-0">
+                        <Icon name="image" size={14} />
+                        <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                          {uploadedFileName}
+                        </span>
+                        <button
+                          type="button"
+                          class="flex items-center justify-center w-[18px] h-[18px] rounded bg-transparent border-none text-[var(--text-muted)] cursor-pointer shrink-0 transition-colors duration-150 hover:text-[var(--danger)]"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBackgroundValue("");
+                            setUploadedFileName(null);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }}
+                        >
+                          <Icon name="x" size={12} />
+                        </button>
+                      </div>
+                    )
+                    : (
+                      <div class="flex items-center justify-center gap-2 text-[var(--text-secondary)] text-[0.78rem]">
+                        <Icon name="upload" size={16} />
+                        <span>Click to upload image</span>
+                      </div>
+                    )}
                 </div>
               )}
             </div>
@@ -373,8 +428,12 @@ function ThemeMakerPane({
         {backgroundType !== "none" && (
           <div class="flex flex-col gap-1.5">
             <div class="flex justify-between items-center">
-              <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">Overlay Opacity</label>
-              <span class="text-[0.8rem] text-[var(--accent)] font-semibold">{Math.round(overlayOpacity * 100)}%</span>
+              <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                Overlay Opacity
+              </label>
+              <span class="text-[0.8rem] text-[var(--accent)] font-semibold">
+                {Math.round(overlayOpacity * 100)}%
+              </span>
             </div>
             <input
               type="range"
@@ -383,7 +442,10 @@ function ThemeMakerPane({
               max="1"
               step="0.05"
               value={overlayOpacity}
-              onInput={(e) => setOverlayOpacity(parseFloat((e.target as HTMLInputElement).value))}
+              onInput={(e) =>
+                setOverlayOpacity(
+                  parseFloat((e.target as HTMLInputElement).value),
+                )}
             />
           </div>
         )}
@@ -411,19 +473,28 @@ function ThemeMakerPane({
 
       {customThemes.length > 0 && (
         <div>
-          <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1 mt-2">Saved Themes</div>
+          <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1 mt-2">
+            Saved Themes
+          </div>
           <div class="flex flex-col gap-1.5">
             {customThemes.map((savedTheme) => (
-              <div key={savedTheme.id} class="flex items-center justify-between bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-lg py-2 px-3 transition-[border-color] duration-150 hover:border-[var(--border-accent)]">
+              <div
+                key={savedTheme.id}
+                class="flex items-center justify-between bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-lg py-2 px-3 transition-[border-color] duration-150 hover:border-[var(--border-accent)]"
+              >
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div
                     class="w-[18px] h-[18px] rounded shrink-0 border border-white/10"
                     style={{ background: savedTheme.accent }}
                   />
-                  <span class="text-[0.8rem] text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{savedTheme.label}</span>
+                  <span class="text-[0.8rem] text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">
+                    {savedTheme.label}
+                  </span>
                   {savedTheme.backgroundType !== "none" && (
                     <span class="text-[0.65rem] py-0.5 px-1.5 bg-[var(--accent-dim)] text-[var(--accent)] rounded whitespace-nowrap shrink-0">
-                      {savedTheme.backgroundType === "image" ? "img" : "color"} bg
+                      {savedTheme.backgroundType === "image" ? "img" : "color"}
+                      {" "}
+                      bg
                     </span>
                   )}
                 </div>
@@ -432,7 +503,10 @@ function ThemeMakerPane({
                     type="button"
                     class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
                     title="Apply"
-                    onClick={() => { applyTheme(savedTheme.id); onThemeApplied(savedTheme.id); }}
+                    onClick={() => {
+                      applyTheme(savedTheme.id);
+                      onThemeApplied(savedTheme.id);
+                    }}
                   >
                     <Icon name="check" size={13} />
                   </button>
@@ -537,7 +611,11 @@ export function SettingsModal() {
 
   return (
     <div
-      class={`fixed top-0 left-0 w-screen h-screen bg-black/60 backdrop-blur-[8px] z-[9999] grid place-items-center ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} transition-opacity duration-200`}
+      class={`fixed top-0 left-0 w-screen h-screen bg-black/60 backdrop-blur-[8px] z-[9999] grid place-items-center ${
+        isOpen
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
+      } transition-opacity duration-200`}
       id="modalBackdrop"
       onClick={handleBackdropClick}
     >
@@ -581,7 +659,9 @@ export function SettingsModal() {
           <div class="settings-content flex-1 overflow-y-auto p-6">
             {activeCategory === "appearance" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Accent Color</div>
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                  Accent Color
+                </div>
                 <div class="grid grid-cols-5 gap-3">
                   {themes.map(({ id, label }) => (
                     <div
@@ -611,7 +691,9 @@ export function SettingsModal() {
 
             {activeCategory === "dock" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Position</div>
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                  Position
+                </div>
                 <div class="grid grid-cols-4 gap-2">
                   {dockPositions.map(({ id, label, icon }) => (
                     <button
@@ -713,10 +795,15 @@ export function SettingsModal() {
 
             {activeCategory === "search" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Search Engine</div>
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                  Search Engine
+                </div>
                 <div class="flex flex-col gap-2 mb-2">
                   {(["google", "startpage", "custom"] as const).map((e) => (
-                    <label key={e} class="flex items-center gap-2.5 text-[0.9rem] text-[var(--text-secondary)] cursor-pointer py-1.5 hover:text-[var(--text-primary)]">
+                    <label
+                      key={e}
+                      class="flex items-center gap-2.5 text-[0.9rem] text-[var(--text-secondary)] cursor-pointer py-1.5 hover:text-[var(--text-primary)]"
+                    >
                       <input
                         type="radio"
                         name="searchEngine"
@@ -735,8 +822,12 @@ export function SettingsModal() {
                 </div>
                 {searchEngine === "custom" && (
                   <div class="mt-4">
-                    <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Custom URL template</div>
-                    <p class="text-xs text-[var(--text-muted)] mb-2">Use <code>%s</code> where the query should go.</p>
+                    <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                      Custom URL template
+                    </div>
+                    <p class="text-xs text-[var(--text-muted)] mb-2">
+                      Use <code>%s</code> where the query should go.
+                    </p>
                     <input
                       class="w-full bg-[var(--bg-secondary)] border border-[var(--border-accent)] rounded-lg py-2.5 px-3.5 text-[var(--text-primary)] font-[inherit] text-[0.85rem] outline-none transition-[border-color] duration-200 focus:border-[var(--accent)] placeholder:text-[var(--text-muted)]"
                       type="text"

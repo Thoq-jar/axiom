@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { Button, Icon, Modal, useToast } from "../components.tsx";
+import { Icon } from "../components/ui/icon.tsx";
+import { Modal } from "../components/ui/modal.tsx";
+import { Button } from "../components/ui/button.tsx";
+import { useToast } from "../hooks/use-toast.ts";
 
 interface InstallStep {
   action: string;
@@ -47,9 +50,7 @@ function AppCard({
   return (
     <div
       class={`rounded-xl p-5 cursor-pointer flex gap-4 border [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] ${
-        isInstalled
-          ? "border-[var(--accent)]"
-          : "border-[var(--ui-border)]"
+        isInstalled ? "border-[var(--accent)]" : "border-[var(--ui-border)]"
       }`}
       onClick={onClick}
     >
@@ -67,7 +68,9 @@ function AppCard({
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-2 mb-2">
-          <h3 class="text-base font-semibold text-[var(--text-primary)]">{app.name}</h3>
+          <h3 class="text-base font-semibold text-[var(--text-primary)]">
+            {app.name}
+          </h3>
           <span
             class={`text-[0.7rem] font-semibold py-1 px-2 rounded-md uppercase whitespace-nowrap ${
               isInstalled
@@ -80,7 +83,9 @@ function AppCard({
             {isInstalled ? (isRunning ? "Running" : "Stopped") : "Install"}
           </span>
         </div>
-        <p class="app-card-desc text-[0.8rem] text-[var(--text-secondary)] leading-snug">{app.description}</p>
+        <p class="app-card-desc text-[0.8rem] text-[var(--text-secondary)] leading-snug">
+          {app.description}
+        </p>
         {isInstalled && container && (
           <div class="mt-2 text-xs text-[var(--text-muted)]">
             <span>{container.name}</span>
@@ -110,13 +115,23 @@ function ManageModal({
       <div class="p-6">
         <div class="flex justify-between py-3 border-b border-[var(--border-subtle)]">
           <span class="text-[0.9rem] text-[var(--text-secondary)]">Status</span>
-          <span class={`text-[0.9rem] font-semibold ${container.state === "running" ? "text-[#22c55e]" : "text-[#ef4444]"}`}>
+          <span
+            class={`text-[0.9rem] font-semibold ${
+              container.state === "running"
+                ? "text-[#22c55e]"
+                : "text-[#ef4444]"
+            }`}
+          >
             {container.state}
           </span>
         </div>
         <div class="flex justify-between py-3 border-b border-[var(--border-subtle)]">
-          <span class="text-[0.9rem] text-[var(--text-secondary)]">Container</span>
-          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">{container.name}</span>
+          <span class="text-[0.9rem] text-[var(--text-secondary)]">
+            Container
+          </span>
+          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">
+            {container.name}
+          </span>
         </div>
         <div class="flex justify-between py-3 border-b border-[var(--border-subtle)]">
           <span class="text-[0.9rem] text-[var(--text-secondary)]">Image</span>
@@ -126,7 +141,9 @@ function ManageModal({
         </div>
         <div class="flex justify-between py-3">
           <span class="text-[0.9rem] text-[var(--text-secondary)]">Ports</span>
-          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">{container.ports || "None"}</span>
+          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">
+            {container.ports || "None"}
+          </span>
         </div>
       </div>
       <div class="p-6 border-t border-[var(--border-subtle)] flex gap-3">
@@ -290,32 +307,48 @@ export function AppStorePage() {
   if (loading) {
     return (
       <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
-        <header class="mb-16 opacity-0 flex items-center justify-between" style={{ animation: "fadeSlideIn 0.6s ease forwards" }}>
+        <header
+          class="mb-16 opacity-0 flex items-center justify-between"
+          style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
+        >
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
               <Icon name="package" size={24} />
             </div>
             <div class="flex flex-col">
-              <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">Apps</h1>
-              <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">Manage your applications</p>
+              <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+                Apps
+              </h1>
+              <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+                Manage your applications
+              </p>
             </div>
           </div>
         </header>
-        <div class="text-[var(--text-secondary)] text-center p-8">Loading...</div>
+        <div class="text-[var(--text-secondary)] text-center p-8">
+          Loading...
+        </div>
       </div>
     );
   }
 
   return (
     <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
-      <header class="mb-16 opacity-0 flex items-center justify-between" style={{ animation: "fadeSlideIn 0.6s ease forwards" }}>
+      <header
+        class="mb-16 opacity-0 flex items-center justify-between"
+        style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
+      >
         <div class="flex items-center gap-4">
           <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
             <Icon name="package" size={24} />
           </div>
           <div class="flex flex-col">
-            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">Apps</h1>
-            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">Manage your applications</p>
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+              Apps
+            </h1>
+            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+              Manage your applications
+            </p>
           </div>
         </div>
       </header>

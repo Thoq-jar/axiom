@@ -160,7 +160,6 @@ body.no-animations .page-enter-left {
   transform: scale(1);
 }
 
-
 .progress-fill::after {
   content: "";
   position: absolute;
