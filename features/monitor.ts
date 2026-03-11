@@ -277,10 +277,10 @@ export const start_monitor = async () => {
     Array<{ name: string; cpu: number; mem: number }> | null
   > {
     try {
-      function extractName(rawPath: string): string {
+      const extractName = (rawPath: string): string => {
         const exe = rawPath.split("/").filter(Boolean).pop() || rawPath;
         return exe.replace(/\.app$/, "");
-      }
+      };
 
       if (isLinux) {
         const command = new Deno.Command("ps", {

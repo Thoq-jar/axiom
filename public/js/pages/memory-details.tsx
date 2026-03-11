@@ -62,20 +62,20 @@ export function MemoryDetailsPage() {
   const maxValue = Math.max(...memoryHistory, 1);
 
   return (
-    <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+    <div class="max-w-275 mx-auto py-12 px-8 relative z-1">
       <header
         class="mb-16 opacity-0 flex items-center justify-between"
         style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
       >
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
+          <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
             <Icon name="memory-stick" size={24} />
           </div>
           <div class="flex flex-col">
-            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
               Memory Details
             </h1>
-            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+            <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
               RAM Information
             </p>
           </div>
@@ -83,7 +83,7 @@ export function MemoryDetailsPage() {
       </header>
 
       {error && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-[var(--danger)] py-4 px-5 rounded-lg text-[0.8rem] mb-6">
+        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
           Connection lost. Attempting to reconnect...
         </div>
       )}
@@ -137,11 +137,11 @@ export function MemoryDetailsPage() {
       <Dropdown id="memory-history" title="Memory Usage History">
         <div class="mt-4" id="memory-history-chart">
           <div class="flex flex-col gap-2">
-            <div class="text-xs text-[var(--text-muted)] mb-2">
+            <div class="text-xs text-(--text-muted) mb-2">
               Recent memory usage (last 10 updates)
             </div>
             <div
-              class="h-[120px] flex items-end gap-1 border-b border-[var(--border-subtle)] pb-2"
+              class="h-30 flex items-end gap-1 border-b border-(--border-subtle) pb-2"
               id="memory-chart-bars"
             >
               {memoryHistory.length > 0
@@ -160,16 +160,16 @@ export function MemoryDetailsPage() {
                       key={idx}
                       class="flex-1 flex flex-col items-center gap-1"
                     >
-                      <div class="w-full bg-[var(--bg-secondary)] rounded-t h-[100px] flex items-end relative">
+                      <div class="w-full bg-(--bg-secondary) rounded-t h-25 flex items-end relative">
                         <div
-                          class="w-full rounded-t transition-[height] duration-300 min-h-[2px]"
+                          class="w-full rounded-t transition-[height] duration-300 min-h-0.5"
                           style={{
                             background: color,
                             height: `${barHeightPx}px`,
                           }}
                         />
                       </div>
-                      <div class="chart-bar-label text-[0.65rem] text-[var(--text-muted)]">
+                      <div class="chart-bar-label text-[0.65rem] text-(--text-muted)">
                         {value.toFixed(0)}%
                       </div>
                     </div>
@@ -177,7 +177,7 @@ export function MemoryDetailsPage() {
                 })
                 : null}
             </div>
-            <div class="flex justify-between text-[0.7rem] text-[var(--text-muted)] mt-2">
+            <div class="flex justify-between text-[0.7rem] text-(--text-muted) mt-2">
               <span>Oldest</span>
               <span>Latest</span>
             </div>

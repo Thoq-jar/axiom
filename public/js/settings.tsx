@@ -48,12 +48,10 @@ export function initDockSettings() {
   if (compact) document.body.classList.add("dock-compact");
 
   const uiOpacity = parseFloat(localStorage.getItem("uiOpacity") || "1");
-  const uiBlur = parseInt(localStorage.getItem("uiBlur") || "0", 10);
   const root = document.documentElement.style;
   root.setProperty("--ui-bg", `rgba(22, 22, 24, ${uiOpacity})`);
   root.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${uiOpacity})`);
   root.setProperty("--ui-border", `rgba(34, 34, 37, ${uiOpacity})`);
-  root.setProperty("--ui-blur", `${uiBlur}px`);
 }
 
 function ToggleRow({
@@ -70,17 +68,17 @@ function ToggleRow({
   return (
     <div class="flex items-center justify-between gap-4">
       <div class="flex-1">
-        <div class="text-[0.9rem] text-[var(--text-primary)] mb-0.5 font-medium">
+        <div class="text-[0.9rem] text-(--text-primary) mb-0.5 font-medium">
           {label}
         </div>
-        <div class="text-xs text-[var(--text-muted)]">{desc}</div>
+        <div class="text-xs text-(--text-muted)">{desc}</div>
       </div>
       <button
         type="button"
         class={`w-11 h-6 rounded-xl relative shrink-0 transition-all duration-200 p-0 cursor-pointer border ${
           value
-            ? "bg-[var(--accent)] border-[var(--accent)]"
-            : "bg-[var(--bg-secondary)] border-[var(--border-accent)]"
+            ? "bg-(--accent) border-(--accent)"
+            : "bg-(--bg-secondary) border-(--border-accent)"
         }`}
         onClick={onChange}
       >
@@ -114,10 +112,10 @@ function SliderRow({
   return (
     <div class="flex flex-col gap-2">
       <div class="flex justify-between items-center">
-        <span class="text-[0.9rem] text-[var(--text-primary)] font-medium">
+        <span class="text-[0.9rem] text-(--text-primary) font-medium">
           {label}
         </span>
-        <span class="text-[0.8rem] text-[var(--accent)] font-semibold">
+        <span class="text-[0.8rem] text-(--accent) font-semibold">
           {display}
         </span>
       </div>
@@ -234,25 +232,19 @@ function ThemeMakerPane({
     reader.readAsDataURL(file);
   }, []);
 
-  const handlePreview = useCallback(() => {
-    if (!editingThemeId) return;
-    applyTheme(editingThemeId);
-    onThemeApplied(editingThemeId);
-  }, [editingThemeId, onThemeApplied]);
-
   return (
     <div class="flex flex-col gap-4">
-      <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+      <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
         {editingThemeId ? "Edit Custom Theme" : "Create Custom Theme"}
       </div>
 
-      <div class="flex flex-col gap-4 bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-[10px] p-4">
+      <div class="flex flex-col gap-4 bg-(--ui-bg) border border-(--ui-border) rounded-[10px] p-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-(--text-muted)">
             Name
           </label>
           <input
-            class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
+            class="bg-(--bg-card) border border-(--border-subtle) rounded-md text-(--text-primary) font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-(--accent)"
             type="text"
             placeholder="My Theme"
             value={themeName}
@@ -261,19 +253,19 @@ function ThemeMakerPane({
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-(--text-muted)">
             Accent Color
           </label>
           <div class="flex items-center gap-2">
             <input
-              class="w-9 h-9 border border-[var(--border-subtle)] rounded-md cursor-pointer p-0.5 bg-[var(--bg-card)] shrink-0"
+              class="w-9 h-9 border border-(--border-subtle) rounded-md cursor-pointer p-0.5 bg-(--bg-card) shrink-0"
               type="color"
               value={accentColor}
               onInput={(e) =>
                 setAccentColor((e.target as HTMLInputElement).value)}
             />
             <input
-              class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
+              class="bg-(--bg-card) border border-(--border-subtle) rounded-md text-(--text-primary) font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-(--accent)"
               type="text"
               placeholder="#8b5cf6"
               value={accentColor}
@@ -281,14 +273,14 @@ function ThemeMakerPane({
                 setAccentColor((e.target as HTMLInputElement).value)}
             />
             <div
-              class="w-9 h-9 rounded-md border border-[var(--border-subtle)] shrink-0"
+              class="w-9 h-9 rounded-md border border-(--border-subtle) shrink-0"
               style={{ background: accentColor }}
             />
           </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+          <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-(--text-muted)">
             Background
           </label>
           <div class="flex gap-1.5">
@@ -298,8 +290,8 @@ function ThemeMakerPane({
                 type="button"
                 class={`flex-1 py-1.5 px-2.5 text-xs font-mono border rounded-md cursor-pointer transition-all duration-150 ${
                   backgroundType === type
-                    ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
-                    : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                    ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
+                    : "bg-(--bg-card) border-(--border-subtle) text-(--text-secondary) hover:border-(--border-accent) hover:text-(--text-primary)"
                 }`}
                 onClick={() => setBackgroundType(type)}
               >
@@ -315,14 +307,14 @@ function ThemeMakerPane({
           {backgroundType === "color" && (
             <div class="flex items-center gap-2 mt-2">
               <input
-                class="w-9 h-9 border border-[var(--border-subtle)] rounded-md cursor-pointer p-0.5 bg-[var(--bg-card)] shrink-0"
+                class="w-9 h-9 border border-(--border-subtle) rounded-md cursor-pointer p-0.5 bg-(--bg-card) shrink-0"
                 type="color"
                 value={backgroundValue || "#000000"}
                 onInput={(e) =>
                   setBackgroundValue((e.target as HTMLInputElement).value)}
               />
               <input
-                class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
+                class="bg-(--bg-card) border border-(--border-subtle) rounded-md text-(--text-primary) font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-(--accent)"
                 type="text"
                 placeholder="#000000"
                 value={backgroundValue}
@@ -339,8 +331,8 @@ function ThemeMakerPane({
                   type="button"
                   class={`flex-1 py-1 px-2.5 text-[0.72rem] font-mono border rounded cursor-pointer transition-all duration-150 ${
                     imageSourceMode === "url"
-                      ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
-                      : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                      ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
+                      : "bg-(--bg-card) border-(--border-subtle) text-(--text-secondary) hover:border-(--border-accent) hover:text-(--text-primary)"
                   }`}
                   onClick={() => {
                     setImageSourceMode("url");
@@ -354,8 +346,8 @@ function ThemeMakerPane({
                   type="button"
                   class={`flex-1 py-1 px-2.5 text-[0.72rem] font-mono border rounded cursor-pointer transition-all duration-150 ${
                     imageSourceMode === "upload"
-                      ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
-                      : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                      ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
+                      : "bg-(--bg-card) border-(--border-subtle) text-(--text-secondary) hover:border-(--border-accent) hover:text-(--text-primary)"
                   }`}
                   onClick={() => {
                     setImageSourceMode("upload");
@@ -369,7 +361,7 @@ function ThemeMakerPane({
 
               {imageSourceMode === "url" && (
                 <input
-                  class="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-md text-[var(--text-primary)] font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-[var(--accent)]"
+                  class="bg-(--bg-card) border border-(--border-subtle) rounded-md text-(--text-primary) font-mono text-[0.8rem] py-1.5 px-2.5 outline-none flex-1 transition-[border-color] duration-150 focus:border-(--accent)"
                   type="text"
                   placeholder="https://example.com/wallpaper.jpg"
                   value={backgroundValue}
@@ -380,7 +372,7 @@ function ThemeMakerPane({
 
               {imageSourceMode === "upload" && (
                 <div
-                  class="border border-dashed border-[var(--border-accent)] rounded-lg py-3 px-4 cursor-pointer transition-all duration-150 bg-[var(--bg-card)] hover:border-[var(--accent)] hover:bg-[var(--accent-dim)]"
+                  class="border border-dashed border-(--border-accent) rounded-lg py-3 px-4 cursor-pointer transition-all duration-150 bg-(--bg-card) hover:border-(--accent) hover:bg-(--accent-dim)"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <input
@@ -392,14 +384,14 @@ function ThemeMakerPane({
                   />
                   {uploadedFileName
                     ? (
-                      <div class="flex items-center gap-2 text-[var(--accent)] text-[0.78rem] min-w-0">
+                      <div class="flex items-center gap-2 text-(--accent) text-[0.78rem] min-w-0">
                         <Icon name="image" size={14} />
                         <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                           {uploadedFileName}
                         </span>
                         <button
                           type="button"
-                          class="flex items-center justify-center w-[18px] h-[18px] rounded bg-transparent border-none text-[var(--text-muted)] cursor-pointer shrink-0 transition-colors duration-150 hover:text-[var(--danger)]"
+                          class="flex items-center justify-center w-[18px] h-[18px] rounded bg-transparent border-none text-(--text-muted) cursor-pointer shrink-0 transition-colors duration-150 hover:text-(--danger)"
                           onClick={(e) => {
                             e.stopPropagation();
                             setBackgroundValue("");
@@ -414,7 +406,7 @@ function ThemeMakerPane({
                       </div>
                     )
                     : (
-                      <div class="flex items-center justify-center gap-2 text-[var(--text-secondary)] text-[0.78rem]">
+                      <div class="flex items-center justify-center gap-2 text-(--text-secondary) text-[0.78rem]">
                         <Icon name="upload" size={16} />
                         <span>Click to upload image</span>
                       </div>
@@ -428,10 +420,10 @@ function ThemeMakerPane({
         {backgroundType !== "none" && (
           <div class="flex flex-col gap-1.5">
             <div class="flex justify-between items-center">
-              <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+              <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-(--text-muted)">
                 Overlay Opacity
               </label>
-              <span class="text-[0.8rem] text-[var(--accent)] font-semibold">
+              <span class="text-[0.8rem] text-(--accent) font-semibold">
                 {Math.round(overlayOpacity * 100)}%
               </span>
             </div>
@@ -454,7 +446,7 @@ function ThemeMakerPane({
           {editingThemeId && (
             <button
               type="button"
-              class="font-mono text-[0.78rem] py-1.5 px-4 rounded-md cursor-pointer transition-all duration-150 border bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+              class="font-mono text-[0.78rem] py-1.5 px-4 rounded-md cursor-pointer transition-all duration-150 border bg-(--bg-card) text-(--text-secondary) border-(--border-subtle) hover:border-(--border-accent) hover:text-(--text-primary)"
               onClick={resetForm}
             >
               Cancel
@@ -462,7 +454,7 @@ function ThemeMakerPane({
           )}
           <button
             type="button"
-            class="font-mono text-[0.78rem] py-1.5 px-4 rounded-md cursor-pointer transition-all duration-150 border bg-[var(--accent)] text-white border-[var(--accent)] hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
+            class="font-mono text-[0.78rem] py-1.5 px-4 rounded-md cursor-pointer transition-all duration-150 border bg-(--accent) text-white border-(--accent) hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={handleSave}
             disabled={!themeName.trim()}
           >
@@ -473,25 +465,25 @@ function ThemeMakerPane({
 
       {customThemes.length > 0 && (
         <div>
-          <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1 mt-2">
+          <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1 mt-2">
             Saved Themes
           </div>
           <div class="flex flex-col gap-1.5">
             {customThemes.map((savedTheme) => (
               <div
                 key={savedTheme.id}
-                class="flex items-center justify-between bg-[var(--ui-bg)] border border-[var(--ui-border)] rounded-lg py-2 px-3 transition-[border-color] duration-150 hover:border-[var(--border-accent)]"
+                class="flex items-center justify-between bg-(--ui-bg) border border-(--ui-border) rounded-lg py-2 px-3 transition-[border-color] duration-150 hover:border-(--border-accent)"
               >
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div
                     class="w-[18px] h-[18px] rounded shrink-0 border border-white/10"
                     style={{ background: savedTheme.accent }}
                   />
-                  <span class="text-[0.8rem] text-[var(--text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">
+                  <span class="text-[0.8rem] text-(--text-primary) whitespace-nowrap overflow-hidden text-ellipsis">
                     {savedTheme.label}
                   </span>
                   {savedTheme.backgroundType !== "none" && (
-                    <span class="text-[0.65rem] py-0.5 px-1.5 bg-[var(--accent-dim)] text-[var(--accent)] rounded whitespace-nowrap shrink-0">
+                    <span class="text-[0.65rem] py-0.5 px-1.5 bg-(--accent-dim) text-(--accent) rounded whitespace-nowrap shrink-0">
                       {savedTheme.backgroundType === "image" ? "img" : "color"}
                       {" "}
                       bg
@@ -501,7 +493,7 @@ function ThemeMakerPane({
                 <div class="flex gap-1 shrink-0">
                   <button
                     type="button"
-                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
                     title="Apply"
                     onClick={() => {
                       applyTheme(savedTheme.id);
@@ -512,7 +504,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--border-accent)] hover:text-[var(--text-primary)]"
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
                     title="Edit"
                     onClick={() => handleEdit(savedTheme)}
                   >
@@ -520,7 +512,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer transition-all duration-150 hover:border-[var(--danger)] hover:text-[var(--danger)] hover:bg-[rgba(239,68,68,0.08)]"
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--danger) hover:text-(--danger) hover:bg-[rgba(239,68,68,0.08)]"
                     title="Delete"
                     onClick={() => handleDelete(savedTheme.id)}
                   >
@@ -593,12 +585,6 @@ export function SettingsModal() {
     setCSSVar("--ui-border", `rgba(34, 34, 37, ${v})`);
   };
 
-  const handleUiBlur = (v: number) => {
-    setUiBlur(v);
-    localStorage.setItem("uiBlur", v.toString());
-    setCSSVar("--ui-blur", `${v}px`);
-  };
-
   const handleRefreshChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const interval = parseInt(target.value, 10);
@@ -620,16 +606,16 @@ export function SettingsModal() {
       onClick={handleBackdropClick}
     >
       <div
-        class="bg-[var(--bg-card)] border border-[var(--border-accent)] rounded-2xl w-[92vw] max-w-[680px] h-[80vh] flex flex-col overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+        class="bg-(--bg-card) border border-(--border-accent) rounded-2xl w-[92vw] max-w-[680px] h-[80vh] flex flex-col overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
         style={{ animation: "modalSlideIn 0.25s ease" }}
       >
-        <div class="flex items-center justify-between py-5 px-6 border-b border-[var(--border-subtle)] shrink-0">
-          <div class="text-[1.05rem] font-semibold text-[var(--text-primary)] flex items-center gap-2.5">
-            <Icon name="settings" size={18} class="text-[var(--accent)]" />
+        <div class="flex items-center justify-between py-5 px-6 border-b border-(--border-subtle) shrink-0">
+          <div class="text-[1.05rem] font-semibold text-(--text-primary) flex items-center gap-2.5">
+            <Icon name="settings" size={18} class="text-(--accent)" />
             Settings
           </div>
           <Button
-            class="w-8 h-8 bg-transparent border-none rounded-md flex items-center justify-center cursor-pointer transition-all duration-200 text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+            class="w-8 h-8 bg-transparent border-none rounded-md flex items-center justify-center cursor-pointer transition-all duration-200 text-(--text-muted) hover:bg-(--bg-secondary) hover:text-(--text-primary)"
             id="closeBtn"
             onClick={handleClose}
           >
@@ -638,15 +624,15 @@ export function SettingsModal() {
         </div>
 
         <div class="flex flex-1 overflow-hidden">
-          <nav class="settings-content w-40 shrink-0 border-r border-[var(--border-subtle)] py-3 px-2 flex flex-col gap-0.5 bg-[var(--bg-secondary)] overflow-y-auto">
+          <nav class="settings-content w-40 shrink-0 border-r border-(--border-subtle) py-3 px-2 flex flex-col gap-0.5 bg-(--bg-secondary) overflow-y-auto">
             {categories.map(({ id, label, icon }) => (
               <button
                 type="button"
                 key={id}
                 class={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg border-none bg-transparent font-[inherit] text-[0.85rem] cursor-pointer transition-all duration-150 text-left w-full ${
                   activeCategory === id
-                    ? "bg-[var(--accent-dim)] text-[var(--accent)]"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)]"
+                    ? "bg-(--accent-dim) text-(--accent)"
+                    : "text-(--text-secondary) hover:bg-(--bg-card-hover) hover:text-(--text-primary)"
                 }`}
                 onClick={() => setActiveCategory(id)}
               >
@@ -659,7 +645,7 @@ export function SettingsModal() {
           <div class="settings-content flex-1 overflow-y-auto p-6">
             {activeCategory === "appearance" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
                   Accent Color
                 </div>
                 <div class="grid grid-cols-5 gap-3">
@@ -668,8 +654,8 @@ export function SettingsModal() {
                       key={id}
                       class={`color-option aspect-square rounded-[10px] border-2 cursor-pointer transition-all duration-200 relative flex items-center justify-center ${
                         id === currentTheme
-                          ? "active border-[var(--accent)] shadow-[0_0_0_3px_var(--accent-dim)]"
-                          : "border-[var(--border-subtle)] hover:border-[var(--border-accent)] hover:scale-105"
+                          ? "active border-(--accent) shadow-[0_0_0_3px_var(--accent-dim)]"
+                          : "border-(--border-subtle) hover:border-(--border-accent) hover:scale-105"
                       }`}
                       data-color={id}
                       title={label}
@@ -691,7 +677,7 @@ export function SettingsModal() {
 
             {activeCategory === "dock" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
                   Position
                 </div>
                 <div class="grid grid-cols-4 gap-2">
@@ -701,8 +687,8 @@ export function SettingsModal() {
                       key={id}
                       class={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-[10px] border font-[inherit] text-xs cursor-pointer transition-all duration-200 ${
                         dockPosition === id
-                          ? "border-[var(--accent)] bg-[var(--accent-dim)] text-[var(--accent)]"
-                          : "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
+                          ? "border-(--accent) bg-(--accent-dim) text-(--accent)"
+                          : "bg-(--bg-secondary) border-(--border-subtle) text-(--text-secondary) hover:border-(--border-accent) hover:text-(--text-primary) hover:bg-(--bg-card-hover)"
                       }`}
                       onClick={() => {
                         setDockPosition(id);
@@ -758,21 +744,12 @@ export function SettingsModal() {
                   display={`${Math.round(uiOpacity * 100)}%`}
                   onChange={handleUiOpacity}
                 />
-                <SliderRow
-                  label="Blur"
-                  value={uiBlur}
-                  min={0}
-                  max={40}
-                  step={1}
-                  display={`${uiBlur}px`}
-                  onChange={handleUiBlur}
-                />
               </div>
             )}
 
             {activeCategory === "data" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
                   Refresh Interval — {(refreshInterval / 1000).toFixed(1)}s
                 </div>
                 <input
@@ -785,7 +762,7 @@ export function SettingsModal() {
                   class="refresh-slider"
                   onInput={handleRefreshChange}
                 />
-                <div class="flex justify-between mt-1.5 text-[0.65rem] text-[var(--text-muted)]">
+                <div class="flex justify-between mt-1.5 text-[0.65rem] text-(--text-muted)">
                   <span>0.1s</span>
                   <span>5s</span>
                   <span>10s</span>
@@ -795,14 +772,14 @@ export function SettingsModal() {
 
             {activeCategory === "search" && (
               <div class="flex flex-col gap-4">
-                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
                   Search Engine
                 </div>
                 <div class="flex flex-col gap-2 mb-2">
                   {(["google", "startpage", "custom"] as const).map((e) => (
                     <label
                       key={e}
-                      class="flex items-center gap-2.5 text-[0.9rem] text-[var(--text-secondary)] cursor-pointer py-1.5 hover:text-[var(--text-primary)]"
+                      class="flex items-center gap-2.5 text-[0.9rem] text-(--text-secondary) cursor-pointer py-1.5 hover:text-(--text-primary)"
                     >
                       <input
                         type="radio"
@@ -822,14 +799,14 @@ export function SettingsModal() {
                 </div>
                 {searchEngine === "custom" && (
                   <div class="mt-4">
-                    <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+                    <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
                       Custom URL template
                     </div>
-                    <p class="text-xs text-[var(--text-muted)] mb-2">
+                    <p class="text-xs text-(--text-muted) mb-2">
                       Use <code>%s</code> where the query should go.
                     </p>
                     <input
-                      class="w-full bg-[var(--bg-secondary)] border border-[var(--border-accent)] rounded-lg py-2.5 px-3.5 text-[var(--text-primary)] font-[inherit] text-[0.85rem] outline-none transition-[border-color] duration-200 focus:border-[var(--accent)] placeholder:text-[var(--text-muted)]"
+                      class="w-full bg-(--bg-secondary) border border-(--border-accent) rounded-lg py-2.5 px-3.5 text-(--text-primary) font-[inherit] text-[0.85rem] outline-none transition-[border-color] duration-200 focus:border-(--accent) placeholder:text-(--text-muted)"
                       type="text"
                       placeholder="https://example.com/search?q=%s"
                       value={customSearchUrl}

@@ -50,20 +50,20 @@ export function CpuDetailsPage() {
   const model = cpuInfo.model || "Unknown";
 
   return (
-    <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+    <div class="max-w-275 mx-auto py-12 px-8 relative z-1">
       <header
         class="mb-16 opacity-0 flex items-center justify-between"
         style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
       >
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
+          <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
             <Icon name="cpu" size={24} />
           </div>
           <div class="flex flex-col">
-            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
               CPU Details
             </h1>
-            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+            <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
               Processor Information
             </p>
           </div>
@@ -71,7 +71,7 @@ export function CpuDetailsPage() {
       </header>
 
       {error && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-[var(--danger)] py-4 px-5 rounded-lg text-[0.8rem] mb-6">
+        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
           Connection lost. Attempting to reconnect...
         </div>
       )}
@@ -124,20 +124,20 @@ export function CpuDetailsPage() {
                 {data.processes.map((proc, idx) => (
                   <div
                     key={idx}
-                    class="flex justify-between items-center p-3 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-subtle)]"
+                    class="flex justify-between items-center p-3 bg-(--bg-secondary) rounded-lg border border-(--border-subtle)"
                   >
                     <div class="flex-1">
-                      <div class="font-semibold text-[var(--text-primary)] mb-1">
+                      <div class="font-semibold text-(--text-primary) mb-1">
                         {idx + 1}. {proc.name}
                       </div>
-                      <div class="text-xs text-[var(--text-secondary)]">
+                      <div class="text-xs text-(--text-secondary)">
                         CPU: {proc.cpu.toFixed(1)}% | Memory:{" "}
                         {proc.mem.toFixed(1)}%
                       </div>
                     </div>
-                    <div class="w-[60px] h-1 bg-[var(--bg-card)] rounded-sm overflow-hidden ml-4">
+                    <div class="w-15 h-1 bg-(--bg-card) rounded-sm overflow-hidden ml-4">
                       <div
-                        class="h-full bg-[var(--accent)] transition-[width] duration-300"
+                        class="h-full bg-(--accent) transition-[width] duration-300"
                         style={{ width: `${proc.cpu}%` }}
                       />
                     </div>
@@ -146,7 +146,7 @@ export function CpuDetailsPage() {
               </div>
             )
             : (
-              <p class="text-[var(--text-secondary)]">
+              <p class="text-(--text-secondary)">
                 {data
                   ? "No process information available"
                   : "Loading process information..."}

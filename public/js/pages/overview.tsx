@@ -256,7 +256,7 @@ export function OverviewPage() {
         <div class="flex flex-col">
           {location ? <WeatherWidget location={location} /> : (
             <div
-              class="rounded-xl p-8 flex flex-col items-center gap-3 text-(--text-muted) text-center border border-(--ui-border) [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] will-change-transform"
+              class="rounded-xl p-8 flex flex-col items-center gap-3 text-(--text-muted) text-center border border-(--ui-border) backdrop-blur-sm  will-change-transform"
               style={{ background: "var(--ui-bg)" }}
             >
               <Icon name="cloud" size={32} />

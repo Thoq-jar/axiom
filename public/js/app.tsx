@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useRef } from "preact/hooks";
 import { render } from "preact";
 import { RouterOutlet, RouterProvider } from "./router.tsx";
 import { Dock } from "./components/dock.tsx";
@@ -10,8 +10,6 @@ import { initTheme } from "./theme.ts";
 import { initGlobalDataStore } from "./store.ts";
 import { AppStorePage } from "./pages/app-store.tsx";
 import { OverviewPage } from "./pages/overview.tsx";
-import { Icon } from "./components/ui/icon.tsx";
-import { Modal } from "./components/ui/modal.tsx";
 import { useToast } from "./hooks/use-toast.ts";
 import { ToastProvider } from "./components/ui/toast.tsx";
 import { Footer } from "./components/footer.tsx";
@@ -59,12 +57,10 @@ function App() {
 
 function initUIStyle() {
   const opacity = localStorage.getItem("uiOpacity") || "1";
-  const blur = localStorage.getItem("uiBlur") || "0";
   const r = document.documentElement;
   r.style.setProperty("--ui-bg", `rgba(22, 22, 24, ${opacity})`);
   r.style.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${opacity})`);
   r.style.setProperty("--ui-border", `rgba(34, 34, 37, ${opacity})`);
-  r.style.setProperty("--ui-blur", `${blur}px`);
 }
 
 function init(): void {

@@ -49,16 +49,16 @@ function AppCard({
 
   return (
     <div
-      class={`rounded-xl p-5 cursor-pointer flex gap-4 border [backdrop-filter:blur(var(--ui-blur))] [-webkit-backdrop-filter:blur(var(--ui-blur))] [will-change:transform] ${
-        isInstalled ? "border-[var(--accent)]" : "border-[var(--ui-border)]"
+      class={`rounded-xl p-5 cursor-pointer flex gap-4 border backdrop-blur-sm  will-change-transform ${
+        isInstalled ? "border-(--accent)" : "border-(--ui-border)"
       }`}
       onClick={onClick}
     >
       <div
         class={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200 border ${
           isInstalled
-            ? "bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]"
-            : "bg-[var(--ui-bg)] border-[var(--ui-border)] text-[var(--text-primary)]"
+            ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
+            : "bg-(--ui-bg) border-(--ui-border) text-(--text-primary)"
         }`}
       >
         <Icon
@@ -68,26 +68,26 @@ function AppCard({
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-2 mb-2">
-          <h3 class="text-base font-semibold text-[var(--text-primary)]">
+          <h3 class="text-base font-semibold text-(--text-primary)">
             {app.name}
           </h3>
           <span
             class={`text-[0.7rem] font-semibold py-1 px-2 rounded-md uppercase whitespace-nowrap ${
               isInstalled
                 ? isRunning
-                  ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e]"
-                  : "bg-[rgba(239,68,68,0.15)] text-[#ef4444]"
-                : "bg-[var(--accent-dim)] text-[var(--accent)]"
+                  ? "bg-[rgba(34,197,94,0.15)] text-success"
+                  : "bg-[rgba(239,68,68,0.15)] text-danger"
+                : "bg-(--accent-dim) text-(--accent)"
             }`}
           >
             {isInstalled ? (isRunning ? "Running" : "Stopped") : "Install"}
           </span>
         </div>
-        <p class="app-card-desc text-[0.8rem] text-[var(--text-secondary)] leading-snug">
+        <p class="app-card-desc text-[0.8rem] text-(--text-secondary) leading-snug">
           {app.description}
         </p>
         {isInstalled && container && (
-          <div class="mt-2 text-xs text-[var(--text-muted)]">
+          <div class="mt-2 text-xs text-(--text-muted)">
             <span>{container.name}</span>
           </div>
         )}
@@ -113,44 +113,42 @@ function ManageModal({
   return (
     <Modal title={app.name} icon={icon} onClose={onClose}>
       <div class="p-6">
-        <div class="flex justify-between py-3 border-b border-[var(--border-subtle)]">
-          <span class="text-[0.9rem] text-[var(--text-secondary)]">Status</span>
+        <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+          <span class="text-[0.9rem] text-(--text-secondary)">Status</span>
           <span
             class={`text-[0.9rem] font-semibold ${
-              container.state === "running"
-                ? "text-[#22c55e]"
-                : "text-[#ef4444]"
+              container.state === "running" ? "text-success" : "text-danger"
             }`}
           >
             {container.state}
           </span>
         </div>
-        <div class="flex justify-between py-3 border-b border-[var(--border-subtle)]">
-          <span class="text-[0.9rem] text-[var(--text-secondary)]">
+        <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+          <span class="text-[0.9rem] text-(--text-secondary)">
             Container
           </span>
-          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">
+          <span class="text-[0.9rem] font-semibold text-(--text-primary)">
             {container.name}
           </span>
         </div>
-        <div class="flex justify-between py-3 border-b border-[var(--border-subtle)]">
-          <span class="text-[0.9rem] text-[var(--text-secondary)]">Image</span>
-          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">
+        <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+          <span class="text-[0.9rem] text-(--text-secondary)">Image</span>
+          <span class="text-[0.9rem] font-semibold text-(--text-primary)">
             {app.deployment.image}:{app.deployment.tag}
           </span>
         </div>
         <div class="flex justify-between py-3">
-          <span class="text-[0.9rem] text-[var(--text-secondary)]">Ports</span>
-          <span class="text-[0.9rem] font-semibold text-[var(--text-primary)]">
+          <span class="text-[0.9rem] text-(--text-secondary)">Ports</span>
+          <span class="text-[0.9rem] font-semibold text-(--text-primary)">
             {container.ports || "None"}
           </span>
         </div>
       </div>
-      <div class="p-6 border-t border-[var(--border-subtle)] flex gap-3">
+      <div class="p-6 border-t border-(--border-subtle) flex gap-3">
         {container.state === "running"
           ? (
             <Button
-              class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(239,68,68,0.15)] text-[#ef4444] border-[rgba(239,68,68,0.3)] hover:bg-[#ef4444] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(239,68,68,0.15)] text-danger border-[rgba(239,68,68,0.3)] hover:bg-danger hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => onAction("stop")}
               disabled={actioning}
             >
@@ -160,7 +158,7 @@ function ManageModal({
           )
           : (
             <Button
-              class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(34,197,94,0.15)] text-[#22c55e] border-[rgba(34,197,94,0.3)] hover:bg-[#22c55e] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(34,197,94,0.15)] text-success border-[rgba(34,197,94,0.3)] hover:bg-success hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => onAction("start")}
               disabled={actioning}
             >
@@ -169,7 +167,7 @@ function ManageModal({
             </Button>
           )}
         <Button
-          class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(234,179,8,0.15)] text-[#eab308] border-[rgba(234,179,8,0.3)] hover:bg-[#eab308] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[0.85rem] font-semibold cursor-pointer border transition-all duration-200 font-[inherit] bg-[rgba(234,179,8,0.15)] text-warning border-[rgba(234,179,8,0.3)] hover:bg-warning hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => onAction("restart")}
           disabled={actioning}
         >
@@ -306,26 +304,26 @@ export function AppStorePage() {
 
   if (loading) {
     return (
-      <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+      <div class="max-w-275 mx-auto py-12 px-8 relative z-1">
         <header
           class="mb-16 opacity-0 flex items-center justify-between"
           style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
         >
           <div class="flex items-center gap-4">
-            <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
+            <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
               <Icon name="package" size={24} />
             </div>
             <div class="flex flex-col">
-              <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+              <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
                 Apps
               </h1>
-              <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+              <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
                 Manage your applications
               </p>
             </div>
           </div>
         </header>
-        <div class="text-[var(--text-secondary)] text-center p-8">
+        <div class="text-(--text-secondary) text-center p-8">
           Loading...
         </div>
       </div>
@@ -333,20 +331,20 @@ export function AppStorePage() {
   }
 
   return (
-    <div class="max-w-[1100px] mx-auto py-12 px-8 relative z-[1]">
+    <div class="max-w-275 mx-auto py-12 px-8 relative z-1">
       <header
         class="mb-16 opacity-0 flex items-center justify-between"
         style={{ animation: "fadeSlideIn 0.6s ease forwards" }}
       >
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 relative flex items-center justify-center text-[var(--accent)] bg-transparent rounded-lg text-2xl">
+          <div class="w-10 h-10 relative flex items-center justify-center text-(--accent) bg-transparent rounded-lg text-2xl">
             <Icon name="package" size={24} />
           </div>
           <div class="flex flex-col">
-            <h1 class="text-[1.75rem] font-semibold tracking-tight text-[var(--text-primary)] leading-none mb-1">
+            <h1 class="text-[1.75rem] font-semibold tracking-tight text-(--text-primary) leading-none mb-1">
               Apps
             </h1>
-            <p class="text-[0.7rem] text-[var(--text-muted)] tracking-widest uppercase">
+            <p class="text-[0.7rem] text-(--text-muted) tracking-widest uppercase">
               Manage your applications
             </p>
           </div>
@@ -354,7 +352,7 @@ export function AppStorePage() {
       </header>
 
       {dockerError && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-[var(--danger)] py-4 px-5 rounded-lg text-[0.8rem] mb-6 flex items-center gap-2">
+        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6 flex items-center gap-2">
           <Icon name="alert-circle" size={16} />
           {dockerError} — container management unavailable
         </div>
