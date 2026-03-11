@@ -48,6 +48,7 @@ install_debian() {
     if [ ! -d /opt/axiom/.git ]; then
         git clone https://github.com/Thoq-jar/axiom.git /opt/axiom
     else
+        git config --global --add safe.directory /opt/axiom
         git -C /opt/axiom pull
     fi
     chown -R axiom:axiom /opt/axiom
