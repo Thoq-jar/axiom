@@ -27,7 +27,7 @@ export const SearchBar = () => {
       style={{ animation: "fadeSlideIn 0.5s ease 0.2s forwards" }}
     >
       <form
-        class="flex items-center gap-2 border border-(--ui-border) rounded-[10px] py-2.5 px-3 transition-all duration-200 backdrop-blur-sm  will-change-transform focus-within:border-(--accent) focus-within:shadow-[0_0_0_3px_var(--accent-dim)]"
+        class="flex items-center gap-2 rounded-[10px] py-2.5 px-3 transition-all duration-200 backdrop-blur-sm will-change-transform"
         style={{ background: "var(--ui-bg)" }}
         onSubmit={handleSubmit}
       >

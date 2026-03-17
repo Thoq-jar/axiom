@@ -15,6 +15,7 @@ import { ToastProvider } from "./components/ui/toast.tsx";
 import { Footer } from "./components/footer.tsx";
 import { AboutPage } from "./pages/about-page.tsx";
 import { TerminalPage } from "./pages/terminal-page.tsx";
+import { FileBrowserPage } from "./pages/file-browser-page.tsx";
 
 function App() {
   const WebSocketListener = () => {
@@ -86,6 +87,7 @@ function init(): void {
     "app-store": () => <AppStorePage />,
     "about": () => <AboutPage />,
     "terminal": () => <TerminalPage />,
+    "files": () => <FileBrowserPage />,
   };
 
   render(

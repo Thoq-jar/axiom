@@ -35,7 +35,7 @@ export const Footer = () => {
   }, []);
 
   return (
-    <footer class="fixed bottom-0 left-0 right-0 py-2 px-8 bg-[rgba(10,10,11,0.88)] backdrop-blur-md border-t border-(--border-subtle) flex items-center justify-between z-1500 text-[0.72rem]">
+    <footer class="fixed bottom-0 left-0 right-0 py-2 px-8 bg-[rgba(10,10,11,0.88)] backdrop-blur-md flex items-center justify-between z-1500 text-[0.72rem]">
       <div class="flex items-center gap-3">
         <div
           class={`status-dot w-2 h-2 rounded-full relative ${

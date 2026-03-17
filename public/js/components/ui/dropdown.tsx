@@ -23,11 +23,7 @@ export const Dropdown = (
 
   return (
     <div
-      class={`rounded-xl mb-4 opacity-0 translate-y-5 border backdrop-blur-sm  will-change-transform ${
-        isOpen
-          ? "border-(--accent)"
-          : "border-(--ui-border) hover:border-(--border-accent)"
-      }`}
+      class="rounded-xl mb-4 opacity-0 translate-y-5 backdrop-blur-sm will-change-transform"
       style={{
         background: "var(--ui-bg)",
         animation: "fadeSlideIn 0.5s ease forwards",

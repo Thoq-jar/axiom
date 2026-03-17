@@ -207,6 +207,7 @@ export function applyTheme(themeName: string): void {
 
   if (customTheme) {
     const colorTheme = buildColorThemeFromHex(customTheme.accent);
+    const rgb = hexToRgb(customTheme.accent);
     document.documentElement.style.setProperty("--accent", colorTheme.accent);
     document.documentElement.style.setProperty(
       "--accent-dim",
@@ -216,6 +217,12 @@ export function applyTheme(themeName: string): void {
       "--accent-shadow",
       colorTheme.accentShadow,
     );
+    if (rgb) {
+      document.documentElement.style.setProperty(
+        "--accent-rgb",
+        `${rgb.r}, ${rgb.g}, ${rgb.b}`,
+      );
+    }
     applyBackground(
       customTheme.backgroundType,
       customTheme.backgroundValue,
@@ -228,12 +235,19 @@ export function applyTheme(themeName: string): void {
 
   if (themeName === "femboy") {
     const theme = builtinColorThemes[themeName];
+    const rgb = hexToRgb(theme.accent);
     document.documentElement.style.setProperty("--accent", theme.accent);
     document.documentElement.style.setProperty("--accent-dim", theme.accentDim);
     document.documentElement.style.setProperty(
       "--accent-shadow",
       theme.accentShadow,
     );
+    if (rgb) {
+      document.documentElement.style.setProperty(
+        "--accent-rgb",
+        `${rgb.r}, ${rgb.g}, ${rgb.b}`,
+      );
+    }
     applyBackground("image", "/assets/special.jpg", 0.90);
     currentTheme = themeName;
     localStorage.setItem("theme", themeName);
@@ -243,12 +257,19 @@ export function applyTheme(themeName: string): void {
   const theme = builtinColorThemes[themeName];
   if (!theme) return;
 
+  const rgb = hexToRgb(theme.accent);
   document.documentElement.style.setProperty("--accent", theme.accent);
   document.documentElement.style.setProperty("--accent-dim", theme.accentDim);
   document.documentElement.style.setProperty(
     "--accent-shadow",
     theme.accentShadow,
   );
+  if (rgb) {
+    document.documentElement.style.setProperty(
+      "--accent-rgb",
+      `${rgb.r}, ${rgb.g}, ${rgb.b}`,
+    );
+  }
   applyBackground("none", "", 1);
 
   currentTheme = themeName;

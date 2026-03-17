@@ -84,8 +84,9 @@ const PAGE_ORDER = [
   "cpu-details",
   "memory-details",
   "app-store",
-  "about",
+  "files",
   "terminal",
+  "about",
 ];
 
 function animationsDisabled() {

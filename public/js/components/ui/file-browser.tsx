@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import type { editor as monacoEditor } from "monaco-editor";
 import { Icon } from "./icon.tsx";
 import { Modal } from "./modal.tsx";
 import { Button } from "./button.tsx";
-import * as monaco from "monaco-editor";
+import { MonacoEditor } from "./monaco-editor.tsx";
 
 interface FileEntry {
   name: string;
@@ -23,41 +24,6 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)}M`;
 }
 
-function guessLanguage(filename: string): string {
-  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
-  const map: Record<string, string> = {
-    js: "javascript",
-    ts: "typescript",
-    tsx: "typescript",
-    jsx: "javascript",
-    json: "json",
-    md: "markdown",
-    yaml: "yaml",
-    yml: "yaml",
-    sh: "shell",
-    bash: "shell",
-    zsh: "shell",
-    py: "python",
-    rb: "ruby",
-    go: "go",
-    rs: "rust",
-    html: "html",
-    css: "css",
-    scss: "scss",
-    xml: "xml",
-    toml: "toml",
-    ini: "ini",
-    conf: "ini",
-    dockerfile: "dockerfile",
-    sql: "sql",
-    c: "c",
-    cpp: "cpp",
-    h: "cpp",
-  };
-  if (filename.toLowerCase() === "dockerfile") return "dockerfile";
-  return map[ext] ?? "plaintext";
-}
-
 function FileEditor(
   { containerId, filePath, onClose }: {
     containerId: string;
@@ -65,9 +31,9 @@ function FileEditor(
     onClose: () => void;
   },
 ) {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const monacoRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const editorRef = useRef<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [loading, setLoading] = useState(true);
+  const [content, setContent] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
@@ -81,47 +47,27 @@ function FileEditor(
       .then((data) => {
         if (data.error) {
           setError(data.error);
-          setLoading(false);
-          return;
+        } else {
+          setContent(data.content);
         }
         setLoading(false);
-        requestAnimationFrame(() => {
-          if (!editorRef.current) return;
-          monacoRef.current = monaco.editor.create(editorRef.current, {
-            value: data.content,
-            language: guessLanguage(filename),
-            theme: "vs-dark",
-            fontSize: 13,
-            fontFamily: "monospace",
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            tabSize: 2,
-            wordWrap: "on",
-            padding: { top: 12, bottom: 12 },
-          });
-        });
       })
       .catch(() => {
         setError("Failed to load file");
         setLoading(false);
       });
-
-    return () => {
-      monacoRef.current?.dispose();
-    };
   }, [filePath]);
 
   const save = async () => {
-    if (!monacoRef.current) return;
+    if (!editorRef.current) return;
     setSaving(true);
     setSaveMsg(null);
     try {
-      const content = monacoRef.current.getValue();
+      const value = editorRef.current.getValue();
       const res = await fetch(`/api/container/${containerId}/file`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: filePath, content }),
+        body: JSON.stringify({ path: filePath, content: value }),
       });
       const data = await res.json();
       if (data.success) {
@@ -145,7 +91,7 @@ function FileEditor(
       class="max-w-225!"
     >
       <div class="flex flex-col" style={{ height: "560px" }}>
-        <div class="flex items-center justify-between px-4 py-2 border-b border-(--border-subtle) shrink-0 bg-(--bg-secondary)">
+        <div class="flex items-center justify-between px-4 py-2 shrink-0 bg-(--bg-secondary)">
           <span
             class="text-[0.75rem] text-(--text-muted) font-mono truncate max-w-[60%]"
             title={filePath}
@@ -186,7 +132,15 @@ function FileEditor(
               <span class="text-[0.85rem] text-danger">{error}</span>
             </div>
           )}
-          {!error && <div ref={editorRef} class="w-full h-full" />}
+          {!loading && !error && (
+            <MonacoEditor
+              value={content}
+              filename={filename}
+              onMount={(ed) => {
+                editorRef.current = ed;
+              }}
+            />
+          )}
         </div>
       </div>
     </Modal>
@@ -243,7 +197,7 @@ export function FileBrowser({ containerId, onClose }: FileBrowserProps) {
         class="max-w-170!"
       >
         <div class="flex flex-col" style={{ height: "460px" }}>
-          <div class="flex items-center gap-0.5 px-4 py-2.5 border-b border-(--border-subtle) shrink-0 overflow-x-auto bg-(--bg-secondary)">
+          <div class="flex items-center gap-0.5 px-4 py-2.5 shrink-0 overflow-x-auto bg-(--bg-secondary)">
             <Icon
               name="folder"
               size={12}
@@ -291,7 +245,7 @@ export function FileBrowser({ containerId, onClose }: FileBrowserProps) {
                 <div>
                   {path !== "/" && (
                     <div
-                      class="flex items-center gap-3 px-4 py-2.5 border-b border-(--border-subtle) cursor-pointer hover:bg-(--bg-secondary) transition-colors"
+                      class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-(--bg-secondary) transition-colors"
                       onClick={goUp}
                     >
                       <Icon
@@ -316,7 +270,7 @@ export function FileBrowser({ containerId, onClose }: FileBrowserProps) {
                     return (
                       <div
                         key={entry.name}
-                        class="flex items-center gap-3 px-4 py-2.5 border-b border-(--border-subtle) transition-colors cursor-pointer hover:bg-(--bg-secondary)"
+                        class="flex items-center gap-3 px-4 py-2.5 transition-colors cursor-pointer hover:bg-(--bg-secondary)"
                         onClick={() =>
                           entry.isDir
                             ? navigate(entryPath)
@@ -352,9 +306,9 @@ export function FileBrowser({ containerId, onClose }: FileBrowserProps) {
               )}
           </div>
 
-          <div class="px-4 py-3 border-t border-(--border-subtle) flex justify-end shrink-0">
+          <div class="px-4 py-3 flex justify-end shrink-0">
             <Button
-              class="px-4 py-2 rounded-lg text-[0.82rem] font-semibold border border-(--ui-border) text-(--text-secondary) bg-transparent cursor-pointer hover:text-(--text-primary) hover:bg-(--bg-secondary) transition-all"
+              class="px-4 py-2 rounded-lg text-[0.82rem] font-semibold text-(--text-secondary) bg-transparent cursor-pointer hover:text-(--text-primary) hover:bg-(--bg-secondary) transition-all"
               onClick={onClose}
             >
               Close

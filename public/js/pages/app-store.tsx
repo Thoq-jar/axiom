@@ -37,7 +37,7 @@ interface Container {
 }
 
 const BTN =
-  "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[0.82rem] font-semibold cursor-pointer border transition-all duration-200 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
+  "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-[0.82rem] font-semibold cursor-pointer transition-all duration-200 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
 
 export function AppStorePage() {
   const [apps, setApps] = useState<AppShipment[]>([]);
@@ -181,7 +181,7 @@ export function AppStorePage() {
       {header}
 
       {dockerError && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6 flex items-center gap-2">
+        <div class="bg-[rgba(239,68,68,0.1)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6 flex items-center gap-2">
           <Icon name="alert-circle" size={16} />
           {dockerError} — container management unavailable
         </div>
@@ -195,17 +195,15 @@ export function AppStorePage() {
           return (
             <div
               key={app.id}
-              class={`rounded-xl p-5 cursor-pointer flex gap-4 border backdrop-blur-sm will-change-transform ${
-                isInstalled ? "border-(--accent)" : "border-(--ui-border)"
-              }`}
+              class="rounded-xl p-5 cursor-pointer flex gap-4 backdrop-blur-sm will-change-transform"
               onClick={() =>
                 isInstalled ? setSelectedApp(app) : installApp(app)}
             >
               <div
-                class={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200 border ${
+                class={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200 ${
                   isInstalled
-                    ? "bg-(--accent-dim) border-(--accent) text-(--accent)"
-                    : "bg-(--ui-bg) border-(--ui-border) text-(--text-primary)"
+                    ? "bg-(--accent-dim) text-(--accent)"
+                    : "bg-(--ui-bg) text-(--text-primary)"
                 }`}
               >
                 <Icon
@@ -254,7 +252,7 @@ export function AppStorePage() {
           class="max-w-150!"
         >
           <div class="p-6">
-            <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+            <div class="flex justify-between py-3">
               <span class="text-[0.9rem] text-(--text-secondary)">Status</span>
               <span
                 class={`text-[0.9rem] font-semibold ${
@@ -266,7 +264,7 @@ export function AppStorePage() {
                 {selectedContainer.state}
               </span>
             </div>
-            <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+            <div class="flex justify-between py-3">
               <span class="text-[0.9rem] text-(--text-secondary)">
                 Container
               </span>
@@ -274,7 +272,7 @@ export function AppStorePage() {
                 {selectedContainer.name}
               </span>
             </div>
-            <div class="flex justify-between py-3 border-b border-(--border-subtle)">
+            <div class="flex justify-between py-3">
               <span class="text-[0.9rem] text-(--text-secondary)">Image</span>
               <span class="text-[0.9rem] font-semibold text-(--text-primary)">
                 {selectedApp.deployment.image}:{selectedApp.deployment.tag}
@@ -287,7 +285,7 @@ export function AppStorePage() {
               </span>
             </div>
           </div>
-          <div class="p-4 border-t border-(--border-subtle) flex flex-wrap gap-2">
+          <div class="p-4 flex flex-wrap gap-2">
             {selectedContainer.state === "running" && (() => {
               const match = selectedContainer.ports.match(
                 /(?:[\d.]+:)?(\d+)->(\d+)\/(tcp)/,
@@ -300,7 +298,7 @@ export function AppStorePage() {
                   href={`http://localhost:${hostPort}${webuiPath}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class={`${BTN} bg-(--accent-dim) text-(--accent) border-(--accent) hover:bg-(--accent) no-underline`}
+                  class={`${BTN} bg-(--accent-dim) text-(--accent) hover:bg-(--accent) no-underline`}
                 >
                   <Icon name="external-link" size={15} />
                   Open Web UI
@@ -309,7 +307,7 @@ export function AppStorePage() {
             })()}
 
             <Button
-              class={`${BTN} bg-[rgba(139,92,246,0.15)] text-[#a78bfa] border-[rgba(139,92,246,0.3)] hover:bg-accent`}
+              class={`${BTN} bg-[rgba(139,92,246,0.15)] text-[#a78bfa] hover:bg-accent`}
               onClick={() => setShowFileBrowser(true)}
               disabled={actioningId === selectedContainer.id}
             >
@@ -320,7 +318,7 @@ export function AppStorePage() {
             {selectedContainer.state === "running"
               ? (
                 <Button
-                  class={`${BTN} bg-[rgba(239,68,68,0.15)] text-danger border-[rgba(239,68,68,0.3)] hover:bg-danger`}
+                  class={`${BTN} bg-[rgba(239,68,68,0.15)] text-danger hover:bg-danger`}
                   onClick={() => handleAction(selectedContainer.id, "stop")}
                   disabled={actioningId === selectedContainer.id}
                 >
@@ -330,7 +328,7 @@ export function AppStorePage() {
               )
               : (
                 <Button
-                  class={`${BTN} bg-[rgba(34,197,94,0.15)] text-success border-[rgba(34,197,94,0.3)] hover:bg-success`}
+                  class={`${BTN} bg-[rgba(34,197,94,0.15)] text-success hover:bg-success`}
                   onClick={() => handleAction(selectedContainer.id, "start")}
                   disabled={actioningId === selectedContainer.id}
                 >
@@ -339,7 +337,7 @@ export function AppStorePage() {
                 </Button>
               )}
             <Button
-              class={`${BTN} bg-[rgba(234,179,8,0.15)] text-warning border-[rgba(234,179,8,0.3)] hover:bg-warning`}
+              class={`${BTN} bg-[rgba(234,179,8,0.15)] text-warning hover:bg-warning`}
               onClick={() => handleAction(selectedContainer.id, "restart")}
               disabled={actioningId === selectedContainer.id}
             >
@@ -347,7 +345,7 @@ export function AppStorePage() {
               Restart
             </Button>
             <Button
-              class={`${BTN} bg-[rgba(107,114,128,0.15)] text-[#9ca3af] border-[rgba(107,114,128,0.3)] hover:bg-[#6b7280]`}
+              class={`${BTN} bg-[rgba(107,114,128,0.15)] text-[#9ca3af] hover:bg-[#6b7280]`}
               onClick={() => {
                 if (confirm(`Uninstall ${selectedApp.name}?`)) {
                   handleAction(selectedContainer.id, "remove");

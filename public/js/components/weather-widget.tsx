@@ -182,7 +182,7 @@ export const WeatherWidget = ({ location }: { location: Location }) => {
   if (isLoading) {
     return (
       <div
-        class="flex items-center gap-3 text-(--text-secondary) text-[0.85rem] p-6 rounded-[14px] border border-(--ui-border) backdrop-blur-sm  will-change-transform opacity-0"
+        class="flex items-center gap-3 text-(--text-secondary) text-[0.85rem] p-6 rounded-[14px] backdrop-blur-sm will-change-transform opacity-0"
         style={{
           background: "var(--ui-bg)",
           animation: "fadeSlideIn 0.5s ease 0.15s forwards",
@@ -200,7 +200,7 @@ export const WeatherWidget = ({ location }: { location: Location }) => {
   if (hasError || !weather) {
     return (
       <div
-        class="flex items-center gap-3 text-(--text-secondary) text-[0.85rem] p-6 rounded-[14px] border border-(--ui-border) backdrop-blur-sm  will-change-transform opacity-0"
+        class="flex items-center gap-3 text-(--text-secondary) text-[0.85rem] p-6 rounded-[14px] backdrop-blur-sm will-change-transform opacity-0"
         style={{
           background: "var(--ui-bg)",
           animation: "fadeSlideIn 0.5s ease 0.15s forwards",
@@ -254,13 +254,13 @@ export const WeatherWidget = ({ location }: { location: Location }) => {
 
   return (
     <div
-      class="flex flex-col rounded-[14px] border border-(--ui-border) backdrop-blur-sm  will-change-transform opacity-0"
+      class="flex flex-col rounded-[14px] backdrop-blur-sm will-change-transform opacity-0"
       style={{
         background: "var(--ui-bg)",
         animation: "fadeSlideIn 0.5s ease 0.15s forwards",
       }}
     >
-      <div class="p-6 pb-4 border-b border-(--border-subtle)">
+      <div class="p-6 pb-4">
         <div class="flex items-center gap-4 mb-2">
           <Icon
             name={wmoIcon(weather.weatherCode)}
@@ -282,15 +282,11 @@ export const WeatherWidget = ({ location }: { location: Location }) => {
         </div>
       </div>
 
-      <div class="grid grid-cols-2 border-b border-(--border-subtle)">
-        {conditions.map(({ icon, label, value }, idx) => (
+      <div class="grid grid-cols-2">
+        {conditions.map(({ icon, label, value }, _idx) => (
           <div
             key={label}
-            class={`flex items-center gap-2 py-2.5 px-5 text-[0.78rem] text-(--text-secondary) ${
-              idx < conditions.length - 2
-                ? "border-b border-(--border-subtle)"
-                : ""
-            } ${idx % 2 === 0 ? "border-r border-(--border-subtle)" : ""}`}
+            class="flex items-center gap-2 py-2.5 px-5 text-[0.78rem] text-(--text-secondary)"
           >
             <Icon name={icon} size={13} />
             <span class="flex-1 text-(--text-secondary) text-[0.72rem]">
@@ -352,11 +348,11 @@ export const WeatherWidget = ({ location }: { location: Location }) => {
         <Icon name="calendar-days" size={12} />
         7-day forecast
       </div>
-      <div class="flex flex-col border-t border-(--border-subtle)">
+      <div class="flex flex-col">
         {weather.daily.map((point, index) => (
           <div
             key={point.date}
-            class={`flex items-center gap-3 py-2 px-5 border-b border-(--border-subtle) text-[0.8rem] last:border-b-0 ${
+            class={`flex items-center gap-3 py-2 px-5 text-[0.8rem] ${
               index === 0 ? "bg-(--accent-dim)" : ""
             }`}
           >

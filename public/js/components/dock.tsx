@@ -13,10 +13,10 @@ function DockItem({ page, iconName, label }: DockItemProps) {
 
   return (
     <div
-      class={`dock-item py-2 px-4 rounded-lg cursor-pointer transition-all duration-300 text-[0.85rem] flex items-center gap-2 border relative overflow-hidden ${
+      class={`dock-item py-2 px-4 rounded-lg cursor-pointer transition-all duration-300 text-[0.85rem] flex items-center gap-2 relative overflow-hidden ${
         isActive
-          ? "bg-(--accent-dim) text-(--accent) border-(--accent) scale-110 shadow-[0_0_20px_var(--accent-dim),0_4px_12px_var(--accent-shadow)]"
-          : "text-(--text-secondary) border-transparent hover:bg-transparent hover:text-(--text-primary) hover:border-(--border-accent) hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_4px_12px_var(--accent-shadow)]"
+          ? "bg-(--accent-dim) text-(--accent) scale-110 shadow-[0_0_20px_var(--accent-dim),0_4px_12px_var(--accent-shadow)]"
+          : "text-(--text-secondary) hover:bg-transparent hover:text-(--text-primary) hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_4px_12px_var(--accent-shadow)]"
       }`}
       style={isActive
         ? { animation: "dockItemPulse 2s ease-in-out infinite" }
@@ -39,7 +39,7 @@ function DockItem({ page, iconName, label }: DockItemProps) {
 export function Dock() {
   return (
     <div
-      class="dock fixed top-5 left-1/2 -translate-x-1/2 border border-(--ui-border) rounded-2xl py-3 px-6 flex items-center gap-4 z-10001 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm  will-change-transform"
+      class="dock fixed top-5 left-1/2 -translate-x-1/2 rounded-2xl py-3 px-6 flex items-center gap-4 z-10001 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm will-change-transform"
       style={{ background: "var(--ui-bg)" }}
       id="dock"
     >
@@ -48,6 +48,7 @@ export function Dock() {
       <DockItem page="cpu-details" iconName="cpu" label="CPU" />
       <DockItem page="memory-details" iconName="memory-stick" label="Memory" />
       <DockItem page="app-store" iconName="package" label="Apps" />
+      <DockItem page="files" iconName="hard-drive" label="Files" />
       <DockItem page="terminal" iconName="terminal" label="Terminal" />
       <DockItem page="about" iconName="info" label="About" />
     </div>

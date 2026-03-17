@@ -27,7 +27,7 @@ export const StatCard = ({
 
   return (
     <div
-      class="stat-card rounded-xl p-7 relative opacity-0 translate-y-5 border border-(--ui-border) backdrop-blur-sm will-change-transform"
+      class="stat-card rounded-xl p-7 relative opacity-0 translate-y-5 backdrop-blur-sm will-change-transform"
       style={{
         background: "var(--ui-bg)",
         animation: "fadeSlideIn 0.5s ease forwards",

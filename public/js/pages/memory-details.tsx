@@ -83,7 +83,7 @@ export function MemoryDetailsPage() {
       </header>
 
       {error && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
+        <div class="bg-[rgba(239,68,68,0.1)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
           Connection lost. Attempting to reconnect...
         </div>
       )}
@@ -141,7 +141,7 @@ export function MemoryDetailsPage() {
               Recent memory usage (last 10 updates)
             </div>
             <div
-              class="h-30 flex items-end gap-1 border-b border-(--border-subtle) pb-2"
+              class="h-30 flex items-end gap-1 pb-2"
               id="memory-chart-bars"
             >
               {memoryHistory.length > 0

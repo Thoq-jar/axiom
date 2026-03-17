@@ -20,13 +20,13 @@ export function Modal(
       onClick={onClose}
     >
       <div
-        class={`bg-(--bg-card) border border-(--border-accent) rounded-2xl w-[90%] max-w-100 shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden ${
+        class={`bg-(--bg-card) rounded-2xl w-[90%] max-w-100 shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden ${
           className || ""
         }`}
         style={{ animation: "modalSlideIn 0.3s ease" }}
         onClick={(event) => event.stopPropagation()}
       >
-        <div class="flex items-center justify-between p-6 border-b border-(--border-subtle)">
+        <div class="flex items-center justify-between p-6">
           <div class="flex items-center gap-3 text-(--accent)">
             {icon && <Icon name={icon} size={18} />}
             <h3 class="text-[1.1rem] font-semibold text-(--text-primary)">

@@ -38,7 +38,7 @@ export const QuickNav = () => {
         {navigationCards.map((card) => (
           <div
             key={card.targetPage}
-            class="rounded-[10px] py-3 px-4 flex items-center gap-3 cursor-pointer border border-(--ui-border) backdrop-blur-sm  will-change-transform group"
+            class="rounded-[10px] py-3 px-4 flex items-center gap-3 cursor-pointer backdrop-blur-sm will-change-transform group"
             style={{ background: "var(--ui-bg)" }}
             onClick={() => navigate(card.targetPage)}
           >

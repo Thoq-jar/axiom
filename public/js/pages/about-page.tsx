@@ -74,14 +74,14 @@ export const AboutPage = () => {
           Monitor your system resources in real-time with WebSocket streaming.
         </p>
         <div
-          class="about-footer mt-8 pt-8 border-t border-(--border-subtle) opacity-0"
+          class="about-footer mt-8 pt-8 opacity-0"
           style={{ animation: "fadeSlideIn 0.5s ease 0.6s forwards" }}
         >
           <p class="text-(--text-muted) text-[0.85rem]">(c) 2025-2026 Thoq</p>
           <Button
             onClick={handleViewLicense}
             disabled={loadingLicense}
-            class="mt-3 flex items-center gap-2 py-2 px-3 rounded-lg text-[0.82rem] font-semibold cursor-pointer border border-(--border-subtle) bg-[rgba(var(--accent-rgb),0.1)] text-(--accent) transition-all duration-200 hover:bg-(--accent) hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            class="mt-3 flex items-center gap-2 py-2 px-3 rounded-lg text-[0.82rem] font-semibold cursor-pointer bg-[rgba(var(--accent-rgb),0.1)] text-(--accent) transition-all duration-200 hover:bg-(--accent) hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Icon name="scroll" size={14} />
             {loadingLicense ? "Loading..." : "View License"}

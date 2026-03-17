@@ -71,7 +71,7 @@ export function CpuDetailsPage() {
       </header>
 
       {error && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
+        <div class="bg-[rgba(239,68,68,0.1)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
           Connection lost. Attempting to reconnect...
         </div>
       )}
@@ -124,7 +124,7 @@ export function CpuDetailsPage() {
                 {data.processes.map((proc, idx) => (
                   <div
                     key={idx}
-                    class="flex justify-between items-center p-3 bg-(--bg-secondary) rounded-lg border border-(--border-subtle)"
+                    class="flex justify-between items-center p-3 bg-(--bg-secondary) rounded-lg"
                   >
                     <div class="flex-1">
                       <div class="font-semibold text-(--text-primary) mb-1">

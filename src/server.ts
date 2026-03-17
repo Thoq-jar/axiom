@@ -115,12 +115,26 @@ function getContentType(path: string): string {
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
     gif: "image/gif",
+    webp: "image/webp",
     svg: "image/svg+xml",
     ico: "image/x-icon",
     woff: "font/woff",
     woff2: "font/woff2",
     ttf: "font/ttf",
     eot: "application/vnd.ms-fontobject",
+    mp4: "video/mp4",
+    mkv: "video/x-matroska",
+    webm: "video/webm",
+    avi: "video/x-msvideo",
+    mov: "video/quicktime",
+    m4v: "video/mp4",
+    mp3: "audio/mpeg",
+    flac: "audio/flac",
+    wav: "audio/wav",
+    aac: "audio/aac",
+    ogg: "audio/ogg",
+    m4a: "audio/mp4",
+    opus: "audio/opus",
   };
   return types[ext || ""] || "application/octet-stream";
 }
@@ -264,6 +278,29 @@ function handleShellSocket(req: Request): Response {
   return response;
 }
 
+const AXIOM_DATA_DIR = `${Deno.env.get("HOME") ?? "/tmp"}/.axiom`;
+const METADATA_PATH = `${AXIOM_DATA_DIR}/file-metadata.json`;
+
+async function loadFileMetadata(): Promise<
+  Record<string, { usage: string; fileType: string; uploadedAt: number }>
+> {
+  try {
+    return JSON.parse(await Deno.readTextFile(METADATA_PATH));
+  } catch {
+    return {};
+  }
+}
+
+async function saveFileMetadata(
+  filePath: string,
+  meta: { usage: string; fileType: string; uploadedAt: number },
+): Promise<void> {
+  const all = await loadFileMetadata();
+  all[filePath] = meta;
+  await Deno.mkdir(AXIOM_DATA_DIR, { recursive: true });
+  await Deno.writeTextFile(METADATA_PATH, JSON.stringify(all));
+}
+
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const pathname = url.pathname.endsWith("/") && url.pathname.length > 1
@@ -279,7 +316,7 @@ async function handler(req: Request): Promise<Response> {
   }
 
   if (pathname === "/api/version") {
-    return new Response("v1.0.1");
+    return new Response("v1.0.2");
   }
 
   if (pathname === "/api/containers" && req.method === "GET") {
@@ -535,6 +572,233 @@ async function handler(req: Request): Promise<Response> {
           { status: 500, headers: { "Content-Type": "application/json" } },
         );
       }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/list" && req.method === "GET") {
+    const rawPath = url.searchParams.get("path");
+    const queryPath = rawPath || Deno.env.get("HOME") || "/";
+    try {
+      const entries: Array<{
+        name: string;
+        isDir: boolean;
+        isFile: boolean;
+        size: number;
+        modified: number;
+      }> = [];
+      for await (const entry of Deno.readDir(queryPath)) {
+        try {
+          const stat = await Deno.stat(`${queryPath}/${entry.name}`);
+          entries.push({
+            name: entry.name,
+            isDir: entry.isDirectory,
+            isFile: entry.isFile,
+            size: stat.size,
+            modified: stat.mtime?.getTime() ?? 0,
+          });
+        } catch {
+          entries.push({
+            name: entry.name,
+            isDir: entry.isDirectory,
+            isFile: entry.isFile,
+            size: 0,
+            modified: 0,
+          });
+        }
+      }
+      entries.sort((a, b) => {
+        if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
+      return new Response(JSON.stringify({ path: queryPath, entries }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/read" && req.method === "GET") {
+    const filePath = url.searchParams.get("path");
+    if (!filePath) {
+      return new Response(JSON.stringify({ error: "path required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    try {
+      const content = await Deno.readTextFile(filePath);
+      return new Response(JSON.stringify({ content }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/write" && req.method === "POST") {
+    try {
+      const { path: filePath, content } = await req.json();
+      if (!filePath) {
+        return new Response(JSON.stringify({ error: "path required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      await Deno.writeTextFile(filePath, content);
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/upload" && req.method === "POST") {
+    try {
+      const formData = await req.formData();
+      const file = formData.get("file") as File | null;
+      const destPath = formData.get("path") as string | null;
+      const usage = (formData.get("usage") as string | null) ?? "other";
+      const fileType = (formData.get("fileType") as string | null) ?? "Other";
+      if (!file || !destPath) {
+        return new Response(
+          JSON.stringify({ error: "file and path required" }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const fullPath = `${destPath}/${file.name}`;
+      await Deno.writeFile(fullPath, bytes);
+      await saveFileMetadata(fullPath, {
+        usage,
+        fileType,
+        uploadedAt: Date.now(),
+      });
+      return new Response(JSON.stringify({ success: true, path: fullPath }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/delete" && req.method === "DELETE") {
+    const filePath = url.searchParams.get("path");
+    const isDirectory = url.searchParams.get("dir") === "true";
+    if (!filePath) {
+      return new Response(JSON.stringify({ error: "path required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    try {
+      await Deno.remove(filePath, { recursive: isDirectory });
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/stream" && req.method === "GET") {
+    const filePath = url.searchParams.get("path");
+    if (!filePath) {
+      return new Response(JSON.stringify({ error: "path required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    try {
+      const fileInfo = await Deno.stat(filePath);
+      const fileSize = fileInfo.size;
+      const contentType = getContentType(filePath);
+      const rangeHeader = req.headers.get("range");
+
+      if (rangeHeader) {
+        const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+        if (match) {
+          const start = parseInt(match[1]);
+          const end = match[2] ? parseInt(match[2]) : fileSize - 1;
+          const chunkSize = end - start + 1;
+          const file = await Deno.open(filePath, { read: true });
+          await file.seek(start, Deno.SeekMode.Start);
+          const limitedStream = file.readable.pipeThrough(
+            new TransformStream({
+              transform(chunk, controller) {
+                controller.enqueue(chunk);
+              },
+            }),
+          );
+          return new Response(limitedStream, {
+            status: 206,
+            headers: {
+              "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+              "Accept-Ranges": "bytes",
+              "Content-Length": String(chunkSize),
+              "Content-Type": contentType,
+            },
+          });
+        }
+      }
+
+      const file = await Deno.open(filePath, { read: true });
+      return new Response(file.readable, {
+        headers: {
+          "Content-Type": contentType,
+          "Content-Length": String(fileSize),
+          "Accept-Ranges": "bytes",
+        },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/metadata" && req.method === "GET") {
+    const data = await loadFileMetadata();
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (pathname === "/api/fs/metadata" && req.method === "POST") {
+    try {
+      const { path: filePath, ...meta } = await req.json();
+      if (!filePath) {
+        return new Response(JSON.stringify({ error: "path required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      await saveFileMetadata(filePath, meta);
       return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" },
       });

@@ -50,7 +50,7 @@ export const DetailCard = (
 
   return (
     <div
-      class="rounded-xl p-6 mb-4 opacity-0 translate-y-5 border border-(--ui-border) backdrop-blur-sm  will-change-transform"
+      class="rounded-xl p-6 mb-4 opacity-0 translate-y-5 backdrop-blur-sm will-change-transform"
       style={{
         background: "var(--ui-bg)",
         animation: "fadeSlideIn 0.5s ease forwards",

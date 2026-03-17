@@ -113,7 +113,7 @@ export function OverviewPage() {
           </p>
 
           {error && (
-            <div class="text-[0.8rem] text-(--danger) bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] rounded-lg py-2 px-4 w-full">
+            <div class="text-[0.8rem] text-(--danger) bg-[rgba(239,68,68,0.1)] rounded-lg py-2 px-4 w-full">
               {error}
             </div>
           )}
@@ -121,7 +121,7 @@ export function OverviewPage() {
           {step === "ask" && (
             <div class="flex flex-col gap-2 w-full mt-1">
               <button
-                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-(--accent)-[inherit] transition-all duration-200 w-full bg-[vbg-(--accent)-white hover:brightness-110"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer transition-all duration-200 w-full bg-(--accent) text-white hover:brightness-110"
                 type="button"
                 onClick={tryDeviceLocation}
               >
@@ -129,7 +129,7 @@ export function OverviewPage() {
                 Use device location
               </button>
               <button
-                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-(--accent)-[inherit] transition-all duration-200 w-full bg-(--accent-dim)-[var(--accent)] hover:bg-(--accent)r:text-white"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer transition-all duration-200 w-full bg-(--accent-dim) text-(--accent) hover:bg-(--accent) hover:text-white"
                 type="button"
                 onClick={tryIPGeolocation}
               >
@@ -137,7 +137,7 @@ export function OverviewPage() {
                 Use IP geolocation
               </button>
               <button
-                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-(--border-subtle) font-[inherit] transition-all duration-200 w-full bg-(--bg-secondary) text-(--text-secondary) hover:text-(--text-primary)"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer font-[inherit] transition-all duration-200 w-full bg-(--bg-secondary) text-(--text-secondary) hover:text-(--text-primary)"
                 type="button"
                 onClick={() => setStep("manual")}
               >
@@ -161,7 +161,7 @@ export function OverviewPage() {
               />
               <div class="flex flex-col gap-2 w-full mt-1">
                 <button
-                  class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-(--accent) font-[inherit] transition-all duration-200 w-full bg-(--accent) text-white hover:brightness-110"
+                  class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer font-[inherit] transition-all duration-200 w-full bg-(--accent) text-white hover:brightness-110"
                   type="button"
                   onClick={tryManualEntry}
                 >
@@ -169,7 +169,7 @@ export function OverviewPage() {
                   Find location
                 </button>
                 <button
-                  class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-(--border-subtle) font-[inherit] transition-all duration-200 w-full bg-(--bg-secondary) text-(--text-secondary) hover:text-(--text-primary)"
+                  class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer font-[inherit] transition-all duration-200 w-full bg-(--bg-secondary) text-(--text-secondary) hover:text-(--text-primary)"
                   type="button"
                   onClick={() => {
                     setStep("ask");
@@ -234,7 +234,7 @@ export function OverviewPage() {
         {location && (
           <button
             type="button"
-            class="flex items-center gap-1.5 bg-(--accent-dim) border border-(--accent) text-(--accent) rounded-lg py-1.5 px-3 text-[0.78rem] font-[inherit] cursor-pointer transition-all duration-200 hover:bg-(--accent) hover:text-white"
+            class="flex items-center gap-1.5 bg-(--accent-dim) text-(--accent) rounded-lg py-1.5 px-3 text-[0.78rem] font-[inherit] cursor-pointer transition-all duration-200 hover:bg-(--accent) hover:text-white"
             onClick={() => setShowLocationSetup(true)}
             title="Change location"
           >
@@ -255,14 +255,14 @@ export function OverviewPage() {
         <div class="flex flex-col">
           {location ? <WeatherWidget location={location} /> : (
             <div
-              class="rounded-xl p-8 flex flex-col items-center gap-3 text-(--text-muted) text-center border border-(--ui-border) backdrop-blur-sm  will-change-transform"
+              class="rounded-xl p-8 flex flex-col items-center gap-3 text-(--text-muted) text-center backdrop-blur-sm will-change-transform"
               style={{ background: "var(--ui-bg)" }}
             >
               <Icon name="cloud" size={32} />
               <p class="text-[0.9rem]">No location set</p>
               <button
                 type="button"
-                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer border border-(--accent) font-[inherit] transition-all duration-200 w-full bg-(--accent) text-white hover:brightness-110"
+                class="flex items-center justify-center gap-2.5 py-3 px-5 rounded-[10px] text-[0.95rem] font-semibold cursor-pointer font-[inherit] transition-all duration-200 w-full bg-(--accent) text-white hover:brightness-110"
                 onClick={() => setShowLocationSetup(true)}
               >
                 <Icon name="map-pin" size={15} />

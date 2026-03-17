@@ -14,7 +14,7 @@ function MultiGPUCard({ gpu }: { gpu: GPU }) {
 
   return (
     <div
-      class="gpu-detail-card stat-card rounded-xl p-7 relative border border-(--ui-border) backdrop-blur-sm will-change-transform"
+      class="gpu-detail-card stat-card rounded-xl p-7 relative backdrop-blur-sm will-change-transform"
       style={{ background: "var(--ui-bg)", animation: "fadeSlideIn 0.5s ease" }}
     >
       <div class="flex items-center justify-between mb-6">
@@ -183,7 +183,7 @@ export function MonitorPage() {
       </header>
 
       {error && (
-        <div class="bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
+        <div class="bg-[rgba(239,68,68,0.1)] text-(--danger) py-4 px-5 rounded-lg text-[0.8rem] mb-6">
           Connection lost. Attempting to reconnect...
         </div>
       )}

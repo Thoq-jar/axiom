@@ -161,7 +161,7 @@ function ThemeMakerPane({
         {editingThemeId ? "Edit Custom Theme" : "Create Custom Theme"}
       </div>
 
-      <div class="flex flex-col gap-4 bg-(--ui-bg) border border-(--ui-border) rounded-[10px] p-4">
+      <div class="flex flex-col gap-4 bg-(--ui-bg) rounded-[10px] p-4">
         <div class="flex flex-col gap-1.5">
           <label class="text-[0.7rem] font-semibold uppercase tracking-wide text-(--text-muted)">
             Name
@@ -398,7 +398,7 @@ function ThemeMakerPane({
             {customThemes.map((savedTheme) => (
               <div
                 key={savedTheme.id}
-                class="flex items-center justify-between bg-(--ui-bg) border border-(--ui-border) rounded-lg py-2 px-3 transition-[border-color] duration-150 hover:border-(--border-accent)"
+                class="flex items-center justify-between bg-(--ui-bg) rounded-lg py-2 px-3"
               >
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div
@@ -419,7 +419,7 @@ function ThemeMakerPane({
                 <div class="flex gap-1 shrink-0">
                   <button
                     type="button"
-                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
+                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:text-(--text-primary)"
                     title="Apply"
                     onClick={() => {
                       applyTheme(savedTheme.id);
@@ -430,7 +430,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--border-accent) hover:text-(--text-primary)"
+                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:text-(--text-primary)"
                     title="Edit"
                     onClick={() => handleEdit(savedTheme)}
                   >
@@ -438,7 +438,7 @@ function ThemeMakerPane({
                   </button>
                   <button
                     type="button"
-                    class="flex items-center justify-center w-6.5 h-6.5unded bg-(--bg-card) border border-(--border-subtle) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:border-(--danger) hover:text-(--danger) hover:bg-[rgba(239,68,68,0.08)]"
+                    class="flex items-center justify-center w-6.5 h-6.5 rounded bg-(--bg-card) text-(--text-secondary) cursor-pointer transition-all duration-150 hover:text-(--danger) hover:bg-[rgba(239,68,68,0.08)]"
                     title="Delete"
                     onClick={() => handleDelete(savedTheme.id)}
                   >
@@ -532,7 +532,7 @@ export function SettingsModal() {
         class="bg-(--bg-card) border border-(--border-accent) rounded-2xl w-[92vw] max-w-170 h-[80vh] flex flex-col overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
         style={{ animation: "modalSlideIn 0.25s ease" }}
       >
-        <div class="flex items-center justify-between py-5 px-6 border-b border-(--border-subtle) shrink-0">
+        <div class="flex items-center justify-between py-5 px-6 shrink-0">
           <div class="text-[1.05rem] font-semibold text-(--text-primary) flex items-center gap-2.5">
             <Icon name="settings" size={18} class="text-(--accent)" />
             Settings

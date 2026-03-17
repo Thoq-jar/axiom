@@ -22,7 +22,7 @@ export const StatBlock = ({ icon, label, percentage, detail, targetPage }: {
   const barColor = getBarColor(percentage);
   return (
     <div
-      class="rounded-[10px] py-3 px-4 cursor-pointer border border-(--ui-border) backdrop-blur-sm will-change-transform"
+      class="rounded-[10px] py-3 px-4 cursor-pointer backdrop-blur-sm will-change-transform"
       style={{ background: "var(--ui-bg)" }}
       onClick={() => navigate(targetPage)}
     >
