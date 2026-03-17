@@ -1,5 +1,5 @@
 {
-  "nodeModulesDir": "manual",
+  "nodeModulesDir": "auto",
   "permissions": {
     "default": {
       "net": true,
@@ -33,11 +33,13 @@
     "@tailwindcss/vite": "npm:@tailwindcss/vite@4.2.1",
     "lucide-preact": "npm:lucide-preact@0.577.0",
     "monaco-editor": "npm:monaco-editor@0.52.2",
+    "node-pty": "npm:node-pty@^1.1.0",
     "preact": "npm:preact@10.28.4",
     "@preact/preset-vite": "npm:@preact/preset-vite@2.10.3",
     "tailwindcss": "npm:tailwindcss@4.2.1",
     "vite": "npm:vite@7.3.1",
     "lucide": "npm:lucide@0.453.0",
     "~/": "./"
-  }
+  },
+  "allowScripts": ["npm:esbuild@0.27.3", "npm:fsevents@2.3.3", "npm:node-pty@1.1.0"]
 }

@@ -216,6 +216,54 @@ function handleWebSocket(req: Request): Response {
   return response;
 }
 
+function handleShellSocket(req: Request): Response {
+  const upgrade = req.headers.get("upgrade") || "";
+  if (upgrade.toLowerCase() !== "websocket") {
+    return new Response("Expected WebSocket", { status: 426 });
+  }
+
+  const { socket, response } = Deno.upgradeWebSocket(req);
+
+  socket.onopen = () => {
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+
+    const bridgePath = new URL("./pty_bridge.py", import.meta.url).pathname;
+    const proc = new Deno.Command("python3", {
+      args: [bridgePath],
+      stdin: "piped",
+      stdout: "piped",
+      stderr: "null",
+    }).spawn();
+
+    const writer = proc.stdin.getWriter();
+
+    const pump = (stream: ReadableStream<Uint8Array>) => {
+      const reader = stream.getReader();
+      const read = () =>
+        reader.read().then(({ done, value }) => {
+          if (done) return;
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(decoder.decode(value));
+          }
+          read();
+        }).catch(() => {});
+      read();
+    };
+
+    pump(proc.stdout);
+
+    socket.onmessage = (event) => writer.write(encoder.encode(event.data));
+
+    socket.onclose = () => {
+      writer.close().catch(() => {});
+      proc.kill();
+    };
+  };
+
+  return response;
+}
+
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const pathname = url.pathname.endsWith("/") && url.pathname.length > 1
@@ -224,6 +272,10 @@ async function handler(req: Request): Promise<Response> {
 
   if (pathname === "/ws") {
     return handleWebSocket(req);
+  }
+
+  if (pathname === "/shell") {
+    return handleShellSocket(req);
   }
 
   if (pathname === "/api/version") {
