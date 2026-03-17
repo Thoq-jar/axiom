@@ -85,6 +85,7 @@ const PAGE_ORDER = [
   "memory-details",
   "app-store",
   "about",
+  "terminal",
 ];
 
 function animationsDisabled() {

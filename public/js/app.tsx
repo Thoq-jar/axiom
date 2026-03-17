@@ -14,6 +14,7 @@ import { useToast } from "./hooks/use-toast.ts";
 import { ToastProvider } from "./components/ui/toast.tsx";
 import { Footer } from "./components/footer.tsx";
 import { AboutPage } from "./pages/about-page.tsx";
+import { TerminalPage } from "./pages/terminal-page.tsx";
 
 function App() {
   const WebSocketListener = () => {
@@ -84,6 +85,7 @@ function init(): void {
     "memory-details": () => <MemoryDetailsPage />,
     "app-store": () => <AppStorePage />,
     "about": () => <AboutPage />,
+    "terminal": () => <TerminalPage />,
   };
 
   render(
