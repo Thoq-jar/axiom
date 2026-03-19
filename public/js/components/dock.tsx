@@ -49,6 +49,7 @@ export function Dock() {
       <DockItem page="memory-details" iconName="memory-stick" label="Memory" />
       <DockItem page="app-store" iconName="package" label="Apps" />
       <DockItem page="files" iconName="hard-drive" label="Files" />
+      <DockItem page="storage" iconName="layers" label="Storage" />
       <DockItem page="terminal" iconName="terminal" label="Terminal" />
       <DockItem page="about" iconName="info" label="About" />
     </div>

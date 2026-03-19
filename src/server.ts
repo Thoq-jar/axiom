@@ -1,7 +1,11 @@
 import { start_monitor } from "~/src/monitor.ts";
+import { detectAttachedDisks } from "~/src/disks.ts";
 
 const PORT = 9598;
-const PUBLIC_DIR = `${new URL("../public", import.meta.url).pathname}`;
+const PROD = Deno.env.get("AXIOM_PROD") === "1";
+const PUBLIC_DIR = PROD
+  ? `${new URL("../dist", import.meta.url).pathname}`
+  : `${new URL("../public", import.meta.url).pathname}`;
 
 const globalClients = new Set<WebSocket>();
 
@@ -195,7 +199,6 @@ function handleWebSocket(req: Request): Response {
   };
 
   socket.onopen = () => {
-    console.log("WebSocket client connected");
     startStreaming();
   };
 
@@ -220,7 +223,6 @@ function handleWebSocket(req: Request): Response {
   };
 
   socket.onclose = () => {
-    console.log("WebSocket client disconnected");
     globalClients.delete(socket);
     if (intervalId !== null) {
       clearInterval(intervalId);
@@ -280,6 +282,30 @@ function handleShellSocket(req: Request): Response {
 
 const AXIOM_DATA_DIR = `${Deno.env.get("HOME") ?? "/tmp"}/.axiom`;
 const METADATA_PATH = `${AXIOM_DATA_DIR}/file-metadata.json`;
+const STORAGE_POOLS_PATH = `${AXIOM_DATA_DIR}/storage-pools.json`;
+const FILE_CATEGORIES_PATH = `${AXIOM_DATA_DIR}/file-categories.json`;
+
+interface StoragePool {
+  poolId: string;
+  poolName: string;
+  poolColor: string;
+  assignedDiskPaths: string[];
+  dataCategories: string[];
+  description: string;
+}
+
+async function loadStoragePools(): Promise<StoragePool[]> {
+  try {
+    return JSON.parse(await Deno.readTextFile(STORAGE_POOLS_PATH));
+  } catch {
+    return [];
+  }
+}
+
+async function saveStoragePools(pools: StoragePool[]): Promise<void> {
+  await Deno.mkdir(AXIOM_DATA_DIR, { recursive: true });
+  await Deno.writeTextFile(STORAGE_POOLS_PATH, JSON.stringify(pools));
+}
 
 async function loadFileMetadata(): Promise<
   Record<string, { usage: string; fileType: string; uploadedAt: number }>
@@ -316,7 +342,7 @@ async function handler(req: Request): Promise<Response> {
   }
 
   if (pathname === "/api/version") {
-    return new Response("v1.0.2");
+    return new Response("v1.0.3");
   }
 
   if (pathname === "/api/containers" && req.method === "GET") {
@@ -673,9 +699,10 @@ async function handler(req: Request): Promise<Response> {
 
   if (pathname === "/api/fs/upload" && req.method === "POST") {
     try {
+      const home = Deno.env.get("HOME") ?? "/tmp";
       const formData = await req.formData();
       const file = formData.get("file") as File | null;
-      const destPath = formData.get("path") as string | null;
+      let destPath = formData.get("path") as string | null;
       const usage = (formData.get("usage") as string | null) ?? "other";
       const fileType = (formData.get("fileType") as string | null) ?? "Other";
       if (!file || !destPath) {
@@ -684,6 +711,8 @@ async function handler(req: Request): Promise<Response> {
           { status: 400, headers: { "Content-Type": "application/json" } },
         );
       }
+      if (destPath.startsWith("~/")) destPath = home + destPath.slice(1);
+      await Deno.mkdir(destPath, { recursive: true });
       const bytes = new Uint8Array(await file.arrayBuffer());
       const fullPath = `${destPath}/${file.name}`;
       await Deno.writeFile(fullPath, bytes);
@@ -693,6 +722,52 @@ async function handler(req: Request): Promise<Response> {
         uploadedAt: Date.now(),
       });
       return new Response(JSON.stringify({ success: true, path: fullPath }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/fs/move" && req.method === "POST") {
+    try {
+      const home = Deno.env.get("HOME") ?? "/tmp";
+      let { sourcePath, destinationPath } = await req.json();
+      if (!sourcePath || !destinationPath) {
+        return new Response(
+          JSON.stringify({ error: "sourcePath and destinationPath required" }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (sourcePath.startsWith("~/")) sourcePath = home + sourcePath.slice(1);
+      if (destinationPath.startsWith("~/")) {
+        destinationPath = home + destinationPath.slice(1);
+      }
+      const destinationDirectory = destinationPath.split("/").slice(0, -1)
+        .join("/");
+      if (destinationDirectory) {
+        await Deno.mkdir(destinationDirectory, { recursive: true });
+      }
+      try {
+        await Deno.rename(sourcePath, destinationPath);
+      } catch {
+        await Deno.copyFile(sourcePath, destinationPath);
+        await Deno.remove(sourcePath);
+      }
+      const allFileMetadata = await loadFileMetadata();
+      if (allFileMetadata[sourcePath]) {
+        allFileMetadata[destinationPath] = allFileMetadata[sourcePath];
+        delete allFileMetadata[sourcePath];
+        await Deno.mkdir(AXIOM_DATA_DIR, { recursive: true });
+        await Deno.writeTextFile(
+          METADATA_PATH,
+          JSON.stringify(allFileMetadata),
+        );
+      }
+      return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
@@ -714,6 +789,38 @@ async function handler(req: Request): Promise<Response> {
     }
     try {
       await Deno.remove(filePath, { recursive: isDirectory });
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/file-categories" && req.method === "GET") {
+    try {
+      const content = await Deno.readTextFile(FILE_CATEGORIES_PATH);
+      return new Response(content, {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch {
+      return new Response(JSON.stringify([]), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/file-categories" && req.method === "POST") {
+    try {
+      const categories = await req.json();
+      await Deno.mkdir(AXIOM_DATA_DIR, { recursive: true });
+      await Deno.writeTextFile(
+        FILE_CATEGORIES_PATH,
+        JSON.stringify(categories),
+      );
       return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" },
       });
@@ -799,6 +906,49 @@ async function handler(req: Request): Promise<Response> {
         });
       }
       await saveFileMetadata(filePath, meta);
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/disks" && req.method === "GET") {
+    try {
+      const detectedDisks = await detectAttachedDisks();
+      return new Response(JSON.stringify(detectedDisks), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/storage-pools" && req.method === "GET") {
+    try {
+      const storagePools = await loadStoragePools();
+      return new Response(JSON.stringify(storagePools), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/storage-pools" && req.method === "POST") {
+    try {
+      const storagePools = await req.json() as StoragePool[];
+      await saveStoragePools(storagePools);
       return new Response(JSON.stringify({ success: true }), {
         headers: { "Content-Type": "application/json" },
       });

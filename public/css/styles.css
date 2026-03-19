@@ -36,6 +36,9 @@
   --ui-bg: rgba(22, 22, 24, 1);
   --ui-bg-hover: rgba(26, 26, 29, 1);
   --ui-border: rgba(34, 34, 37, 1);
+  --bg-overlay: rgba(255, 255, 255, 0.03);
+  --bg-overlay-md: rgba(255, 255, 255, 0.04);
+  --bg-overlay-lg: rgba(255, 255, 255, 0.05);
 }
 
 *, *::before, *::after {
@@ -122,10 +125,16 @@ body.dock-compact .dock-item {
   animation: none !important;
   transition: none !important;
 }
+body.no-animations [style*="animation"],
 body.no-animations .stat-card,
 body.no-animations header,
 body.no-animations .dropdown,
 body.no-animations .detail-card,
+body.no-animations .details-grid,
+body.no-animations .about-container,
+body.no-animations .about-title,
+body.no-animations .about-text,
+body.no-animations .about-footer,
 body.no-animations .page-enter-right,
 body.no-animations .page-enter-left {
   opacity: 1 !important;

@@ -16,6 +16,7 @@ import { Footer } from "./components/footer.tsx";
 import { AboutPage } from "./pages/about-page.tsx";
 import { TerminalPage } from "./pages/terminal-page.tsx";
 import { FileBrowserPage } from "./pages/file-browser-page.tsx";
+import { StoragePage } from "./pages/storage-page.tsx";
 
 function App() {
   const WebSocketListener = () => {
@@ -60,11 +61,27 @@ function App() {
 }
 
 function initUIStyle() {
-  const opacity = localStorage.getItem("uiOpacity") || "1";
+  const opacity_ = parseFloat(localStorage.getItem("uiOpacity") || "1");
   const document_ = document.documentElement;
-  document_.style.setProperty("--ui-bg", `rgba(22, 22, 24, ${opacity})`);
-  document_.style.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${opacity})`);
-  document_.style.setProperty("--ui-border", `rgba(34, 34, 37, ${opacity})`);
+  document_.style.setProperty("--ui-bg", `rgba(22, 22, 24, ${opacity_})`);
+  document_.style.setProperty("--ui-bg-hover", `rgba(26, 26, 29, ${opacity_})`);
+  document_.style.setProperty("--ui-border", `rgba(34, 34, 37, ${opacity_})`);
+  document_.style.setProperty(
+    "--bg-overlay",
+    `rgba(255, 255, 255, ${(opacity_ * 0.03).toFixed(3)})`,
+  );
+  document_.style.setProperty(
+    "--bg-overlay-md",
+    `rgba(255, 255, 255, ${(opacity_ * 0.04).toFixed(3)})`,
+  );
+  document_.style.setProperty(
+    "--bg-overlay-lg",
+    `rgba(255, 255, 255, ${(opacity_ * 0.05).toFixed(3)})`,
+  );
+  document_.style.setProperty(
+    "--ui-border-subtle",
+    `rgba(255, 255, 255, ${(opacity_ * 0.06).toFixed(3)})`,
+  );
 }
 
 function init(): void {
@@ -88,6 +105,7 @@ function init(): void {
     "about": () => <AboutPage />,
     "terminal": () => <TerminalPage />,
     "files": () => <FileBrowserPage />,
+    "storage": () => <StoragePage />,
   };
 
   render(

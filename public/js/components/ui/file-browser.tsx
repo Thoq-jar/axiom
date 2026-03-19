@@ -12,6 +12,114 @@ interface FileEntry {
   size: number;
 }
 
+const VIDEO_FILE_EXTENSIONS = new Set([
+  "mp4",
+  "mkv",
+  "webm",
+  "avi",
+  "mov",
+  "m4v",
+  "flv",
+  "wmv",
+]);
+const AUDIO_FILE_EXTENSIONS = new Set([
+  "mp3",
+  "flac",
+  "wav",
+  "aac",
+  "ogg",
+  "m4a",
+  "opus",
+]);
+
+function getFileExtension(filename: string): string {
+  return filename.split(".").pop()?.toLowerCase() ?? "";
+}
+
+function guessFileCategory(filename: string): string {
+  if (filename.startsWith(".") && !filename.slice(1).includes(".")) {
+    return "Code";
+  }
+  const extension = getFileExtension(filename);
+  if (VIDEO_FILE_EXTENSIONS.has(extension)) return "Video";
+  if (AUDIO_FILE_EXTENSIONS.has(extension)) return "Audio";
+  if (
+    ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "ico", "tiff"].includes(
+      extension,
+    )
+  ) return "Image";
+  if (
+    ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "rtf"].includes(
+      extension,
+    )
+  ) return "Document";
+  if (
+    ["zip", "tar", "gz", "bz2", "xz", "7z", "rar", "tgz"].includes(extension)
+  ) return "Archive";
+  if (
+    [
+      "js",
+      "ts",
+      "tsx",
+      "jsx",
+      "py",
+      "go",
+      "rs",
+      "c",
+      "cpp",
+      "h",
+      "java",
+      "rb",
+      "php",
+      "sh",
+      "bash",
+      "zsh",
+      "yaml",
+      "yml",
+      "json",
+      "toml",
+      "xml",
+      "html",
+      "css",
+      "scss",
+      "sql",
+      "md",
+      "lua",
+      "swift",
+      "kt",
+      "env",
+      "conf",
+      "ini",
+      "cfg",
+    ].includes(extension)
+  ) return "Code";
+  if (["csv", "tsv", "sqlite", "db", "parquet"].includes(extension)) {
+    return "Data";
+  }
+  return "Other";
+}
+
+function getCategoryBadgeColor(category: string): string {
+  switch (category) {
+    case "Video":
+      return "bg-[rgba(139,92,246,0.15)] text-[#a78bfa]";
+    case "Audio":
+      return "bg-[rgba(236,72,153,0.15)] text-[#f472b6]";
+    case "Image":
+      return "bg-[rgba(34,197,94,0.15)] text-[#4ade80]";
+    case "Document":
+      return "bg-[rgba(59,130,246,0.15)] text-[#60a5fa]";
+    case "Archive":
+      return "bg-[rgba(234,179,8,0.15)] text-[#fbbf24]";
+    case "Code":
+      return "bg-[rgba(99,102,241,0.15)] text-[#818cf8]";
+    case "Data":
+      return "bg-[rgba(20,184,166,0.15)] text-[#2dd4bf]";
+    default:
+      return "bg-[rgba(113,113,122,0.15)] text-[#a1a1aa]";
+  }
+}
+
 interface FileBrowserProps {
   containerId: string;
   onClose: () => void;
@@ -296,6 +404,18 @@ export function FileBrowser({ containerId, onClose }: FileBrowserProps) {
                           {entry.name}
                           {entry.isLink ? " →" : ""}
                         </span>
+                        {!entry.isDir && (() => {
+                          const fileCategory = guessFileCategory(entry.name);
+                          return (
+                            <span
+                              class={`text-[0.62rem] font-semibold px-1.5 py-0.5 rounded uppercase shrink-0 ${
+                                getCategoryBadgeColor(fileCategory)
+                              }`}
+                            >
+                              {fileCategory}
+                            </span>
+                          );
+                        })()}
                         <span class="text-[0.75rem] text-(--text-muted) tabular-nums shrink-0 w-12 text-right">
                           {entry.isDir ? "" : formatSize(entry.size)}
                         </span>

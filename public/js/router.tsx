@@ -85,6 +85,7 @@ const PAGE_ORDER = [
   "memory-details",
   "app-store",
   "files",
+  "storage",
   "terminal",
   "about",
 ];
@@ -105,15 +106,15 @@ export function RouterOutlet() {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (clearRef.current) clearTimeout(clearRef.current);
 
-    const fromIdx = PAGE_ORDER.indexOf(displayPage);
-    const toIdx = PAGE_ORDER.indexOf(currentPage);
-    const forward = toIdx >= fromIdx;
-
     if (animationsDisabled()) {
       setDisplayPage(currentPage);
       setAnimClass("");
       return;
     }
+
+    const fromIdx = PAGE_ORDER.indexOf(displayPage);
+    const toIdx = PAGE_ORDER.indexOf(currentPage);
+    const forward = toIdx >= fromIdx;
 
     setAnimClass(forward ? "page-exit-left" : "page-exit-right");
     timerRef.current = setTimeout(() => {
@@ -134,7 +135,7 @@ export function RouterOutlet() {
 
   return (
     <div class={animClass || undefined}>
-      {CurrentComponent()}
+      <CurrentComponent key={displayPage} />
     </div>
   );
 }

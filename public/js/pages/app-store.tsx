@@ -196,6 +196,7 @@ export function AppStorePage() {
             <div
               key={app.id}
               class="rounded-xl p-5 cursor-pointer flex gap-4 backdrop-blur-sm will-change-transform"
+              style={{ background: "var(--ui-bg)" }}
               onClick={() =>
                 isInstalled ? setSelectedApp(app) : installApp(app)}
             >

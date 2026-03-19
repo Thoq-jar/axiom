@@ -306,6 +306,7 @@ function SidebarBtn(
   },
 ) {
   const [isFileDragOver, setIsFileDragOver] = useState(false);
+  const [confirmingDelete, setConfirmingDeleteCategory] = useState(false);
 
   return (
     <div
@@ -357,13 +358,39 @@ function SidebarBtn(
         {label}
       </button>
       {onDelete && (
-        <button
-          type="button"
-          class="opacity-0 group-hover:opacity-100 bg-transparent border-none text-(--text-muted) hover:text-danger cursor-pointer px-1 py-1 transition-all leading-none shrink-0"
-          onClick={onDelete}
-        >
-          <Icon name="x" size={12} />
-        </button>
+        confirmingDelete
+          ? (
+            <div class="flex items-center gap-0.5 shrink-0">
+              <button
+                type="button"
+                class="text-[0.6rem] font-semibold px-1 py-0.5 rounded cursor-pointer font-[inherit] border-none leading-none"
+                style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}
+                onClick={() => {
+                  setConfirmingDeleteCategory(false);
+                  onDelete();
+                }}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                class="text-[0.6rem] px-1 py-0.5 rounded cursor-pointer font-[inherit] border-none leading-none text-(--text-muted)"
+                style={{ background: "var(--ui-bg)" }}
+                onClick={() => setConfirmingDeleteCategory(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          )
+          : (
+            <button
+              type="button"
+              class="opacity-0 group-hover:opacity-100 bg-transparent border-none text-(--text-muted) hover:text-danger cursor-pointer px-1 py-1 transition-all leading-none shrink-0"
+              onClick={() => setConfirmingDeleteCategory(true)}
+            >
+              <Icon name="x" size={12} />
+            </button>
+          )
       )}
     </div>
   );
@@ -613,9 +640,10 @@ function VideoPlayer(
 }
 
 function UploadModal(
-  { destinationPath, customCategories, onClose, onDone }: {
+  { destinationPath, customCategories, resolveDirectory, onClose, onDone }: {
     destinationPath: string;
     customCategories: string[];
+    resolveDirectory: (category: string) => string | null;
     onClose: () => void;
     onDone: () => void;
   },
@@ -647,9 +675,11 @@ function UploadModal(
       ),
     );
     for (const uploadItem of uploadFiles) {
+      const resolvedPath = resolveDirectory(uploadItem.usage) ??
+        destinationPath;
       const formData = new FormData();
       formData.append("file", uploadItem.file);
-      formData.append("path", destinationPath);
+      formData.append("path", resolvedPath);
       formData.append("fileType", uploadItem.fileType);
       formData.append("usage", uploadItem.usage);
       try {
@@ -704,7 +734,7 @@ function UploadModal(
                 <div
                   key={index}
                   class="flex items-center gap-3 rounded-lg px-4 py-3"
-                  style={{ background: "rgba(255,255,255,0.04)" }}
+                  style={{ background: "var(--ui-bg)" }}
                 >
                   <Icon
                     name={typeIcon(uploadItem.fileType)}
@@ -721,7 +751,7 @@ function UploadModal(
                     {formatSize(uploadItem.file.size)}
                   </span>
                   <select
-                    class="text-[0.78rem] bg-(--bg-card) rounded-md px-2 py-1 text-(--text-primary) cursor-pointer"
+                    class="text-[0.78rem] bg-(--ui-bg) rounded-md px-2 py-1 text-(--text-primary) cursor-pointer"
                     value={uploadItem.fileType}
                     onChange={(event) =>
                       setUploadFiles((previous) =>
@@ -744,7 +774,7 @@ function UploadModal(
                     ))}
                   </select>
                   <select
-                    class="text-[0.78rem] bg-(--bg-card) rounded-md px-2 py-1 text-(--text-primary) cursor-pointer"
+                    class="text-[0.78rem] bg-(--ui-bg) rounded-md px-2 py-1 text-(--text-primary) cursor-pointer"
                     value={uploadItem.usage}
                     onChange={(event) =>
                       setUploadFiles((previous) =>
@@ -891,7 +921,7 @@ function FileViewer(
       class="max-w-225!"
     >
       <div class="flex flex-col" style={{ height: "560px" }}>
-        <div class="flex items-center justify-between px-4 py-2 shrink-0 bg-(--bg-secondary)">
+        <div class="flex items-center justify-between px-4 py-2 shrink-0 bg-(--ui-bg)">
           <span
             class="text-[0.75rem] text-(--text-muted) font-mono truncate max-w-[60%]"
             title={filePath}
@@ -921,12 +951,12 @@ function FileViewer(
         </div>
         <div class="flex-1 min-h-0 relative">
           {loading && (
-            <div class="absolute inset-0 flex items-center justify-center text-(--text-muted) text-sm gap-2 bg-(--bg-card)">
+            <div class="absolute inset-0 flex items-center justify-center text-(--text-muted) text-sm gap-2 bg-(--ui-bg)">
               <Icon name="loader" size={14} class="animate-spin" /> Loading…
             </div>
           )}
           {error && (
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-(--bg-card)">
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-(--ui-bg)">
               <Icon name="alert-circle" size={20} class="text-danger" />
               <span class="text-[0.85rem] text-danger">{error}</span>
             </div>
@@ -983,6 +1013,21 @@ export function FileBrowserPage() {
       return [];
     }
   });
+
+  useEffect(() => {
+    fetch("/api/file-categories")
+      .then((response) => response.json())
+      .then((serverCategories: string[]) => {
+        if (Array.isArray(serverCategories) && serverCategories.length > 0) {
+          setCustomCategories(serverCategories);
+          localStorage.setItem(
+            "axiom-file-categories",
+            JSON.stringify(serverCategories),
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [addingCategory, setAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const newCategoryInputRef = useRef<HTMLInputElement>(null);
@@ -994,6 +1039,33 @@ export function FileBrowserPage() {
   );
 
   const { addToast } = useToast();
+
+  const [storagePools, setStoragePools] = useState<
+    Array<
+      {
+        poolName: string;
+        dataCategories: string[];
+        assignedDiskPaths: string[];
+      }
+    >
+  >([]);
+
+  useEffect(() => {
+    fetch("/api/storage-pools")
+      .then((response) => response.json())
+      .then((data) => {
+        if (Array.isArray(data)) setStoragePools(data);
+      })
+      .catch(() => {});
+  }, []);
+  const [moveProgress, setMoveProgress] = useState<
+    {
+      total: number;
+      completed: number;
+      currentFileName: string;
+    } | null
+  >(null);
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
 
   const navigate = (targetPath: string) => {
     setLoading(true);
@@ -1061,6 +1133,11 @@ export function FileBrowserPage() {
   const saveCustomCategories = (updated: string[]) => {
     setCustomCategories(updated);
     localStorage.setItem("axiom-file-categories", JSON.stringify(updated));
+    fetch("/api/file-categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated),
+    }).catch(() => {});
   };
 
   const commitNewCategory = () => {
@@ -1099,6 +1176,160 @@ export function FileBrowserPage() {
       addToast("Failed to assign category", "error");
     }
   };
+
+  function resolveDirectoryForCategory(categoryName: string): string | null {
+    const matchingPool = storagePools.find((pool) =>
+      pool.dataCategories.includes(categoryName) &&
+      pool.assignedDiskPaths.length > 0
+    );
+    if (matchingPool) {
+      const diskPath = matchingPool.assignedDiskPaths[0];
+      const isRawDevice = diskPath.startsWith("/dev/");
+      if (isRawDevice) {
+        const safeName = (matchingPool.poolName || "pool").replace(
+          /[^a-zA-Z0-9_-]/g,
+          "_",
+        );
+        return `~/.axiom/pools/${safeName}/${categoryName}`;
+      }
+      return `${diskPath}/${categoryName}`;
+    }
+    return null;
+  }
+
+  function fileHasPendingMove(entry: FsEntry): boolean {
+    if (entry.isDir) return false;
+    const fullPath = currentPath === "/"
+      ? `/${entry.name}`
+      : `${currentPath}/${entry.name}`;
+    const usage = metadata[fullPath]?.usage;
+    if (!usage) return false;
+    const destinationFolder = resolveDirectoryForCategory(usage);
+    if (!destinationFolder) return false;
+    const expectedPath = `${destinationFolder}/${entry.name}`;
+    if (fullPath === expectedPath) return false;
+    const isInPoolDir = storagePools.some((pool) => {
+      const safeName = (pool.poolName || "pool").replace(
+        /[^a-zA-Z0-9_-]/g,
+        "_",
+      );
+      return fullPath.startsWith(`~/.axiom/pools/${safeName}/`) ||
+        fullPath.includes(`/.axiom/pools/${safeName}/`);
+    });
+    return isInPoolDir;
+  }
+
+  async function moveSingleFile(
+    sourcePath: string,
+    destinationFolder: string,
+  ): Promise<string | null> {
+    const fileName = sourcePath.split("/").pop() ?? "";
+    const destinationPath = `${destinationFolder}/${fileName}`;
+    try {
+      const response = await fetch("/api/fs/move", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sourcePath, destinationPath }),
+      });
+      const result = await response.json();
+      if (result.success === true) return null;
+      return result.error ?? "Unknown error";
+    } catch (error) {
+      return String(error);
+    }
+  }
+
+  async function moveSingleFileFromRow(sourcePath: string, usage: string) {
+    const resolvedDir = resolveDirectoryForCategory(usage);
+    if (!resolvedDir) {
+      addToast(
+        `No pool assigned for category "${usage}" — assign this category to a storage pool first`,
+        "error",
+      );
+      return;
+    }
+    const fileName = sourcePath.split("/").pop() ?? "";
+    setMoveProgress({ total: 1, completed: 0, currentFileName: fileName });
+    const error = await moveSingleFile(sourcePath, resolvedDir);
+    setMoveProgress(null);
+    if (error === null) {
+      addToast("Synced to pool", "success");
+      navigate(currentPath);
+      loadMetadata();
+    } else {
+      addToast(`Sync failed: ${error}`, "error");
+    }
+  }
+
+  async function movePendingFilesInView() {
+    const filesToSync = entries.filter(
+      (entry) => fileHasPendingMove(entry),
+    );
+    if (filesToSync.length === 0) return;
+    let completedCount = 0;
+    const errors: string[] = [];
+    setMoveProgress({
+      total: filesToSync.length,
+      completed: 0,
+      currentFileName: "",
+    });
+    for (const entry of filesToSync) {
+      const fullPath = getFullPath(entry.name);
+      const usage = metadata[fullPath]?.usage;
+      const resolvedDir = usage ? resolveDirectoryForCategory(usage) : null;
+      if (!usage || !resolvedDir) continue;
+      setMoveProgress({
+        total: filesToSync.length,
+        completed: completedCount,
+        currentFileName: entry.name,
+      });
+      const error = await moveSingleFile(fullPath, resolvedDir);
+      if (error === null) {
+        completedCount++;
+      } else {
+        errors.push(`${entry.name}: ${error}`);
+      }
+    }
+    setMoveProgress(null);
+    if (errors.length > 0) {
+      addToast(
+        `Synced ${completedCount} of ${filesToSync.length}. Errors: ${
+          errors[0]
+        }${errors.length > 1 ? ` (+${errors.length - 1} more)` : ""}`,
+        "error",
+      );
+    } else {
+      addToast(
+        `Synced ${completedCount} of ${filesToSync.length} file${
+          filesToSync.length !== 1 ? "s" : ""
+        } to pool`,
+        "success",
+      );
+    }
+    navigate(currentPath);
+    loadMetadata();
+  }
+
+  async function deleteEntry(entryPath: string, isDir: boolean) {
+    try {
+      const response = await fetch(
+        `/api/fs/delete?path=${encodeURIComponent(entryPath)}&dir=${isDir}`,
+        { method: "DELETE" },
+      );
+      const result = await response.json();
+      if (result.success) {
+        addToast(`Deleted ${isDir ? "directory" : "file"}`, "success");
+        navigate(currentPath);
+        loadMetadata();
+      } else {
+        addToast(result.error ?? "Delete failed", "error");
+      }
+    } catch {
+      addToast("Delete failed", "error");
+    } finally {
+      setConfirmingDelete(null);
+    }
+  }
 
   const handleDragStart = (index: number) => setDragIndex(index);
   const handleDragOver = (index: number) => setDragOverIndex(index);
@@ -1174,7 +1405,7 @@ export function FileBrowserPage() {
   const rowHover = (element: HTMLElement, isDir: boolean) => {
     element.style.background = isDir
       ? "rgba(var(--accent-rgb,139,92,246),0.06)"
-      : "rgba(255,255,255,0.04)";
+      : "var(--ui-bg)";
   };
 
   return (
@@ -1200,19 +1431,24 @@ export function FileBrowserPage() {
 
       <div class="flex gap-6">
         <div class="w-44 shrink-0 flex flex-col gap-0.5">
-          {BUILTIN_CATEGORIES.map((category) => (
-            <SidebarBtn
-              key={category.value}
-              icon={category.icon}
-              label={category.label}
-              active={activeCategory === category.value}
-              onClick={() => setActiveCategory(category.value)}
-              onFileDrop={category.value !== "all" &&
-                  category.value !== "system"
-                ? (filePath) => assignCategoryToFile(filePath, category.value)
-                : undefined}
-            />
-          ))}
+          {BUILTIN_CATEGORIES.map((category) => {
+            const isConfigurable = category.value !== "all" &&
+              category.value !== "system";
+            return (
+              <div key={category.value}>
+                <SidebarBtn
+                  icon={category.icon}
+                  label={category.label}
+                  active={activeCategory === category.value}
+                  onClick={() => setActiveCategory(category.value)}
+                  onFileDrop={isConfigurable
+                    ? (filePath) =>
+                      assignCategoryToFile(filePath, category.value)
+                    : undefined}
+                />
+              </div>
+            );
+          })}
 
           <div class="mt-3 pt-3">
             <p class="text-[0.68rem] text-(--text-muted) uppercase tracking-wider px-3 mb-1 font-semibold">
@@ -1319,7 +1555,7 @@ export function FileBrowserPage() {
           <div class="flex items-center gap-3 mb-4">
             <div
               class="flex-1 min-w-0 flex items-center gap-1 rounded-lg px-3 py-1.5 overflow-hidden backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.04)" }}
+              style={{ background: "var(--ui-bg)" }}
             >
               <Icon
                 name="folder"
@@ -1388,7 +1624,7 @@ export function FileBrowserPage() {
 
             <div
               class="flex items-center rounded-lg px-2 py-1.5 gap-1 backdrop-blur-sm shrink-0"
-              style={{ background: "rgba(255,255,255,0.04)" }}
+              style={{ background: "var(--ui-bg)" }}
             >
               <Icon name="search" size={13} class="text-(--text-muted)" />
               <input
@@ -1411,7 +1647,7 @@ export function FileBrowserPage() {
 
             <div
               class="flex items-center gap-0 rounded-lg px-1 py-0.5 shrink-0 backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.04)" }}
+              style={{ background: "var(--ui-bg)" }}
             >
               {(["name", "size", "modified", "type"] as SortKey[]).map((
                 key,
@@ -1429,7 +1665,7 @@ export function FileBrowserPage() {
 
             <div
               class="flex items-center rounded-lg overflow-hidden shrink-0 backdrop-blur-sm"
-              style={{ background: "rgba(255,255,255,0.04)" }}
+              style={{ background: "var(--ui-bg)" }}
             >
               {(["list", "icons"] as ViewMode[]).map((mode) => (
                 <button
@@ -1468,14 +1704,88 @@ export function FileBrowserPage() {
 
           <div
             class="rounded-xl overflow-hidden backdrop-blur-sm"
-            style={{ background: "rgba(255,255,255,0.03)" }}
+            style={{ background: "var(--ui-bg)" }}
           >
+            {storagePools.length === 0 && (
+              <div
+                class="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(234,179,8,0.2)]"
+                style={{ background: "rgba(234,179,8,0.06)" }}
+              >
+                <div class="flex flex-col gap-0.5">
+                  <span
+                    class="text-[0.7rem] font-semibold uppercase tracking-wider"
+                    style={{ color: "#fbbf24" }}
+                  >
+                    No Storage Pools
+                  </span>
+                  <span class="text-[0.72rem] text-(--text-muted)">
+                    Create a pool in Storage to organize files by category
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="text-[0.75rem] font-semibold px-3 py-1 rounded-lg cursor-pointer font-[inherit] transition-all duration-200 border-none"
+                  style={{
+                    background: "rgba(234,179,8,0.15)",
+                    color: "#fbbf24",
+                  }}
+                  onClick={() => {
+                    globalThis.location.hash = "storage";
+                  }}
+                >
+                  Go to Storage
+                </button>
+              </div>
+            )}
+            {(() => {
+              const readyToSyncCount =
+                entries.filter(fileHasPendingMove).length;
+              if (readyToSyncCount === 0) return null;
+              return (
+                <div
+                  class="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(34,197,94,0.2)]"
+                  style={{ background: "rgba(34,197,94,0.06)" }}
+                >
+                  <div class="flex flex-col gap-0.5">
+                    <span
+                      class="text-[0.7rem] font-semibold uppercase tracking-wider"
+                      style={{ color: "#4ade80" }}
+                    >
+                      Pool Sync
+                    </span>
+                    <div class="flex items-center gap-3 text-[0.78rem]">
+                      <span
+                        class="flex items-center gap-1.5"
+                        style={{ color: "#4ade80" }}
+                      >
+                        <Icon name="move-right" size={13} />
+                        {readyToSyncCount} ready
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      class="text-[0.75rem] font-semibold px-3 py-1 rounded-lg cursor-pointer font-[inherit] transition-all duration-200 border-none"
+                      style={{
+                        background: "rgba(34,197,94,0.15)",
+                        color: "#4ade80",
+                      }}
+                      onClick={movePendingFilesInView}
+                    >
+                      Sync All
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+
             {viewMode === "list" && (
               <div
                 class="grid items-center px-4 py-2"
                 style={{
                   gridTemplateColumns: "28px 1fr 80px 96px 88px 80px",
-                  background: "rgba(255,255,255,0.04)",
+                  background: "var(--ui-bg)",
                 }}
               >
                 <div />
@@ -1567,7 +1877,7 @@ export function FileBrowserPage() {
                     return (
                       <div
                         key={entry.name}
-                        class={`grid items-center px-4 py-2.5 transition-all duration-150 ${
+                        class={`group grid items-center px-4 py-2.5 transition-all duration-150 ${
                           openable || entry.isDir
                             ? "cursor-pointer"
                             : "cursor-default"
@@ -1634,19 +1944,84 @@ export function FileBrowserPage() {
                             </span>
                           )}
                         </div>
-                        <div class="flex justify-center">
+                        <div class="flex justify-center items-center gap-1">
                           {usage && !entry.isDir && (
                             <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded uppercase bg-(--accent-dim) text-(--accent)">
                               {usage}
                             </span>
                           )}
+                          {fileHasPendingMove(entry) && (() => {
+                            return (
+                              <button
+                                type="button"
+                                class="text-[0.62rem] font-semibold px-1.5 py-0.5 rounded cursor-pointer font-[inherit] transition-all duration-200 border-none leading-none"
+                                style={{
+                                  background: "rgba(34,197,94,0.15)",
+                                  color: "#4ade80",
+                                }}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  moveSingleFileFromRow(fullPath, usage);
+                                }}
+                              >
+                                Sync to pool
+                              </button>
+                            );
+                          })()}
                         </div>
                         <span class="text-[0.72rem] text-(--text-muted) tabular-nums text-right">
                           {entry.modified ? formatDate(entry.modified) : "—"}
                         </span>
-                        <span class="text-[0.72rem] text-(--text-muted) tabular-nums text-right">
-                          {entry.isDir ? "" : formatSize(entry.size)}
-                        </span>
+                        <div class="flex items-center justify-end gap-1">
+                          {confirmingDelete === fullPath
+                            ? (
+                              <>
+                                <button
+                                  type="button"
+                                  class="text-[0.62rem] font-semibold px-1.5 py-0.5 rounded cursor-pointer font-[inherit] border-none leading-none"
+                                  style={{
+                                    background: "rgba(239,68,68,0.15)",
+                                    color: "#f87171",
+                                  }}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    deleteEntry(fullPath, entry.isDir);
+                                  }}
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  type="button"
+                                  class="text-[0.62rem] font-semibold px-1.5 py-0.5 rounded cursor-pointer font-[inherit] border-none leading-none text-(--text-muted)"
+                                  style={{ background: "var(--ui-bg)" }}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setConfirmingDelete(null);
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )
+                            : (
+                              <>
+                                <span class="text-[0.72rem] text-(--text-muted) tabular-nums">
+                                  {entry.isDir ? "" : formatSize(entry.size)}
+                                </span>
+                                <button
+                                  type="button"
+                                  class="opacity-0 group-hover:opacity-100 bg-transparent border-none cursor-pointer px-1 py-1 transition-all leading-none shrink-0 text-(--text-muted) hover:text-danger"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setConfirmingDelete(fullPath);
+                                  }}
+                                  title={`Delete ${entry.name}`}
+                                >
+                                  <Icon name="trash-2" size={12} />
+                                </button>
+                              </>
+                            )}
+                        </div>
                       </div>
                     );
                   })}
@@ -1665,7 +2040,7 @@ export function FileBrowserPage() {
                     <div
                       class="flex flex-col items-center gap-2 p-3 rounded-xl cursor-pointer transition-all duration-150"
                       style={{
-                        "--hover-bg": "rgba(255,255,255,0.04)",
+                        "--hover-bg": "var(--ui-bg)",
                       } as Record<string, string>}
                       onMouseEnter={(event) => {
                         (event.currentTarget as HTMLElement).style.background =
@@ -1679,7 +2054,7 @@ export function FileBrowserPage() {
                     >
                       <div
                         class="w-14 h-14 flex items-center justify-center rounded-xl"
-                        style={{ background: "rgba(255,255,255,0.05)" }}
+                        style={{ background: "var(--ui-bg)" }}
                       >
                         <Icon
                           name="arrow-left"
@@ -1707,7 +2082,7 @@ export function FileBrowserPage() {
                     return (
                       <div
                         key={entry.name}
-                        class={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-150 ${
+                        class={`group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-150 ${
                           openable || entry.isDir
                             ? "cursor-pointer"
                             : "cursor-default"
@@ -1725,7 +2100,7 @@ export function FileBrowserPage() {
                             (event.currentTarget as HTMLElement).style
                               .background = entry.isDir
                                 ? "rgba(var(--accent-rgb,139,92,246),0.06)"
-                                : "rgba(255,255,255,0.04)";
+                                : "var(--ui-bg)";
                           }
                         }}
                         onMouseLeave={(event) => {
@@ -1744,7 +2119,7 @@ export function FileBrowserPage() {
                               ? "rgba(var(--accent-rgb,139,92,246),0.12)"
                               : isDotfile
                               ? "rgba(var(--accent-rgb,139,92,246),0.1)"
-                              : "rgba(255,255,255,0.05)",
+                              : "var(--ui-bg)",
                           }}
                         >
                           <Icon
@@ -1782,6 +2157,56 @@ export function FileBrowserPage() {
                             {fileType}
                           </span>
                         )}
+                        {confirmingDelete === fullPath
+                          ? (
+                            <div
+                              class="absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-1.5 z-10"
+                              style={{ background: "rgba(0,0,0,0.75)" }}
+                              onClick={(event) => event.stopPropagation()}
+                            >
+                              <span class="text-[0.65rem] text-white font-semibold">
+                                Delete?
+                              </span>
+                              <div class="flex gap-1">
+                                <button
+                                  type="button"
+                                  class="text-[0.6rem] font-semibold px-2 py-0.5 rounded cursor-pointer font-[inherit] border-none"
+                                  style={{
+                                    background: "rgba(239,68,68,0.8)",
+                                    color: "white",
+                                  }}
+                                  onClick={() =>
+                                    deleteEntry(fullPath, entry.isDir)}
+                                >
+                                  Delete
+                                </button>
+                                <button
+                                  type="button"
+                                  class="text-[0.6rem] px-2 py-0.5 rounded cursor-pointer font-[inherit] border-none text-white"
+                                  style={{
+                                    background: "rgba(255,255,255,0.15)",
+                                  }}
+                                  onClick={() => setConfirmingDelete(null)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )
+                          : (
+                            <button
+                              type="button"
+                              class="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 bg-transparent border-none cursor-pointer p-1 rounded-lg transition-all text-(--text-muted) hover:text-danger"
+                              style={{ background: "var(--ui-bg)" }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setConfirmingDelete(fullPath);
+                              }}
+                              title={`Delete ${entry.name}`}
+                            >
+                              <Icon name="trash-2" size={11} />
+                            </button>
+                          )}
                       </div>
                     );
                   })}
@@ -1796,6 +2221,7 @@ export function FileBrowserPage() {
         <UploadModal
           destinationPath={currentPath}
           customCategories={customCategories}
+          resolveDirectory={resolveDirectoryForCategory}
           onClose={() => setShowUpload(false)}
           onDone={() => {
             setShowUpload(false);
@@ -1803,6 +2229,54 @@ export function FileBrowserPage() {
             loadMetadata();
           }}
         />
+      )}
+
+      {moveProgress && (
+        <div
+          class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 rounded-2xl px-6 py-4 flex flex-col gap-2.5 shadow-xl backdrop-blur-sm"
+          style={{ background: "var(--ui-bg)", minWidth: "17rem" }}
+        >
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+              <div
+                class="w-4 h-4 border-2 border-t-transparent rounded-full shrink-0"
+                style={{
+                  borderColor: "#4ade80",
+                  borderTopColor: "transparent",
+                  animation: "spin 0.7s linear infinite",
+                }}
+              />
+              <span class="text-[0.85rem] font-semibold text-(--text-primary)">
+                Syncing to pool
+              </span>
+            </div>
+            <span class="text-[0.75rem] text-(--text-muted) tabular-nums">
+              {moveProgress.completed}/{moveProgress.total}
+            </span>
+          </div>
+          {moveProgress.currentFileName && (
+            <p
+              class="text-[0.72rem] text-(--text-muted) truncate"
+              style={{ maxWidth: "14rem" }}
+            >
+              {moveProgress.currentFileName}
+            </p>
+          )}
+          <div
+            class="w-full h-1 rounded-full overflow-hidden"
+            style={{ background: "var(--ui-bg)" }}
+          >
+            <div
+              class="h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${
+                  (moveProgress.completed / moveProgress.total) * 100
+                }%`,
+                background: "#4ade80",
+              }}
+            />
+          </div>
+        </div>
       )}
 
       {viewingFilePath && mediaMode === "audio" && (

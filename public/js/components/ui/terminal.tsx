@@ -238,7 +238,11 @@ export const Terminal = ({ wsUrl = "/shell" }: TerminalProps) => {
 
   return (
     <div
-      className="bg-black/40 backdrop-blur-xl p-4 font-mono shadow-xl w-full h-full border border-white/5 rounded-lg overflow-y-auto cursor-text outline-none"
+      className="backdrop-blur-xl p-4 font-mono shadow-xl w-full h-full rounded-lg overflow-y-auto cursor-text outline-none"
+      style={{
+        background: "var(--ui-bg)",
+        border: "1px solid var(--ui-border)",
+      }}
       ref={scrollRef}
       tabIndex={0}
       onKeyDown={handleKeyDown}

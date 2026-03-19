@@ -223,7 +223,7 @@ function ThemeMakerPane({
                   ? "None"
                   : type === "color"
                   ? "Color"
-                  : "Image URL"}
+                  : "Image"}
               </button>
             ))}
           </div>
@@ -461,6 +461,9 @@ export function SettingsModal() {
   const [currentTheme, setCurrentTheme] = useState(
     localStorage.getItem("theme") || "violet",
   );
+  const [customThemeList, setCustomThemeList] = useState<CustomTheme[]>(
+    loadCustomThemes,
+  );
   const [refreshInterval, setRefreshInterval] = useState(
     parseInt(localStorage.getItem("refreshInterval") || "2000", 10),
   );
@@ -506,6 +509,22 @@ export function SettingsModal() {
     setCSSVar("--ui-bg", `rgba(22, 22, 24, ${val})`);
     setCSSVar("--ui-bg-hover", `rgba(26, 26, 29, ${val})`);
     setCSSVar("--ui-border", `rgba(34, 34, 37, ${val})`);
+    setCSSVar(
+      "--bg-overlay",
+      `rgba(255, 255, 255, ${(val * 0.03).toFixed(3)})`,
+    );
+    setCSSVar(
+      "--bg-overlay-md",
+      `rgba(255, 255, 255, ${(val * 0.04).toFixed(3)})`,
+    );
+    setCSSVar(
+      "--bg-overlay-lg",
+      `rgba(255, 255, 255, ${(val * 0.05).toFixed(3)})`,
+    );
+    setCSSVar(
+      "--ui-border-subtle",
+      `rgba(255, 255, 255, ${(val * 0.06).toFixed(3)})`,
+    );
   };
 
   const handleRefreshChange = (e: Event) => {
@@ -569,7 +588,7 @@ export function SettingsModal() {
             {activeCategory === "appearance" && (
               <div class="flex flex-col gap-4">
                 <div class="text-[0.7rem] font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
-                  Accent Color
+                  Theme
                 </div>
                 <div class="grid grid-cols-5 gap-3">
                   {themes.map(({ id, label }) => (
@@ -592,9 +611,63 @@ export function SettingsModal() {
               </div>
             )}
 
+            {activeCategory === "appearance" && customThemeList.length > 0 && (
+              <div class="flex flex-col gap-4">
+                <div class="text-[0.7rem] mt-5 font-semibold uppercase tracking-widest text-(--text-muted) mb-1">
+                  Custom
+                </div>
+                <div class="flex flex-col gap-1">
+                  {customThemeList.map((theme) => (
+                    <div
+                      key={theme.id}
+                      class={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                        theme.id === currentTheme
+                          ? "bg-(--accent-dim) text-(--accent)"
+                          : "text-(--text-secondary) hover:text-(--text-primary)"
+                      }`}
+                      style={theme.id === currentTheme
+                        ? {}
+                        : { background: "var(--bg-overlay-md)" }}
+                      onClick={() => {
+                        setCurrentTheme(theme.id);
+                        applyTheme(theme.id);
+                      }}
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div
+                          class="w-4 h-4 rounded-full shrink-0"
+                          style={{ background: theme.accent }}
+                        />
+                        <span class="text-[0.83rem]">{theme.label}</span>
+                      </div>
+                      <button
+                        type="button"
+                        class="opacity-0 group-hover:opacity-100 bg-transparent border-none cursor-pointer p-1 text-(--text-muted) hover:text-danger transition-all leading-none"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          deleteCustomTheme(theme.id);
+                          const updated = loadCustomThemes();
+                          setCustomThemeList(updated);
+                          if (currentTheme === theme.id) {
+                            setCurrentTheme("violet");
+                            applyTheme("violet");
+                          }
+                        }}
+                      >
+                        <Icon name="trash-2" size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {activeCategory === "theme-maker" && (
               <ThemeMakerPane
-                onThemeApplied={(themeId) => setCurrentTheme(themeId)}
+                onThemeApplied={(themeId) => {
+                  setCurrentTheme(themeId);
+                  setCustomThemeList(loadCustomThemes());
+                }}
               />
             )}
 

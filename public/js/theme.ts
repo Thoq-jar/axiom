@@ -19,7 +19,7 @@ export const themeList: { id: string; label: string }[] = [
   { id: "cyan", label: "Cyan" },
   { id: "emerald", label: "Emerald" },
   { id: "rose", label: "Rose" },
-  { id: "femboy", label: "Pink" },
+  { id: "femboy", label: "Femboy" },
   { id: "livid", label: "Livid" },
   { id: "orange", label: "Orange" },
   { id: "amber", label: "Amber" },

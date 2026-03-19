@@ -39,15 +39,8 @@ const serverProcess = new Deno.Command(Deno.execPath(), {
   args: ["run", "-P", "src/main.ts"],
   stdout: "inherit",
   stderr: "inherit",
-});
-
-const vitePreviewProcess = new Deno.Command(Deno.execPath(), {
-  args: ["task", "preview"],
-  stdout: "inherit",
-  stderr: "inherit",
+  env: { ...Deno.env.toObject(), AXIOM_PROD: "1" },
 });
 
 const server = serverProcess.spawn();
-const vitePreview = vitePreviewProcess.spawn();
-
-await Promise.all([server.status, vitePreview.status]);
+await server.status;

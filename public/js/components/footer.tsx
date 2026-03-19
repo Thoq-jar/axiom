@@ -36,21 +36,14 @@ export const Footer = () => {
 
   return (
     <footer class="fixed bottom-0 left-0 right-0 py-2 px-8 bg-[rgba(10,10,11,0.88)] backdrop-blur-md flex items-center justify-between z-1500 text-[0.72rem]">
-      <div class="flex items-center gap-3">
-        <div
-          class={`status-dot w-2 h-2 rounded-full relative ${
-            connected ? "bg-(--success)" : "status-dot-off"
-          }`}
-        />
-        <div class="text-xs text-(--text-secondary)">
-          {connected
-            ? (
-              <>
-                Updated <span class="text-(--text-muted)">{lastUpdate}</span>
-              </>
-            )
-            : "Disconnected"}
-        </div>
+      <div class="text-xs text-(--text-secondary)">
+        {connected
+          ? (
+            <>
+              Updated <span class="text-(--text-muted)">{lastUpdate}</span>
+            </>
+          )
+          : "Disconnected"}
       </div>
       <div class="flex items-center gap-2">
         <div class="text-[0.65rem] text-(--text-muted) tracking-wide">
