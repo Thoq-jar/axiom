@@ -3,7 +3,7 @@
 set -eu pipefail
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
@@ -18,6 +18,43 @@ fi
 check_dep() {
     $1 --version
     echo $?
+}
+
+setup_letsencrypt() {
+    read -rp "Enter your domain (e.g. axiom.example.com) or leave blank to skip HTTPS: " DOMAIN
+
+    if [ -z "$DOMAIN" ]; then
+        echo "Skipping HTTPS setup. Axiom will run on HTTP."
+        return
+    fi
+
+    read -rp "Enter your email for Let's Encrypt notifications: " EMAIL
+
+    apt-get install -y certbot
+
+    mkdir -p /opt/axiom/public/.well-known/acme-challenge
+
+    certbot certonly --webroot --non-interactive --agree-tos \
+        --webroot-path /opt/axiom/public \
+        --email "$EMAIL" \
+        -d "$DOMAIN"
+
+    chmod 0755 /etc/letsencrypt/live /etc/letsencrypt/archive
+    chgrp -R axiom /etc/letsencrypt/live/"$DOMAIN" /etc/letsencrypt/archive/"$DOMAIN"
+    chmod 0640 /etc/letsencrypt/archive/"$DOMAIN"/privkey*.pem
+
+    mkdir -p /etc/axiom
+    echo "AXIOM_DOMAIN=$DOMAIN" > /etc/axiom/env
+
+    cat > /etc/letsencrypt/renewal-hooks/deploy/axiom-restart <<'HOOK'
+#!/bin/bash
+systemctl restart axiom
+HOOK
+    chmod +x /etc/letsencrypt/renewal-hooks/deploy/axiom-restart
+
+    systemctl enable --now certbot.timer 2>/dev/null || true
+
+    echo "HTTPS configured for $DOMAIN"
 }
 
 install_service() {
@@ -56,15 +93,9 @@ install_debian() {
     fi
     chown -R axiom:axiom /opt/axiom
 
+    setup_letsencrypt
     install_service
 }
-
-# TODO: add this
-# install_generic() {
-# if [ check_dep "deno" -ne "0" ]; then
-#     echo "Please install deno via: 'curl -fsSL https://deno.land/install.sh | sh' or by visiting https://deno.land"
-# fi
-# }
 
 if [ $DEBIAN -eq 1 ]; then
     install_debian

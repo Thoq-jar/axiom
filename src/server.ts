@@ -2,7 +2,12 @@ import { start_monitor } from "~/src/monitor.ts";
 import { detectAttachedDisks } from "~/src/disks.ts";
 
 const PORT = 9598;
+const HTTPS_PORT = 443;
+const HTTP_PORT = 80;
 const PROD = Deno.env.get("AXIOM_PROD") === "1";
+const AXIOM_DOMAIN = Deno.env.get("AXIOM_DOMAIN") ?? "";
+const TLS_CERT = `/etc/letsencrypt/live/${AXIOM_DOMAIN}/fullchain.pem`;
+const TLS_KEY = `/etc/letsencrypt/live/${AXIOM_DOMAIN}/privkey.pem`;
 const PUBLIC_DIR = PROD
   ? `${new URL("../dist", import.meta.url).pathname}`
   : `${new URL("../public", import.meta.url).pathname}`;
@@ -985,7 +990,38 @@ async function handler(req: Request): Promise<Response> {
   return new Response("Not Found", { status: 404 });
 }
 
+function hasTlsCerts(): boolean {
+  if (!AXIOM_DOMAIN) return false;
+  try {
+    Deno.statSync(TLS_CERT);
+    Deno.statSync(TLS_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function httpRedirectHandler(req: Request): Response {
+  const url = new URL(req.url);
+  return new Response(null, {
+    status: 301,
+    headers: {
+      Location: `https://${AXIOM_DOMAIN}${url.pathname}${url.search}`,
+    },
+  });
+}
+
 export function startServer(port: number = PORT) {
-  console.log(`Server running at http://localhost:${port}`);
-  Deno.serve({ port }, handler);
+  if (PROD && hasTlsCerts()) {
+    console.log(`Server running at https://${AXIOM_DOMAIN}`);
+    Deno.serve({
+      port: HTTPS_PORT,
+      cert: Deno.readTextFileSync(TLS_CERT),
+      key: Deno.readTextFileSync(TLS_KEY),
+    }, handler);
+    Deno.serve({ port: HTTP_PORT }, httpRedirectHandler);
+  } else {
+    console.log(`Server running at http://localhost:${port}`);
+    Deno.serve({ port }, handler);
+  }
 }

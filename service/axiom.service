@@ -9,6 +9,7 @@ SupplementaryGroups=docker
 WorkingDirectory=/opt/axiom
 ExecStart=/opt/deno/bin/deno task start:prod
 Environment=DENO_DIR=/opt/axiom/.deno-cache
+EnvironmentFile=-/etc/axiom/env
 Restart=on-failure
 RestartSec=5
 
