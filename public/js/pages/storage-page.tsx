@@ -324,20 +324,20 @@ function PoolEditorModal({
   );
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
-  const fileBrowserCustomCategories: string[] = (() => {
-    try {
-      const parsed = JSON.parse(
-        localStorage.getItem("axiom-file-categories") ?? "[]",
-      );
-      return Array.isArray(parsed)
-        ? parsed.filter(
-          (name: string) => !SUGGESTED_CATEGORIES.includes(name),
-        )
-        : [];
-    } catch {
-      return [];
-    }
-  })();
+  const [fileBrowserCustomCategories, setFileBrowserCustomCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/file-categories")
+      .then((response) => response.json())
+      .then((categories: string[]) => {
+        if (Array.isArray(categories)) {
+          setFileBrowserCustomCategories(
+            categories.filter((name) => !SUGGESTED_CATEGORIES.includes(name))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const otherPoolAssignedPaths = allPools
     .filter(

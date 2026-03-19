@@ -1006,24 +1006,14 @@ export function FileBrowserPage() {
   const [pathInputValue, setPathInputValue] = useState("");
   const pathInputRef = useRef<HTMLInputElement>(null);
 
-  const [customCategories, setCustomCategories] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("axiom-file-categories") ?? "[]");
-    } catch {
-      return [];
-    }
-  });
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
 
   useEffect(() => {
     fetch("/api/file-categories")
       .then((response) => response.json())
       .then((serverCategories: string[]) => {
-        if (Array.isArray(serverCategories) && serverCategories.length > 0) {
+        if (Array.isArray(serverCategories)) {
           setCustomCategories(serverCategories);
-          localStorage.setItem(
-            "axiom-file-categories",
-            JSON.stringify(serverCategories),
-          );
         }
       })
       .catch(() => {});
@@ -1049,6 +1039,15 @@ export function FileBrowserPage() {
       }
     >
   >([]);
+
+  const [homeDir, setHomeDir] = useState("/tmp");
+
+  useEffect(() => {
+    fetch("/api/home")
+      .then((response) => response.json())
+      .then((data) => { if (data.home) setHomeDir(data.home); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/storage-pools")
@@ -1132,7 +1131,6 @@ export function FileBrowserPage() {
 
   const saveCustomCategories = (updated: string[]) => {
     setCustomCategories(updated);
-    localStorage.setItem("axiom-file-categories", JSON.stringify(updated));
     fetch("/api/file-categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1190,11 +1188,27 @@ export function FileBrowserPage() {
           /[^a-zA-Z0-9_-]/g,
           "_",
         );
-        return `~/.axiom/pools/${safeName}/${categoryName}`;
+        return `${homeDir}/.axiom/pools/${safeName}/${categoryName}`;
       }
       return `${diskPath}/${categoryName}`;
     }
     return null;
+  }
+
+  async function selectCategory(category: string) {
+    setActiveCategory(category);
+    if (category !== "all" && category !== "system" && category !== "other") {
+      const poolDir = resolveDirectoryForCategory(category);
+      if (poolDir) {
+        await fetch("/api/fs/mkdir", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: poolDir }),
+        }).catch(() => {});
+        navigate(poolDir);
+        return;
+      }
+    }
   }
 
   function fileHasPendingMove(entry: FsEntry): boolean {
@@ -1213,8 +1227,7 @@ export function FileBrowserPage() {
         /[^a-zA-Z0-9_-]/g,
         "_",
       );
-      return fullPath.startsWith(`~/.axiom/pools/${safeName}/`) ||
-        fullPath.includes(`/.axiom/pools/${safeName}/`);
+      return fullPath.startsWith(`${homeDir}/.axiom/pools/${safeName}/`);
     });
     return isInPoolDir;
   }
@@ -1363,6 +1376,20 @@ export function FileBrowserPage() {
     }
   };
 
+  const builtinValues = BUILTIN_CATEGORIES.map((category) => category.value.toLowerCase());
+  const poolNames = storagePools.map((pool) => pool.poolName);
+  const poolCategories = storagePools.flatMap((pool) => pool.dataCategories);
+  const mergedCategories = new Set(customCategories);
+  for (const category of poolCategories) {
+    if (
+      !builtinValues.includes(category.toLowerCase()) &&
+      !poolNames.includes(category)
+    ) {
+      mergedCategories.add(category);
+    }
+  }
+  const allCustomCategories = [...mergedCategories];
+
   const filtered = entries.filter((entry) => {
     const isDotfile = entry.name.startsWith(".");
     if (searchQuery) {
@@ -1440,7 +1467,7 @@ export function FileBrowserPage() {
                   icon={category.icon}
                   label={category.label}
                   active={activeCategory === category.value}
-                  onClick={() => setActiveCategory(category.value)}
+                  onClick={() => selectCategory(category.value)}
                   onFileDrop={isConfigurable
                     ? (filePath) =>
                       assignCategoryToFile(filePath, category.value)
@@ -1455,7 +1482,7 @@ export function FileBrowserPage() {
               Custom
             </p>
 
-            {customCategories.map((name, index) => (
+            {allCustomCategories.map((name, index) => (
               <div
                 key={name}
                 draggable
@@ -1477,7 +1504,7 @@ export function FileBrowserPage() {
                   icon="tag"
                   label={name}
                   active={activeCategory === name}
-                  onClick={() => setActiveCategory(name)}
+                  onClick={() => selectCategory(name)}
                   onDelete={() => deleteCustomCategory(name)}
                   onFileDrop={(filePath) =>
                     assignCategoryToFile(filePath, name)}
@@ -2220,7 +2247,7 @@ export function FileBrowserPage() {
       {showUpload && (
         <UploadModal
           destinationPath={currentPath}
-          customCategories={customCategories}
+          customCategories={allCustomCategories}
           resolveDirectory={resolveDirectoryForCategory}
           onClose={() => setShowUpload(false)}
           onDone={() => {

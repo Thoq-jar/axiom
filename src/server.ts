@@ -2,12 +2,10 @@ import { start_monitor } from "~/src/monitor.ts";
 import { detectAttachedDisks } from "~/src/disks.ts";
 
 const PORT = 9598;
-const HTTPS_PORT = 443;
-const HTTP_PORT = 80;
 const PROD = Deno.env.get("AXIOM_PROD") === "1";
 const AXIOM_DOMAIN = Deno.env.get("AXIOM_DOMAIN") ?? "";
-const TLS_CERT = `/etc/letsencrypt/live/${AXIOM_DOMAIN}/fullchain.pem`;
-const TLS_KEY = `/etc/letsencrypt/live/${AXIOM_DOMAIN}/privkey.pem`;
+const TLS_CERT = Deno.env.get("AXIOM_TLS_CERT") ?? "";
+const TLS_KEY = Deno.env.get("AXIOM_TLS_KEY") ?? "";
 const PUBLIC_DIR = PROD
   ? `${new URL("../dist", import.meta.url).pathname}`
   : `${new URL("../public", import.meta.url).pathname}`;
@@ -614,9 +612,41 @@ async function handler(req: Request): Promise<Response> {
     }
   }
 
+  if (pathname === "/api/fs/mkdir" && req.method === "POST") {
+    try {
+      const home = Deno.env.get("HOME") ?? "/tmp";
+      let { path: dirPath } = await req.json();
+      if (!dirPath) {
+        return new Response(JSON.stringify({ error: "path required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (dirPath.startsWith("~/")) dirPath = home + dirPath.slice(1);
+      await Deno.mkdir(dirPath, { recursive: true });
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: String(error) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  if (pathname === "/api/home" && req.method === "GET") {
+    const home = Deno.env.get("HOME") ?? "/tmp";
+    return new Response(JSON.stringify({ home }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   if (pathname === "/api/fs/list" && req.method === "GET") {
+    const home = Deno.env.get("HOME") ?? "/tmp";
     const rawPath = url.searchParams.get("path");
-    const queryPath = rawPath || Deno.env.get("HOME") || "/";
+    let queryPath = rawPath || home || "/";
+    if (queryPath.startsWith("~/")) queryPath = home + queryPath.slice(1);
     try {
       const entries: Array<{
         name: string;
@@ -991,7 +1021,7 @@ async function handler(req: Request): Promise<Response> {
 }
 
 function hasTlsCerts(): boolean {
-  if (!AXIOM_DOMAIN) return false;
+  if (!TLS_CERT || !TLS_KEY) return false;
   try {
     Deno.statSync(TLS_CERT);
     Deno.statSync(TLS_KEY);
@@ -1001,25 +1031,16 @@ function hasTlsCerts(): boolean {
   }
 }
 
-function httpRedirectHandler(req: Request): Response {
-  const url = new URL(req.url);
-  return new Response(null, {
-    status: 301,
-    headers: {
-      Location: `https://${AXIOM_DOMAIN}${url.pathname}${url.search}`,
-    },
-  });
-}
 
 export function startServer(port: number = PORT) {
   if (PROD && hasTlsCerts()) {
-    console.log(`Server running at https://${AXIOM_DOMAIN}`);
+    const label = AXIOM_DOMAIN || "LAN";
+    console.log(`Server running at https://${label}:${port}`);
     Deno.serve({
-      port: HTTPS_PORT,
+      port,
       cert: Deno.readTextFileSync(TLS_CERT),
       key: Deno.readTextFileSync(TLS_KEY),
     }, handler);
-    Deno.serve({ port: HTTP_PORT }, httpRedirectHandler);
   } else {
     console.log(`Server running at http://localhost:${port}`);
     Deno.serve({ port }, handler);
