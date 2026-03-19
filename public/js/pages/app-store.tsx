@@ -231,7 +231,7 @@ export function AppStorePage() {
                       : "Install"}
                   </span>
                 </div>
-                <p class="app-card-desc text-[0.8rem] text-(--text-secondary) leading-snug">
+                <p class="line-clamp-2 text-[0.8rem] text-(--text-secondary) leading-snug">
                   {app.description}
                 </p>
                 {isInstalled && (

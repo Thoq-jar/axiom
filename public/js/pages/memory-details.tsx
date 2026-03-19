@@ -169,7 +169,7 @@ export function MemoryDetailsPage() {
                           }}
                         />
                       </div>
-                      <div class="chart-bar-label text-[0.65rem] text-(--text-muted)">
+                      <div class="[writing-mode:vertical-rl] [text-orientation:mixed] text-[0.65rem] text-(--text-muted)">
                         {value.toFixed(0)}%
                       </div>
                     </div>

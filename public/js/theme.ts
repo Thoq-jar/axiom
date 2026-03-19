@@ -136,7 +136,7 @@ function applyBackground(
   let overlay = document.querySelector(".theme-bg-overlay") as HTMLElement;
   if (!overlay) {
     overlay = document.createElement("div");
-    overlay.className = "theme-bg-overlay";
+    overlay.className = "fixed inset-0 z-0 pointer-events-none";
     document.body.insertBefore(overlay, document.body.firstChild);
   }
 
