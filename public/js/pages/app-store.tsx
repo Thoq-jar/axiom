@@ -45,6 +45,13 @@ export function AppStorePage() {
   const [loading, setLoading] = useState(true);
   const [dockerError, setDockerError] = useState<string | null>(null);
   const [installingId, setInstallingId] = useState<string | null>(null);
+  const [installProgress, setInstallProgress] = useState<
+    {
+      step: number;
+      total: number;
+      step_name: string;
+    } | null
+  >(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<AppShipment | null>(null);
   const [showFileBrowser, setShowFileBrowser] = useState(false);
@@ -81,6 +88,24 @@ export function AppStorePage() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const onProgress = (event: Event) => {
+      const { step, total, step_name } = (event as CustomEvent).detail;
+      setInstallProgress({ step, total, step_name });
+    };
+    const onFinished = () => {
+      setInstallingId(null);
+      setInstallProgress(null);
+      fetchData();
+    };
+    globalThis.addEventListener("installProgress", onProgress);
+    globalThis.addEventListener("installFinished", onFinished);
+    return () => {
+      globalThis.removeEventListener("installProgress", onProgress);
+      globalThis.removeEventListener("installFinished", onFinished);
+    };
+  }, []);
+
   const getContainer = (app: AppShipment): Container | undefined => {
     return containers.find((container) => {
       const appName = app.name.toLowerCase().replace(/\s+/g, "-");
@@ -99,7 +124,7 @@ export function AppStorePage() {
       return;
     }
     setInstallingId(app.id);
-    addToast(`Installing ${app.name}...`, "info");
+    setInstallProgress(null);
     try {
       const res = await fetch("/api/install", {
         method: "POST",
@@ -109,13 +134,10 @@ export function AppStorePage() {
       if (!res.ok) {
         const err = await res.json();
         addToast(err.error || `Failed to install ${app.name}`, "error");
-        return;
+        setInstallingId(null);
       }
-      addToast(`${app.name} installation started`, "success");
-      setTimeout(fetchData, 2000);
     } catch {
       addToast(`Failed to install ${app.name}`, "error");
-    } finally {
       setInstallingId(null);
     }
   };
@@ -192,17 +214,28 @@ export function AppStorePage() {
           const container = getContainer(app);
           const isInstalled = !!container;
           const isRunning = container?.state === "running";
+          const isInstalling = installingId === app.id;
+          const progress = isInstalling && installProgress
+            ? Math.round(
+              ((installProgress.step + 1) / installProgress.total) * 100,
+            )
+            : isInstalling
+            ? 0
+            : null;
           return (
             <div
               key={app.id}
               class="rounded-xl p-5 cursor-pointer flex gap-4 backdrop-blur-sm will-change-transform"
               style={{ background: "var(--ui-bg)" }}
               onClick={() =>
-                isInstalled ? setSelectedApp(app) : installApp(app)}
+                !isInstalling &&
+                (isInstalled ? setSelectedApp(app) : installApp(app))}
             >
               <div
                 class={`w-12 h-12 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  isInstalled
+                  isInstalling
+                    ? "bg-(--accent-dim) text-(--accent)"
+                    : isInstalled
                     ? "bg-(--accent-dim) text-(--accent)"
                     : "bg-(--ui-bg) text-(--text-primary)"
                 }`}
@@ -219,26 +252,48 @@ export function AppStorePage() {
                   </h3>
                   <span
                     class={`text-[0.7rem] font-semibold py-1 px-2 rounded-md uppercase whitespace-nowrap ${
-                      isInstalled
+                      isInstalling
+                        ? "bg-(--accent-dim) text-(--accent)"
+                        : isInstalled
                         ? isRunning
                           ? "bg-[rgba(34,197,94,0.15)] text-success"
                           : "bg-[rgba(239,68,68,0.15)] text-danger"
                         : "bg-(--accent-dim) text-(--accent)"
                     }`}
                   >
-                    {isInstalled
+                    {isInstalling
+                      ? "Installing"
+                      : isInstalled
                       ? (isRunning ? "Running" : "Stopped")
                       : "Install"}
                   </span>
                 </div>
-                <p class="line-clamp-2 text-[0.8rem] text-(--text-secondary) leading-snug">
-                  {app.description}
-                </p>
-                {isInstalled && (
-                  <div class="mt-2 text-xs text-(--text-muted)">
-                    {container.name}
-                  </div>
-                )}
+                {isInstalling
+                  ? (
+                    <div class="flex flex-col gap-1.5">
+                      <p class="text-[0.78rem] text-(--accent) leading-snug truncate">
+                        {installProgress?.step_name ?? "Starting..."}
+                      </p>
+                      <div class="w-full h-1 rounded-full bg-(--ui-border) overflow-hidden">
+                        <div
+                          class="h-full rounded-full bg-(--accent) transition-all duration-500"
+                          style={{ width: `${progress ?? 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                  : (
+                    <>
+                      <p class="line-clamp-2 text-[0.8rem] text-(--text-secondary) leading-snug">
+                        {app.description}
+                      </p>
+                      {isInstalled && (
+                        <div class="mt-2 text-xs text-(--text-muted)">
+                          {container.name}
+                        </div>
+                      )}
+                    </>
+                  )}
               </div>
             </div>
           );

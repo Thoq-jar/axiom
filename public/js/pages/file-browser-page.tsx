@@ -311,17 +311,17 @@ function SidebarBtn(
   return (
     <div
       class="group flex items-center gap-0"
-      onDragOver={(e) => {
+      onDragOver={(event) => {
         if (onFileDrop) {
-          e.preventDefault();
+          event.preventDefault();
           setIsFileDragOver(true);
         }
       }}
       onDragLeave={() => setIsFileDragOver(false)}
-      onDrop={(e) => {
-        e.preventDefault();
+      onDrop={(event) => {
+        event.preventDefault();
         setIsFileDragOver(false);
-        const path = e.dataTransfer?.getData("text/plain");
+        const path = event.dataTransfer?.getData("text/plain");
         if (path && onFileDrop) onFileDrop(path);
       }}
     >
@@ -340,15 +340,15 @@ function SidebarBtn(
           : active
           ? { background: "rgba(var(--accent-rgb,139,92,246),0.12)" }
           : undefined}
-        onMouseEnter={(e) => {
+        onMouseEnter={(event) => {
           if (!active && !isFileDragOver) {
-            (e.currentTarget as HTMLElement).style.background =
+            (event.currentTarget as HTMLElement).style.background =
               "rgba(var(--accent-rgb,139,92,246),0.06)";
           }
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={(event) => {
           if (!active && !isFileDragOver) {
-            (e.currentTarget as HTMLElement)
+            (event.currentTarget as HTMLElement)
               .style.background = "transparent";
           }
         }}
@@ -1045,7 +1045,9 @@ export function FileBrowserPage() {
   useEffect(() => {
     fetch("/api/home")
       .then((response) => response.json())
-      .then((data) => { if (data.home) setHomeDir(data.home); })
+      .then((data) => {
+        if (data.home) setHomeDir(data.home);
+      })
       .catch(() => {});
   }, []);
 
@@ -1376,7 +1378,9 @@ export function FileBrowserPage() {
     }
   };
 
-  const builtinValues = BUILTIN_CATEGORIES.map((category) => category.value.toLowerCase());
+  const builtinValues = BUILTIN_CATEGORIES.map((category) =>
+    category.value.toLowerCase()
+  );
   const poolNames = storagePools.map((pool) => pool.poolName);
   const poolCategories = storagePools.flatMap((pool) => pool.dataCategories);
   const mergedCategories = new Set(customCategories);

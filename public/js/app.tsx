@@ -34,7 +34,19 @@ function App() {
         try {
           const data = JSON.parse(event.data);
           if (data.type === "installation_finished") {
-            addToastRef.current("Installation finished!", "success");
+            addToastRef.current(`${data.name || "App"} installed!`, "success");
+            globalThis.dispatchEvent(
+              new CustomEvent("installFinished", { detail: data }),
+            );
+          } else if (data.type === "installation_progress") {
+            globalThis.dispatchEvent(
+              new CustomEvent("installProgress", { detail: data }),
+            );
+          } else if (data.type === "installation_error") {
+            addToastRef.current("Installation failed", "error");
+            globalThis.dispatchEvent(
+              new CustomEvent("installFinished", { detail: data }),
+            );
           }
         } catch (error) {
           console.error("WS error", error);

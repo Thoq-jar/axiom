@@ -158,6 +158,57 @@ export const start_monitor = async () => {
           continue;
         }
       }
+
+      const amdgpuTopPaths = [
+        "amdgpu_top",
+        "/usr/bin/amdgpu_top",
+        "/usr/local/bin/amdgpu_top",
+      ];
+
+      for (const amdgpuTopPath of amdgpuTopPaths) {
+        try {
+          const command = new Deno.Command(amdgpuTopPath, {
+            args: ["-J", "-s", "500", "-n", "1"],
+            stdout: "piped",
+            stderr: "piped",
+          });
+          const { stdout, success } = await command.output();
+
+          if (success) {
+            const output = new TextDecoder().decode(stdout).trim();
+            if (output) {
+              const data = JSON.parse(output);
+              const devices = data?.devices;
+              if (Array.isArray(devices) && devices.length > 0) {
+                const gpus = devices.map((dev, idx) => {
+                  const name = dev?.Info?.DeviceName || "AMD GPU";
+                  const utilization = dev?.gpu_activity?.GFX?.value ?? 0;
+                  const memory_used = dev?.VRAM?.["Total VRAM Usage"]?.value ??
+                    0;
+                  const memory_total = dev?.VRAM?.["Total VRAM"]?.value ?? 0;
+                  const temperature =
+                    dev?.Sensors?.["Edge Temperature"]?.value ??
+                      dev?.Sensors?.["Junction Temperature"]?.value ?? null;
+                  return {
+                    id: idx,
+                    name,
+                    utilization,
+                    memory_used,
+                    memory_total,
+                    temperature,
+                  };
+                });
+
+                if (gpus.length > 0) {
+                  return gpus;
+                }
+              }
+            }
+          }
+        } catch {
+          continue;
+        }
+      }
     }
 
     if (isMac) {

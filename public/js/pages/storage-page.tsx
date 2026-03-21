@@ -324,7 +324,8 @@ function PoolEditorModal({
   );
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
-  const [fileBrowserCustomCategories, setFileBrowserCustomCategories] = useState<string[]>([]);
+  const [fileBrowserCustomCategories, setFileBrowserCustomCategories] =
+    useState<string[]>([]);
 
   useEffect(() => {
     fetch("/api/file-categories")
@@ -332,7 +333,7 @@ function PoolEditorModal({
       .then((categories: string[]) => {
         if (Array.isArray(categories)) {
           setFileBrowserCustomCategories(
-            categories.filter((name) => !SUGGESTED_CATEGORIES.includes(name))
+            categories.filter((name) => !SUGGESTED_CATEGORIES.includes(name)),
           );
         }
       })

@@ -52,7 +52,6 @@ body {
   position: relative;
 }
 
-
 .dock {
   animation: dockSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -285,7 +284,6 @@ body.no-animations .page-enter-left {
 input[type="radio"] {
   accent-color: var(--accent);
 }
-
 
 .page-enter-right {
   animation: pageEnterRight 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
